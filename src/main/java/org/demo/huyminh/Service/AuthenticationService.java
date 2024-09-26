@@ -31,6 +31,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -78,29 +79,47 @@ public class AuthenticationService {
                 .build();
     }
 
-    @SneakyThrows
-    public LoginResponse authenticate(LoginRequest request) {
-        var user =  userRepository.findByUsername(request.getUsername())
+    public LoginResponse authenticate(LoginRequest request) throws ParseException {
+        var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
-
-        if(!authenticated) {
+        if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
         var token = generateToken(user, VALID_DURATION);
         var refreshToken = generateToken(user, REFRESHABLE_DURATION);
 
-        // Save refresh token to Database
-        RefreshToken refreshTokenEntity = RefreshToken.builder()
-                .token(SignedJWT.parse(token).getJWTClaimsSet().getJWTID())
-                .refreshToken(SignedJWT.parse(refreshToken).getJWTClaimsSet().getJWTID())
-                .user(user)
-                .tokenExpiryTime(SignedJWT.parse(token).getJWTClaimsSet().getExpirationTime())
-                .refreshTokenExpiryTime(SignedJWT.parse(refreshToken).getJWTClaimsSet().getExpirationTime())
-                .build();
+        String tokenId = SignedJWT.parse(token).getJWTClaimsSet().getJWTID();
+        String refreshTokenId = SignedJWT.parse(refreshToken).getJWTClaimsSet().getJWTID();
+
+        // Tìm RefreshToken hiện có cho user
+        Optional<RefreshToken> existingTokenOpt = refreshTokenRepository.findByUserId(user.getId());
+
+        RefreshToken refreshTokenEntity;
+        Date tokenExpiryTime = SignedJWT.parse(token).getJWTClaimsSet().getExpirationTime();
+        Date refreshTokenExpiryTime = SignedJWT.parse(refreshToken).getJWTClaimsSet().getExpirationTime();
+
+        if (existingTokenOpt.isPresent()) {
+
+            refreshTokenEntity = existingTokenOpt.get();
+            refreshTokenEntity.setToken(tokenId);
+            refreshTokenEntity.setRefreshToken(refreshTokenId);
+            refreshTokenEntity.setTokenExpiryTime(tokenExpiryTime);
+            refreshTokenEntity.setRefreshTokenExpiryTime(refreshTokenExpiryTime);
+        } else {
+
+            refreshTokenEntity = RefreshToken.builder()
+                    .token(tokenId)
+                    .refreshToken(refreshTokenId)
+                    .user(user)
+                    .tokenExpiryTime(tokenExpiryTime)
+                    .refreshTokenExpiryTime(refreshTokenExpiryTime)
+                    .build();
+        }
+
         refreshTokenRepository.save(refreshTokenEntity);
 
         return LoginResponse.builder()

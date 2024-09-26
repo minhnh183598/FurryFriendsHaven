@@ -1,10 +1,11 @@
 package org.demo.huyminh.Repository;
 
 import org.demo.huyminh.Entity.RefreshToken;
+import org.demo.huyminh.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @author Minh
@@ -21,4 +22,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Stri
     Date getTokenExpiryTime(String refreshToken);
 
     boolean existsByRefreshToken(String refreshTokenId);
+
+    Optional<RefreshToken> findByUserId(String id);
 }

@@ -12,7 +12,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-    show-sql: true
+    show-sql: false
+  main:
+    banner-mode: off
 
 jwt:
   signerKey: "tAP7OqwVvg3eWAB0/SNQyk/OmS3159XCWNgaLKjBlOKEVYF3pzb6GhbYWEcQnGwp"

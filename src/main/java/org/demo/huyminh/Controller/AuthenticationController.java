@@ -10,6 +10,8 @@ import org.demo.huyminh.DTO.Request.LoginRequest;
 import org.demo.huyminh.DTO.Request.IntrospectRequest;
 import org.demo.huyminh.DTO.Request.LogoutRequest;
 import org.demo.huyminh.DTO.Request.RefreshRequest;
+import org.demo.huyminh.Exception.AppException;
+import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Service.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +36,12 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
-        LoginResponse result = authenticationService.authenticate(request);
+        LoginResponse result = null;
+        try {
+            result = authenticationService.authenticate(request);
+        } catch (ParseException e) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTS);
+        }
 
         return ApiResponse.<LoginResponse>builder()
                 .code(HttpStatus.OK.value())
