@@ -26,12 +26,14 @@ public interface PetRepository extends JpaRepository<Pet, String> {
             "(:petGender = 'All' OR p.petGender = :petGender) AND " +
             "(:petColor = 'All' OR p.petColor = :petColor) AND " +
             "(:petVaccin = 'All' OR p.petVaccin = :petVaccin) AND " +
+            "(:petStatus = 'All' OR p.petStatus = :petStatus) AND " +
             "(:keyword = '' OR LOWER(p.petName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<Pet> searchPets(@Param("petType") String petType,
                          @Param("petAge") String petAge,
                          @Param("petGender") String petGender,
                          @Param("petColor") String petColor,
                          @Param("petVaccin") String petVaccin,
+                         @Param("petStatus") String petStatus,
                          @Param("keyword") String keyword);
 }
 

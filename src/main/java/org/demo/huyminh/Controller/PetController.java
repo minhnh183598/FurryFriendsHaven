@@ -57,9 +57,10 @@ public class PetController {
             @RequestParam(defaultValue = "All") String petGender,
             @RequestParam(defaultValue = "All") String petColor,
             @RequestParam(defaultValue = "All") String petVaccin,
+            @RequestParam(defaultValue = "All") String petStatus,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(required = false) String sort) {
-            return petService.searchPets(petType, petAge, petGender, petColor, petVaccin, keyword, sort);
+            return petService.searchPets(petType, petAge, petGender, petColor, petVaccin,petStatus, keyword, sort);
         }
     //Sort 6 pets
     @GetMapping("/sort6Pets")

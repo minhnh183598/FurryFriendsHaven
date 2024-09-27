@@ -73,10 +73,10 @@ public class PetService {
 
     //Search Pets By Many Fields
     public List<Pet> searchPets(String petType, String petAge, String petGender,
-                                String petColor, String petVaccin, String keyword,
+                                String petColor, String petVaccin,String petStatus, String keyword,
                                                                       String sortPets) {
         List<Pet> pets = petRepository.searchPets(petType, petAge, petGender,
-                petColor, petVaccin, keyword);
+                petColor, petVaccin,petStatus, keyword);
         switch (sortPets) {
             case "sortByWeight":
                 pets.sort((p1, p2) -> Float.compare(p1.getPetWeight(), p2.getPetWeight()));
