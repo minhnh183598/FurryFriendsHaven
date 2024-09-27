@@ -17,6 +17,7 @@ public enum ErrorCode {
     PERMISSION_NOT_EXISTS(HttpStatus.BAD_REQUEST.value(), "Permission does not exists", HttpStatus.NOT_FOUND),
     USER_NOT_EXISTS(HttpStatus.BAD_REQUEST.value(), "Username does not exists", HttpStatus.NOT_FOUND),
     INVALID_KEY(HttpStatus.BAD_REQUEST.value(), "Invalid message key", HttpStatus.BAD_REQUEST),
+    INVALID_TOKEN(HttpStatus.FORBIDDEN.value(), "Invalid token", HttpStatus.BAD_REQUEST),
     USERNAME_INVALID(HttpStatus.BAD_REQUEST.value(), "Username must be at least {min} characters long", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(HttpStatus.BAD_REQUEST.value(), "Password must be at least {min} characters long", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(HttpStatus.UNAUTHORIZED.value(), "Your account is not authenticated", HttpStatus.UNAUTHORIZED),

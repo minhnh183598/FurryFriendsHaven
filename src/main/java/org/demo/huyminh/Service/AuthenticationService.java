@@ -104,6 +104,11 @@ public class AuthenticationService {
 
         if (existingTokenOpt.isPresent()) {
 
+            //Cancel invalid access token
+            String oldToken = existingTokenOpt.get().getToken();
+            Date oldTokenExpiryTime = existingTokenOpt.get().getTokenExpiryTime();
+            invalidateRepository.save(InvalidatedToken.builder().id(oldToken).expiryTime(oldTokenExpiryTime).build());
+
             refreshTokenEntity = existingTokenOpt.get();
             refreshTokenEntity.setToken(tokenId);
             refreshTokenEntity.setRefreshToken(refreshTokenId);
