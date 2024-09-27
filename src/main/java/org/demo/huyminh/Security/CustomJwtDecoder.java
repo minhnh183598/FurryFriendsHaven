@@ -4,6 +4,8 @@ import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import org.demo.huyminh.DTO.Reponse.IntrospectResponse;
 import org.demo.huyminh.DTO.Request.IntrospectRequest;
+import org.demo.huyminh.Exception.AppException;
+import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,9 +42,9 @@ public class CustomJwtDecoder implements JwtDecoder {
 
         try {
             IntrospectResponse response = authenticationService.introspect(IntrospectRequest.builder().token(token).build());
-            if(!response.isValid()) throw new JwtException("Invalid token");
+            if (!response.isValid()) throw new JwtException("Invalid token");
         } catch (ParseException | JOSEException e) {
-            throw new JwtException(e.getMessage());
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
         if (Objects.isNull(jwtDecoder)) {
