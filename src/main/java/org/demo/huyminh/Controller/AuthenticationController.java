@@ -14,10 +14,7 @@ import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Service.AuthenticationService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 
 /**
@@ -75,6 +72,7 @@ public class AuthenticationController {
 
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
+                .message("Logout success")
                 .build();
     }
 }
