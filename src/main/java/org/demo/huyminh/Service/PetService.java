@@ -19,8 +19,8 @@ public class PetService {
     private PetRepository petRepository;
 
     //CREATE PET
-    public Pet createPet(PetCreationRequest request){
-        if(petRepository.existsByPetName(request.getPetName()))
+    public Pet createPet(PetCreationRequest request) {
+        if (petRepository.existsByPetName(request.getPetName()))
             throw new RuntimeException("PetName has been Used");
         Pet pet = new Pet();
 
@@ -36,17 +36,20 @@ public class PetService {
         pet.setPetVaccin(request.getPetVaccin());
         pet.setPetStatus(request.getPetStatus());
 
-         return petRepository.save(pet);
+        return petRepository.save(pet);
     }
+
     //Get Pets
-    public List<Pet> getPets(){
+    public List<Pet> getPets() {
         return petRepository.findAll();
     }
-    public Pet getPet(String petId){
+
+    public Pet getPet(String petId) {
         return petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Pet not existed"));
     }
-    public Pet updatePet(String petId, PetUpdateRequest request){
+
+    public Pet updatePet(String petId, PetUpdateRequest request) {
         Pet pet = getPet(petId);
 
         pet.setPetName(request.getPetName());
@@ -64,11 +67,40 @@ public class PetService {
         return petRepository.save(pet);
     }
 
-    public void deletePet(String petId){
+    public void deletePet(String petId) {
         petRepository.deleteById(petId);
     }
 
-    //
+    //Search Pets By Many Fields
+    public List<Pet> searchPets(String petType, String petAge, String petGender,
+                                String petColor, String petVaccin, String keyword,
+                                                                      String sortPets) {
+        List<Pet> pets = petRepository.searchPets(petType, petAge, petGender,
+                petColor, petVaccin, keyword);
+        switch (sortPets) {
+            case "sortByWeight":
+                pets.sort((p1, p2) -> Float.compare(p1.getPetWeight(), p2.getPetWeight()));
+                break;
+            case "sortByName":
+                pets.sort((p1, p2) -> p1.getPetName().compareTo(p2.getPetName()));
+                break;
+            case "sortByAge":
+                pets.sort(Comparator.comparingInt(pet -> {
+                    switch (pet.getPetAge()) {
+                        case "Young":
+                            return 1;
+                        case "Full Grown":
+                            return 2;
+                        case "Old":
+                            return 3;
+                        default:
+                            return 4;
+                    }
+                }));
+                break;
+        }
+        return pets;
+    }
 
     //Sort 6 pets available
     public List<Pet> sort6pets(){

@@ -49,10 +49,18 @@ public class PetController {
         return "Pet has been deleted";
     }
 
-
-
-    
-
+    //Search Pets By Many Fields
+    @GetMapping("/SearchPets")
+    public List<Pet> searchPets(
+            @RequestParam(defaultValue = "All") String petType,
+            @RequestParam(defaultValue = "All") String petAge,
+            @RequestParam(defaultValue = "All") String petGender,
+            @RequestParam(defaultValue = "All") String petColor,
+            @RequestParam(defaultValue = "All") String petVaccin,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(required = false) String sort) {
+            return petService.searchPets(petType, petAge, petGender, petColor, petVaccin, keyword, sort);
+        }
     //Sort 6 pets
     @GetMapping("/sort6Pets")
     public List<Pet> sort6Pets(){

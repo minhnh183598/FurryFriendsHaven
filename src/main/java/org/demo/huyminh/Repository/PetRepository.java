@@ -20,10 +20,20 @@ public interface PetRepository extends JpaRepository<Pet, String> {
     // Find pet_status
     List<Pet> findByPetStatus(String status);
     //Find pets by many fields
-
-
-
-
+    @Query("SELECT p FROM Pet p WHERE " +
+            "(:petType = 'All' OR p.petType = :petType) AND " +
+            "(:petAge = 'All' OR p.petAge = :petAge) AND " +
+            "(:petGender = 'All' OR p.petGender = :petGender) AND " +
+            "(:petColor = 'All' OR p.petColor = :petColor) AND " +
+            "(:petVaccin = 'All' OR p.petVaccin = :petVaccin) AND " +
+            "(:keyword = '' OR LOWER(p.petName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    List<Pet> searchPets(@Param("petType") String petType,
+                         @Param("petAge") String petAge,
+                         @Param("petGender") String petGender,
+                         @Param("petColor") String petColor,
+                         @Param("petVaccin") String petVaccin,
+                         @Param("keyword") String keyword);
+}
 
 
 
@@ -62,8 +72,3 @@ public interface PetRepository extends JpaRepository<Pet, String> {
 //            "WHEN 'Old' THEN 3 " +
 //            "END")
 //    List<Pet> sortPetByAge();
-
-
-
-
-}
