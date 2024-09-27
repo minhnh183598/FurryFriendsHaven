@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.util.Arrays;
 
 
@@ -40,9 +44,6 @@ public class SecurityConfig {
             "/api/v1/users",
     };
 
-    @Autowired
-    private CustomJwtDecoder jwtDecoder;
-
     @Value("${jwt.signerKey}")
     private String SECRET_KEY;
 
@@ -53,7 +54,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        httpSecurity.cors(AbstractHttpConfigurer::disable);
         httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
@@ -66,7 +66,7 @@ public class SecurityConfig {
 
         //Provide JWT Authentication Provider a decoder to verify JWT signature
         httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
+                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         //When OAuth2 authentication fails, return 401
                         .authenticationEntryPoint(new JWTAuthenticationEntryPoint())
@@ -75,14 +75,14 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-//    @Bean
-//    JwtDecoder jwtDecoder() {
-//        SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes(), "HS512");
-//        return NimbusJwtDecoder
-//                .withSecretKey(keySpec)
-//                .macAlgorithm(MacAlgorithm.HS512)
-//                .build();
-//    }
+    @Bean
+    JwtDecoder jwtDecoder() {
+        SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes(), "HS512");
+        return NimbusJwtDecoder
+                .withSecretKey(keySpec)
+                .macAlgorithm(MacAlgorithm.HS512)
+                .build();
+    }
 
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {

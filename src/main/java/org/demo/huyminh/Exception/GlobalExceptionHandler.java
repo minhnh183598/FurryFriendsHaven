@@ -24,6 +24,18 @@ public class GlobalExceptionHandler {
 
     private static final String MIN_ATTRIBUTE = "min";
 
+    @ExceptionHandler(value = Exception.class)
+    ResponseEntity<ApiResponse> handlingException(Exception e) {
+        ApiResponse apiResponse = new ApiResponse();
+
+        apiResponse.builder()
+                .code(ErrorCode.UNAUTHORIZED.getCode())
+                .message(ErrorCode.UNAUTHORIZED.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiResponse);
+    }
+
     @ExceptionHandler(value = RuntimeException.class)
     ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException e) {
         ApiResponse apiResponse = new ApiResponse();
