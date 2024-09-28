@@ -7,9 +7,12 @@ import org.demo.huyminh.Entity.Application;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
+import java.util.Optional;
+
 @Mapper(componentModel = "Spring")
 public interface ApplicationMapper {
     Application toApplication(ApplicationCreationRequest request);
     ApplicationResponse toApplicationResponse(Application application);
     void updateApplication(@MappingTarget Application application, ApplicationUpdateRequest request);
+
 }
