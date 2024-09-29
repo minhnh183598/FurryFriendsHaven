@@ -54,30 +54,69 @@ public class AuthenticationController {
                 .build();
     }
 
-    @GetMapping("/verifyEmail")
-     ApiResponse<Void> verifyEmail(@RequestParam("otp") String otp, @RequestParam("userId") String userId) {
-        Otp theOtp = optRepository.findByCode(otp, userId);
+    @PostMapping("/verifyEmail")
+     ApiResponse<Void> verifyEmail(@RequestBody VerifyEmailRequest request) {
+        Otp theOtp = optRepository.findByCode(request.getOtp(), request.getUserId());
 
         if(theOtp == null) {
             throw new AppException(ErrorCode.OTP_NOT_EXISTS);
         }
         if (theOtp.getExpireTime().before(new Date())) {
+            optRepository.delete(theOtp);
             throw new AppException(ErrorCode.OTP_EXPIRED);
         }
 
         User user = theOtp.getUser();
-        user.setEnabled(true);
-        userRepository.save(user);
+        String message = "";
+        if(!user.isEnabled()) {
+            user.setEnabled(true);
+            userRepository.save(user);
+            message = "Email verified successfully. Please, login your account!";
+        }
+        if(!user.isPasswordChangeable()) {
+            user.setPasswordChangeable(true);
+            message = "Email verified successfully. Please, change your password!";
+        }
+
         optRepository.delete(theOtp);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
-                .message("Email verified successfully. Please, login your new account !")
+                .message(message)
                 .build();
     }
 
-    @GetMapping ("/resendVerifyEmail")
-    ApiResponse<Void> resendVerifyEmail(@RequestParam("userId") String userId) {
-        User user = userRepository.findById(userId)
+    @PostMapping("/forgotPassword")
+    ApiResponse<UserResponse> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        User user = userRepository.findByEmail(forgotPasswordRequest.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        eventPublisher.publishEvent(new VerificationEmailEvent(user));
+
+        return ApiResponse.<UserResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Email send successfully. Please, verify your email to change your password!")
+                .result(UserResponse.builder().id(user.getId()).build())
+                .build();
+    }
+
+    @PostMapping("/resetPassword")
+    ApiResponse<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
+        Otp theOtp = optRepository.findByUserId(request.getUserId());
+
+        if(theOtp != null) {
+            throw new AppException(ErrorCode.OTP_IS_NOT_USED);
+        }
+        authenticationService.resetPassword(request);
+
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Change password successfully. Please login your account again!")
+                .build();
+    }
+
+    @PostMapping ("/resendVerifyEmail")
+    ApiResponse<Void> resendVerifyEmail(@RequestBody ResendEmailRequest request) {
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
         if (user.isEnabled()) {
             throw new AppException(ErrorCode.USER_IS_ENABLED);

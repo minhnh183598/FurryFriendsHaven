@@ -80,6 +80,21 @@ public class AuthenticationService {
         return userRepository.save(user);
     }
 
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        if (!user.isEnabled()) {
+            throw new AppException(ErrorCode.USER_IS_DISABLED);
+        } else if (!user.isPasswordChangeable()) {
+            throw new AppException(ErrorCode.USER_IS_NOT_CHANGEABLE);
+        }
+
+        user.setPassword(encoder.encode(request.getNewPassword()));
+        user.setPasswordChangeable(false);
+        userRepository.save(user);
+    }
+
     public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
 
         var token = request.getToken();

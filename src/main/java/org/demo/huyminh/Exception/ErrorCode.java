@@ -28,10 +28,12 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST.value(), "Invalid refresh token", HttpStatus.BAD_REQUEST),
     EMAIL_PROCESSING_FAILED(HttpStatus.SERVICE_UNAVAILABLE.value(), "Email processing failed", HttpStatus.SERVICE_UNAVAILABLE),
     USER_NOT_ENABLED(HttpStatus.FORBIDDEN.value(), "User is not enabled", HttpStatus.FORBIDDEN),
-    OTP_NOT_EXISTS(HttpStatus.BAD_REQUEST.value(), "OTP does not exists", HttpStatus.BAD_REQUEST),
+    OTP_NOT_EXISTS(HttpStatus.BAD_REQUEST.value(), "OTP is not available", HttpStatus.BAD_REQUEST),
     OTP_EXPIRED(HttpStatus.BAD_REQUEST.value(), "OTP expired", HttpStatus.BAD_REQUEST),
     USER_IS_DISABLED(HttpStatus.BAD_REQUEST.value(), "Your account is not enabled", HttpStatus.BAD_REQUEST),
-    USER_IS_ENABLED(HttpStatus.BAD_REQUEST.value(), "Your account is enabled", HttpStatus.BAD_REQUEST),;
+    USER_IS_ENABLED(HttpStatus.BAD_REQUEST.value(), "Your account is enabled", HttpStatus.BAD_REQUEST),
+    OTP_IS_NOT_USED(HttpStatus.BAD_REQUEST.value(), "OTP is not used. You can not change password until you finish verification step.", HttpStatus.BAD_REQUEST),
+    USER_IS_NOT_CHANGEABLE(HttpStatus.FORBIDDEN.value(), "User password is not changeable", HttpStatus.FORBIDDEN);
 
     private int code;
     private String message;

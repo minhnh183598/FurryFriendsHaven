@@ -56,6 +56,7 @@ public class SWP391Application {
                     .email("hoangvo2122@gmail.com")
                     .roles(roles)
                     .isEnabled(true)
+                    .isPasswordChangeable(false)
                     .build();
 
             userRepository.save(user);
