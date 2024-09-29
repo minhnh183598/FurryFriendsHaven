@@ -6,7 +6,6 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +14,12 @@ import org.demo.huyminh.DTO.Reponse.IntrospectResponse;
 import org.demo.huyminh.DTO.Request.*;
 import org.demo.huyminh.Entity.InvalidatedToken;
 import org.demo.huyminh.Entity.RefreshToken;
+import org.demo.huyminh.Entity.Role;
 import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Enums.Roles;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
+import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.InvalidateRepository;
 import org.demo.huyminh.Repository.RefreshTokenRepository;
 import org.demo.huyminh.Repository.UserRepository;
@@ -30,10 +32,7 @@ import org.springframework.util.CollectionUtils;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Optional;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Minh
@@ -50,6 +49,8 @@ public class AuthenticationService {
     UserRepository userRepository;
     InvalidateRepository invalidateRepository;
     RefreshTokenRepository refreshTokenRepository;
+    UserMapper userMapper;
+    PasswordEncoder encoder;
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -62,6 +63,22 @@ public class AuthenticationService {
     @NonFinal
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
+
+
+    public User register(UserCreationRequest request) {
+        if(userRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USER_EXISTS);
+        }
+
+        User user = userMapper.toUser(request);
+        user.setPassword(encoder.encode(request.getPassword()));
+
+        HashSet<Role> roles = new HashSet<>();
+        roles.add(Role.builder().name(Roles.USER.name()).build());
+        user.setRoles(roles);
+
+        return userRepository.save(user);
+    }
 
     public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
 
@@ -82,6 +99,10 @@ public class AuthenticationService {
     public LoginResponse authenticate(LoginRequest request) throws ParseException {
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        if (!user.isEnabled()) {
+            throw new AppException(ErrorCode.USER_IS_DISABLED);
+        }
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
@@ -183,7 +204,7 @@ public class AuthenticationService {
     String generateToken(User user, long ExpiryTime) {
         //Build header for JWT token
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-        JWTClaimsSet jwtClaimsSet = null;
+        JWTClaimsSet jwtClaimsSet;
         //Build payload for JWT token
         if(ExpiryTime == VALID_DURATION) {
             jwtClaimsSet = new JWTClaimsSet.Builder()

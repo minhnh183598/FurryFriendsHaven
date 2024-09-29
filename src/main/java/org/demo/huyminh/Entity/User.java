@@ -34,6 +34,7 @@ public class User {
     String lastname;
     String email;
     LocalDate dob;
+    boolean isEnabled;
 
     @ManyToMany
     Set<Role> roles;
