@@ -53,7 +53,7 @@
     <h1>Email Verification</h1>
     <p>Hi <span th:text="${name}"></span>,</p>
     <p>Thank you for registering with us. To complete your registration, please use the following OTP (One-Time Password) to verify your email address:</p>
-    <div class="otp-code" th:text="${otp}"></div>
+    <div class="otp-code" th:text="${otp}">903495</div>
     <p>This OTP will expire in <span th:text="${expirationTime}"></span> minutes.</p>
     <p>If you didn't request this verification, please ignore this email.</p>
     <p>Thank you,<br>User Registration Portal Service</p>

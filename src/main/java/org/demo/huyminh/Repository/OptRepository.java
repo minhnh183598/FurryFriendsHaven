@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.Query;
  */
 
 public interface OptRepository extends JpaRepository<Otp, Integer> {
-
      @Query("SELECT o FROM Otp o WHERE o.code = ?1 AND o.user.id = ?2")
      Otp findByCode(String otp, String userId);
 

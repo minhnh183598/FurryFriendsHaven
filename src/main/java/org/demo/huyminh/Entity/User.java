@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -35,6 +34,7 @@ public class User {
     String email;
     LocalDate dob;
     boolean isEnabled;
+    boolean isPasswordChangeable;
 
     @ManyToMany
     Set<Role> roles;
@@ -45,5 +45,7 @@ public class User {
         this.firstname = firstname;
         this.lastname = lastname;
         this.dob = dob;
+        this.isEnabled = false;
+        this.isPasswordChangeable = false;
     }
 }
