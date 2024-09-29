@@ -16,6 +16,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
@@ -35,6 +37,7 @@ public class VerificationEmailListener implements ApplicationListener<Verificati
 
     final OptRepository optRepository;
     final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
 
     @Override
     public void onApplicationEvent(VerificationEmailEvent event) {
@@ -63,19 +66,23 @@ public class VerificationEmailListener implements ApplicationListener<Verificati
     }
 
     public void sendVerificationEmail(String otp, User user) throws MessagingException, UnsupportedEncodingException {
-        String subject = "Email Verification";
+        String subject = "🎊 Your otp is here!";
         String senderName = "User Registration Portal Service";
-        String mailContent = "<p> Hi, "+ user.getUsername()+ ", </p>"+
-                "<p>Thank you for registering with us,"+"</p>" +
-                "Please, enter the following OTP to complete your registration.</p>"+
-                 otp +
-                "<p> Thank you <br> Users Registration Portal Service";
+
+        Context context = new Context();
+        context.setVariable("name", user.getUsername());
+        context.setVariable("otp", otp);
+        context.setVariable("expirationTime", "1");
+
+        String htmlContent = templateEngine.process("VerificationEmail", context);
+
         MimeMessage message = mailSender.createMimeMessage();
-        var messageHelper = new MimeMessageHelper(message);
-        messageHelper.setFrom("auzemon@gmail.com", senderName);
-        messageHelper.setTo(user.getEmail());
-        messageHelper.setSubject(subject);
-        messageHelper.setText(mailContent, true);
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom("auzemon@gmail.com", senderName);
+        helper.setTo(user.getEmail());
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
+
         mailSender.send(message);
     }
 
