@@ -28,16 +28,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/users")
-    ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request) {
-        ApiResponse<User> apiResponse = new ApiResponse<>();
-
-        apiResponse.setResult(userService.createUser(request));
-        apiResponse.setCode(HttpStatus.OK.value());
-        apiResponse.setMessage("User created successfully");
-        return apiResponse;
-    }
-
     @GetMapping("/users")
     ApiResponse<List<UserResponse>> getUsers() {
         //Get user's info when they are logged in

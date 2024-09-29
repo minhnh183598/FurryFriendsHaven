@@ -1,9 +1,7 @@
 package org.demo.huyminh.DTO.Reponse;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.Set;
@@ -19,6 +17,7 @@ import java.util.Set;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
 
     String id;

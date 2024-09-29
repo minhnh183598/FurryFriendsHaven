@@ -25,8 +25,13 @@ public enum ErrorCode {
     INVALID_DOB(HttpStatus.BAD_REQUEST.value(), "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     DELETE_PERMISSION_FAILED(HttpStatus.BAD_REQUEST.value(), "Delete permission failed", HttpStatus.BAD_REQUEST),
     DELETE_USER_FAILED(HttpStatus.BAD_REQUEST.value(), "Delete user failed", HttpStatus.BAD_REQUEST),
-    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST.value(), "Invalid refresh token", HttpStatus.BAD_REQUEST)
-    ;
+    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST.value(), "Invalid refresh token", HttpStatus.BAD_REQUEST),
+    EMAIL_PROCESSING_FAILED(HttpStatus.SERVICE_UNAVAILABLE.value(), "Email processing failed", HttpStatus.SERVICE_UNAVAILABLE),
+    USER_NOT_ENABLED(HttpStatus.FORBIDDEN.value(), "User is not enabled", HttpStatus.FORBIDDEN),
+    OTP_NOT_EXISTS(HttpStatus.BAD_REQUEST.value(), "OTP does not exists", HttpStatus.BAD_REQUEST),
+    OTP_EXPIRED(HttpStatus.BAD_REQUEST.value(), "OTP expired", HttpStatus.BAD_REQUEST),
+    USER_IS_DISABLED(HttpStatus.BAD_REQUEST.value(), "Your account is not enabled", HttpStatus.BAD_REQUEST),
+    USER_IS_ENABLED(HttpStatus.BAD_REQUEST.value(), "Your account is enabled", HttpStatus.BAD_REQUEST),;
 
     private int code;
     private String message;
