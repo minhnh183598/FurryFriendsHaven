@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #d5debb;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 2px solid #7c9067;
+            text-align: center;
+        }
+
+        h1 {
+            color: #455e47;
+        }
+
+        .otp-code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2f3825;
+            letter-spacing: 4px;
+            margin: 15px 0;
+            padding: 8px;
+            background-color: #c7d98d;
+            border-radius: 5px;
+            display: inline-block;
+            width: auto;
+        }
+
+        p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>Email Verification</h1>
+    <p>Hi <span th:text="${name}"></span>,</p>
+    <p>Thank you for registering with us. To complete your registration, please use the following OTP (One-Time Password) to verify your email address:</p>
+    <div class="otp-code" th:text="${otp}">903495</div>
+    <p>This OTP will expire in <span th:text="${expirationTime}"></span> minutes.</p>
+    <p>If you didn't request this verification, please ignore this email.</p>
+    <p>Thank you,<br>User Registration Portal Service</p>
+</div>
+</body>
+
+</html>

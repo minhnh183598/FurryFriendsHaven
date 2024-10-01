@@ -55,6 +55,8 @@ public class SWP391Application {
                     .id(UUID.randomUUID().toString())
                     .email("hoangvo2122@gmail.com")
                     .roles(roles)
+                    .isEnabled(true)
+                    .isPasswordChangeable(false)
                     .build();
 
             userRepository.save(user);

@@ -42,15 +42,12 @@ public class TokenValidationAspect {
         }
 
         token = token.substring(7);
-        log.info("Chan lai truoc ca khi vao controller");
-        log.info("Token: {}", token);
 
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             String jti = signedJWT.getJWTClaimsSet().getJWTID();
 
             if (invalidateRepository.existsById(jti)) {
-                log.info("TokenID: {}", jti);
                 throw new AppException(ErrorCode.INVALID_TOKEN);
             }
         } catch (ParseException e) {

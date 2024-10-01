@@ -3,19 +3,25 @@ package org.demo.huyminh.Controller;
 import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
 import org.demo.huyminh.DTO.Reponse.LoginResponse;
 import org.demo.huyminh.DTO.Reponse.IntrospectResponse;
-import org.demo.huyminh.DTO.Request.LoginRequest;
-import org.demo.huyminh.DTO.Request.IntrospectRequest;
-import org.demo.huyminh.DTO.Request.LogoutRequest;
-import org.demo.huyminh.DTO.Request.RefreshRequest;
+import org.demo.huyminh.DTO.Reponse.UserResponse;
+import org.demo.huyminh.DTO.Request.*;
+import org.demo.huyminh.Entity.Otp;
+import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Event.VerificationEmailEvent;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
+import org.demo.huyminh.Repository.OptRepository;
+import org.demo.huyminh.Repository.UserRepository;
 import org.demo.huyminh.Service.AuthenticationService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
+import java.util.Date;
 
 /**
  * @author Minh
@@ -23,6 +29,7 @@ import java.text.ParseException;
  * Time: 1:55 PM
  */
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -30,14 +37,105 @@ import java.text.ParseException;
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
+    ApplicationEventPublisher eventPublisher;
+    OptRepository optRepository;
+    UserRepository userRepository;
+
+    @PostMapping("/register")
+    ApiResponse<UserResponse> register(@RequestBody UserCreationRequest request) {
+        User user = authenticationService.register(request);
+
+        eventPublisher.publishEvent(new VerificationEmailEvent(user));
+
+        return ApiResponse.<UserResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Register successfully. Please, verify your email !")
+                .result(UserResponse.builder().id(user.getId()).build())
+                .build();
+    }
+
+    @PostMapping("/verifyEmail")
+     ApiResponse<Void> verifyEmail(@RequestBody VerifyEmailRequest request) {
+        Otp theOtp = optRepository.findByCode(request.getOtp(), request.getUserId());
+
+        if(theOtp == null) {
+            throw new AppException(ErrorCode.OTP_NOT_EXISTS);
+        }
+        if (theOtp.getExpireTime().before(new Date())) {
+            optRepository.delete(theOtp);
+            throw new AppException(ErrorCode.OTP_EXPIRED);
+        }
+
+        User user = theOtp.getUser();
+        String message = "";
+        if(!user.isEnabled()) {
+            user.setEnabled(true);
+            userRepository.save(user);
+            message = "Email verified successfully. Please, login your account!";
+        }
+        if(!user.isPasswordChangeable()) {
+            user.setPasswordChangeable(true);
+            message = "Email verified successfully. Please, change your password!";
+        }
+
+        optRepository.delete(theOtp);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message(message)
+                .build();
+    }
+
+    @PostMapping("/forgotPassword")
+    ApiResponse<UserResponse> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        User user = userRepository.findByEmail(forgotPasswordRequest.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        eventPublisher.publishEvent(new VerificationEmailEvent(user));
+
+        return ApiResponse.<UserResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Email send successfully. Please, verify your email to change your password!")
+                .result(UserResponse.builder().id(user.getId()).build())
+                .build();
+    }
+
+    @PostMapping("/resetPassword")
+    ApiResponse<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
+        Otp theOtp = optRepository.findByUserId(request.getUserId());
+
+        if(theOtp != null) {
+            throw new AppException(ErrorCode.OTP_IS_NOT_USED);
+        }
+        authenticationService.resetPassword(request);
+
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Change password successfully. Please login your account again!")
+                .build();
+    }
+
+    @PostMapping ("/resendVerifyEmail")
+    ApiResponse<Void> resendVerifyEmail(@RequestBody ResendEmailRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+        if (user.isEnabled()) {
+            throw new AppException(ErrorCode.USER_IS_ENABLED);
+        }
+
+        eventPublisher.publishEvent(new VerificationEmailEvent(user));
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Email resend successfully. Please, verify your email !")
+                .build();
+    }
 
     @PostMapping("/login")
     ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
-        LoginResponse result = null;
+        LoginResponse result;
         try {
             result = authenticationService.authenticate(request);
         } catch (ParseException e) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTS);
+            throw new RuntimeException(e);
         }
 
         return ApiResponse.<LoginResponse>builder()
@@ -47,7 +145,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/introspect")
-    ApiResponse<IntrospectResponse> login(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
+    ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         IntrospectResponse result = authenticationService.introspect(request);
 
         return ApiResponse.<IntrospectResponse>builder()
