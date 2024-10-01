@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
+import javax.naming.Name;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,10 +18,14 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "application")
 public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String applicationId;
+
+    String petId;
+    String id;
 
     String fullName;
     int yob;
@@ -47,6 +52,15 @@ public class Application {
     int status;
     @CreationTimestamp
     @Column(name = "create_at")
-    private LocalDateTime create_at;
+    private LocalDateTime createAt;
+
+    @ManyToOne
+    @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
+    User user;
+
+    @ManyToOne
+    @JoinColumn(name = "petId", referencedColumnName = "petId", insertable = false, updatable = false)
+    Pet pet;
+
 
 }

@@ -35,8 +35,11 @@ public class User {
     String email;
     LocalDate dob;
 
+    String applicationId;
+
     @ManyToMany
     Set<Role> roles;
+
 
     public User(String username, String password, String firstname, String lastname, LocalDate dob) {
         this.username = username;

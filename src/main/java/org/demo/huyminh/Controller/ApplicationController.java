@@ -1,25 +1,45 @@
 package org.demo.huyminh.Controller;
 
 import org.demo.huyminh.DTO.Reponse.ApplicationResponse;
-import org.demo.huyminh.DTO.Request.ApplicationCreationRequest;
+import org.demo.huyminh.DTO.Request.ApplicationRequest;
 import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
 import org.demo.huyminh.Entity.Application;
+import org.demo.huyminh.Repository.PetRepository;
 import org.demo.huyminh.Service.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/applications")
 public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;
+    private PetRepository petRepository;
     //Create Application
     @PostMapping
-    Application createApplication(@RequestBody ApplicationCreationRequest request){
-     return applicationService.createApplication(request);
+//    Application createApplication(@RequestBody ApplicationCreationRequest request){
+//     return applicationService.createApplication(request);
+//    }
+//    public ResponseEntity<Application> createApplication(@RequestBody Application application) {
+//        Application savedApplication = applicationService.saveApplication(application);
+//        return ResponseEntity.status(201).body(savedApplication);
+//    }
+
+    public ResponseEntity<Application> submitApplication(@RequestBody ApplicationRequest request){
+        Application application = applicationService.submitApplication(request.getId(),
+                request.getPetId(),request.getFullName(),request.getYob(),
+                request.getGender(),request.getAddress(),request.getCity(),
+                request.getJob(),request.getPhone(),request.getLiveIn(),request.getLiveWith(),
+                request.getFirstPerson(),request.getFirstPhone(),request.getSecondPerson(),
+                request.getSecondPhone());
+        return new ResponseEntity<>(application, HttpStatus.CREATED);
     }
+
     //Get List Application
     @GetMapping
     List<Application> getApplications(){
@@ -27,12 +47,12 @@ public class ApplicationController {
     }
     //Get Application By Id
     @GetMapping("/{applicationId}")
-    ApplicationResponse getApplication(@PathVariable("applicationId") String applicationId){
+    Optional<Application> getApplication(@PathVariable("applicationId") String applicationId){
            return applicationService.getApplicaiton(applicationId);
     }
     //Update Application
     @PutMapping("/{applicationId}")
-    ApplicationResponse updateApplication(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
+    Application updateApplication(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
              return applicationService.updateApplication(applicationId,request);
     }
     //Delete Application
