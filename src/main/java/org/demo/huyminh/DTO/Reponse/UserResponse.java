@@ -26,5 +26,6 @@ public class UserResponse {
     String lastname;
     String email;
     LocalDate dob;
+    boolean noPassword;
     Set<RoleResponse> roles;
 }

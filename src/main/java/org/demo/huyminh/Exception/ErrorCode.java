@@ -33,7 +33,11 @@ public enum ErrorCode {
     USER_IS_DISABLED(HttpStatus.BAD_REQUEST.value(), "Your account is not enabled", HttpStatus.BAD_REQUEST),
     USER_IS_ENABLED(HttpStatus.BAD_REQUEST.value(), "Your account is enabled", HttpStatus.BAD_REQUEST),
     OTP_IS_NOT_USED(HttpStatus.BAD_REQUEST.value(), "OTP is not used. You can not change password until you finish verification step.", HttpStatus.BAD_REQUEST),
-    USER_IS_NOT_CHANGEABLE(HttpStatus.FORBIDDEN.value(), "User password is not changeable", HttpStatus.FORBIDDEN);
+    PASSWORD_EXISTED(HttpStatus.FOUND.value(), "Password existed", HttpStatus.FOUND),
+    USER_IS_NOT_CHANGEABLE(HttpStatus.FORBIDDEN.value(), "User password is not changeable", HttpStatus.FORBIDDEN),
+    USER_NOT_EXISTED(HttpStatus.NOT_FOUND.value(), "User not existed", HttpStatus.NOT_FOUND),
+    EMAIL_EXISTS(HttpStatus.FORBIDDEN.value(), "Email is existed", HttpStatus.FORBIDDEN),
+    ;
 
     private int code;
     private String message;

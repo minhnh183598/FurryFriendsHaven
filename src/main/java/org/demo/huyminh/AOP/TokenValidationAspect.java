@@ -13,9 +13,7 @@ import org.demo.huyminh.Repository.InvalidateRepository;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 import java.text.ParseException;
-import java.util.Date;
 
 /**
  * @author Minh

@@ -1,6 +1,7 @@
 package org.demo.huyminh.Controller;
 
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Repository.OptRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.demo.huyminh.Service.AuthenticationService;
+import org.demo.huyminh.Service.UserService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +42,21 @@ public class AuthenticationController {
     ApplicationEventPublisher eventPublisher;
     OptRepository optRepository;
     UserRepository userRepository;
+    UserService userService;
+
+    @PostMapping("/outbound/authentication")
+    ApiResponse<LoginResponse> outboundAuthentication(@RequestParam("code") String code) {
+        var result = authenticationService.outboundAuthenticate(code);
+        return ApiResponse.<LoginResponse>builder().result(result).build();
+    }
+
+    @PostMapping("/create-password")
+    ApiResponse<Void> createPassword(@RequestBody @Valid PasswordCreationRequest request) {
+        userService.createPassword(request);
+        return ApiResponse.<Void>builder()
+                .message("Password has been created, you could use it to log-in")
+                .build();
+    }
 
     @PostMapping("/register")
     ApiResponse<UserResponse> register(@RequestBody UserCreationRequest request) {
@@ -53,6 +70,7 @@ public class AuthenticationController {
                 .result(UserResponse.builder().id(user.getId()).build())
                 .build();
     }
+
 
     @PostMapping("/verifyEmail")
      ApiResponse<Void> verifyEmail(@RequestBody VerifyEmailRequest request) {
