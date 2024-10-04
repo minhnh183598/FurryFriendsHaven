@@ -2,6 +2,7 @@ package org.demo.huyminh.Controller;
 
 import com.nimbusds.jose.JOSEException;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Event.VerificationEmailEvent;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
-import org.demo.huyminh.Repository.OptRepository;
+import org.demo.huyminh.Repository.OtpRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.demo.huyminh.Service.AuthenticationService;
 import org.demo.huyminh.Service.UserService;
@@ -35,12 +36,12 @@ import java.util.Date;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
     ApplicationEventPublisher eventPublisher;
-    OptRepository optRepository;
+    OtpRepository otpRepository;
     UserRepository userRepository;
     UserService userService;
 
@@ -74,13 +75,13 @@ public class AuthenticationController {
 
     @PostMapping("/verifyEmail")
      ApiResponse<Void> verifyEmail(@RequestBody VerifyEmailRequest request) {
-        Otp theOtp = optRepository.findByCode(request.getOtp(), request.getUserId());
+        Otp theOtp = otpRepository.findByCode(request.getOtp(), request.getUserId());
 
         if(theOtp == null) {
             throw new AppException(ErrorCode.OTP_NOT_EXISTS);
         }
         if (theOtp.getExpireTime().before(new Date())) {
-            optRepository.delete(theOtp);
+            otpRepository.delete(theOtp);
             throw new AppException(ErrorCode.OTP_EXPIRED);
         }
 
@@ -90,13 +91,12 @@ public class AuthenticationController {
             user.setEnabled(true);
             userRepository.save(user);
             message = "Email verified successfully. Please, login your account!";
-        }
-        if(!user.isPasswordChangeable()) {
+        } else if (!user.isPasswordChangeable()) {
             user.setPasswordChangeable(true);
             message = "Email verified successfully. Please, change your password!";
         }
 
-        optRepository.delete(theOtp);
+        otpRepository.delete(theOtp);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message(message)
@@ -107,6 +107,25 @@ public class AuthenticationController {
     ApiResponse<UserResponse> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
         User user = userRepository.findByEmail(forgotPasswordRequest.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        if(!user.isEnabled()) {
+            throw new AppException(ErrorCode.USER_IS_DISABLED);
+        }
+
+        Otp existingOtp = otpRepository.findByUserId(user.getId());
+        if(existingOtp != null) {
+            //Check if otp is locked out
+            if(existingOtp.isLockedOut()) {
+                throw new AppException(ErrorCode.OTP_LOCKED_OUT);
+            }
+            //Check if otp was refreshed too many times
+            if(existingOtp.getRefreshCount() >= Otp.MAX_REFRESH_COUNT) {
+                existingOtp.lockOut();
+                existingOtp.setLockoutTime(existingOtp.getLockoutTime());
+                otpRepository.save(existingOtp);
+                throw new AppException(ErrorCode.OTP_LOCKED_OUT);
+            }
+        }
 
         eventPublisher.publishEvent(new VerificationEmailEvent(user));
 
@@ -119,7 +138,7 @@ public class AuthenticationController {
 
     @PostMapping("/resetPassword")
     ApiResponse<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
-        Otp theOtp = optRepository.findByUserId(request.getUserId());
+        Otp theOtp = otpRepository.findByUserId(request.getUserId());
 
         if(theOtp != null) {
             throw new AppException(ErrorCode.OTP_IS_NOT_USED);
@@ -133,14 +152,36 @@ public class AuthenticationController {
     }
 
     @PostMapping ("/resendVerifyEmail")
-    ApiResponse<Void> resendVerifyEmail(@RequestBody ResendEmailRequest request) {
+    ApiResponse<Void> resendResetEmail(@RequestBody ResendEmailRequest request,
+                                       @RequestParam(required = false, defaultValue = "false") boolean checkEnabled)
+    {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
-        if (user.isEnabled()) {
-            throw new AppException(ErrorCode.USER_IS_ENABLED);
+
+        if(checkEnabled && user.isEnabled()) {
+            throw new AppException(ErrorCode.USER_IS_DISABLED);
+        } else if (!checkEnabled && !user.isEnabled()) {
+            throw new AppException(ErrorCode.USER_IS_DISABLED);
+        }
+
+        Otp existingOtp = otpRepository.findByUserId(request.getUserId());
+        if( existingOtp == null && !checkEnabled) {
+            throw new AppException(ErrorCode.FORGOT_PASSWORD_REQUIRED_BEFORE_RESEND);
+        }
+        //Check if otp is locked out
+        if(existingOtp.isLockedOut()) {
+            throw new AppException(ErrorCode.OTP_LOCKED_OUT);
+        }
+        //Check if otp was refreshed too many times
+        if(existingOtp.getRefreshCount() >= Otp.MAX_REFRESH_COUNT) {
+            existingOtp.lockOut();
+            existingOtp.setLockoutTime(existingOtp.getLockoutTime());
+            otpRepository.save(existingOtp);
+            throw new AppException(ErrorCode.OTP_LOCKED_OUT);
         }
 
         eventPublisher.publishEvent(new VerificationEmailEvent(user));
+
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Email resend successfully. Please, verify your email !")

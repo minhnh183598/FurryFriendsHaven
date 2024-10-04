@@ -260,7 +260,6 @@ public class AuthenticationService {
         var tokenId = refreshTokenRepository.getToken(refreshTokenId);
         var tokenExpiryTime = refreshTokenRepository.getTokenExpiryTime(refreshTokenId);
 
-
         InvalidatedToken invalidatedToken = InvalidatedToken.builder()
                 .id(tokenId)
                 .expiryTime(tokenExpiryTime)

@@ -37,7 +37,9 @@ public enum ErrorCode {
     USER_IS_NOT_CHANGEABLE(HttpStatus.FORBIDDEN.value(), "User password is not changeable", HttpStatus.FORBIDDEN),
     USER_NOT_EXISTED(HttpStatus.NOT_FOUND.value(), "User not existed", HttpStatus.NOT_FOUND),
     EMAIL_EXISTS(HttpStatus.FORBIDDEN.value(), "Email is existed", HttpStatus.FORBIDDEN),
-    ;
+    FORGOT_PASSWORD_REQUIRED_BEFORE_RESEND(HttpStatus.FORBIDDEN.value(), "Forgot password required before resend otp", HttpStatus.FORBIDDEN),
+    OTP_IS_USED(HttpStatus.FORBIDDEN.value(), "OTP is used", HttpStatus.FORBIDDEN),
+    OTP_LOCKED_OUT(HttpStatus.FORBIDDEN.value(), "OTP locked out. Please wait for 5 minutes to try again.", HttpStatus.FORBIDDEN);
 
     private int code;
     private String message;
