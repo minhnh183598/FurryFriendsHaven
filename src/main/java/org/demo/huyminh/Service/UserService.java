@@ -3,11 +3,8 @@ package org.demo.huyminh.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
-import org.demo.huyminh.DTO.Request.UserCreationRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
-import org.demo.huyminh.Entity.Role;
 import org.demo.huyminh.Entity.User;
-import org.demo.huyminh.Enums.Roles;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.UserMapper;
@@ -38,20 +35,6 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final RoleRepository roleRepository;
 
-    public User createUser(UserCreationRequest request) {
-        if(userRepository.existsByUsername(request.getUsername())) {
-            throw new AppException(ErrorCode.USER_EXISTS);
-        }
-
-        User user = userMapper.toUser(request);
-        user.setPassword(encoder.encode(request.getPassword()));
-
-        HashSet<Role> roles = new HashSet<>();
-        roles.add(Role.builder().name(Roles.USER.name()).build());
-        user.setRoles(roles);
-
-        return userRepository.save(user);
-    }
 
 //    @PreAuthorize("hasAuthority('APPROVE_POST')")
     public List<UserResponse> getUsers() {
