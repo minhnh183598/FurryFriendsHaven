@@ -30,5 +30,4 @@ public class Pet {
     private String petGender;
     private String petVaccin;
     private String petStatus;
-
 }

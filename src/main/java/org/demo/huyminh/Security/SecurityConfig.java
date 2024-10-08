@@ -41,6 +41,7 @@ public class SecurityConfig {
             "/api/v1/users",
     };
 
+
     @Value("${jwt.signerKey}")
     private String SECRET_KEY;
 

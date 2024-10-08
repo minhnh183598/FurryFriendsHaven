@@ -3,8 +3,8 @@ package org.demo.huyminh.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,19 +33,17 @@ public class User {
 
     @Column(unique = true)
     String email;
-    LocalDate dob;
     boolean isEnabled;
     boolean isPasswordChangeable;
 
     @ManyToMany
     Set<Role> roles;
 
-    public User(String username, String password, String firstname, String lastname, LocalDate dob) {
+    public User(String username, String password, String firstname, String lastname) {
         this.username = username;
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.dob = dob;
         this.isEnabled = false;
         this.isPasswordChangeable = false;
     }

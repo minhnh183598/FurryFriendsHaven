@@ -1,9 +1,13 @@
 package org.demo.huyminh.DTO.Reponse;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.demo.huyminh.Entity.Pet;
+import org.demo.huyminh.Entity.User;
 
 @Data
 @NoArgsConstructor
@@ -33,6 +37,14 @@ public class ApplicationResponse {
     @Column(unique = true)
     String secondPhone;
     int status;
+    String id;
 
+    @ManyToOne
+    @JoinColumn(name = "petId", referencedColumnName = "petId", insertable = false, updatable = false)
+    Pet pet;
+
+    @ManyToOne
+    @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
+    User user;
 
 }
