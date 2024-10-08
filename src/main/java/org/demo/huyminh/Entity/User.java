@@ -36,6 +36,8 @@ public class User {
     boolean isEnabled;
     boolean isPasswordChangeable;
 
+    String applicationId;
+
     @ManyToMany
     Set<Role> roles;
 

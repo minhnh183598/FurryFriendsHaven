@@ -22,13 +22,6 @@ public class ApplicationController {
     private PetRepository petRepository;
     //Create Application
     @PostMapping
-//    Application createApplication(@RequestBody ApplicationCreationRequest request){
-//     return applicationService.createApplication(request);
-//    }
-//    public ResponseEntity<Application> createApplication(@RequestBody Application application) {
-//        Application savedApplication = applicationService.saveApplication(application);
-//        return ResponseEntity.status(201).body(savedApplication);
-//    }
 
     public ResponseEntity<Application> submitApplication(@RequestBody ApplicationRequest request){
         Application application = applicationService.submitApplication(request.getId(),
@@ -55,12 +48,23 @@ public class ApplicationController {
     Application updateApplication(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
              return applicationService.updateApplication(applicationId,request);
     }
+    //Update Application Status
+    @PutMapping("/status/{applicationId}")
+    Application updateApplicationStatus(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
+        return applicationService.updateApplicationStatus(applicationId,request);
+    }
     //Delete Application
     @DeleteMapping("/{applicationId}")
     String deleteApplication(@PathVariable("applicationId") String applicationId){
         applicationService.deleteApplication(applicationId);
         return "Application has been deleted";
     }
-
-
 }
+
+//    Application createApplication(@RequestBody ApplicationCreationRequest request){
+//     return applicationService.createApplication(request);
+//    }
+//    public ResponseEntity<Application> createApplication(@RequestBody Application application) {
+//        Application savedApplication = applicationService.saveApplication(application);
+//        return ResponseEntity.status(201).body(savedApplication);
+//    }

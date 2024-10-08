@@ -5,7 +5,6 @@ import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
 import org.demo.huyminh.Entity.Application;
 import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Entity.User;
-import org.demo.huyminh.Mapper.ApplicationMapper;
 import org.demo.huyminh.Repository.ApplicationRepository;
 import org.demo.huyminh.Repository.PetRepository;
 import org.demo.huyminh.Repository.UserRepository;
@@ -20,13 +19,12 @@ public class ApplicationService {
     @Autowired
     private ApplicationRepository applicationRepository;
     @Autowired
-    private ApplicationMapper applicationMapper;
-    @Autowired
     private PetRepository petRepository;
     @Autowired
     private UserRepository userRepository;
 
     //CREATE APPLICATION
+
     public Application submitApplication(String userId ,String petId, String fullName, int yob, String gender, String address, String city, String job, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone, String liveIn, String liveWith, String firstPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String firstPhone, String secondPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String secondPhone) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Pet not found"));
@@ -84,6 +82,16 @@ public class ApplicationService {
 
          return applicationRepository.save(application);
     }
+    //UPDATE APPLICATION STATUS BY ADMIN
+    public Application updateApplicationStatus(String applicationId,ApplicationUpdateRequest request){
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application Id not Existed"));
+
+        application.setStatus(request.getStatus());
+        return applicationRepository.save(application);
+
+    }
+
     //DELETE APPLICATION
     public void deleteApplication(String applicationId) {
         applicationRepository.deleteById(applicationId);
