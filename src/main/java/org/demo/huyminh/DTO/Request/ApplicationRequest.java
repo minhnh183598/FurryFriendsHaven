@@ -14,10 +14,6 @@ import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Entity.User;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-
 @Data
 @Builder
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)

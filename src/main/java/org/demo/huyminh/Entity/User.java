@@ -1,12 +1,10 @@
 package org.demo.huyminh.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -17,7 +15,8 @@ import java.util.Set;
 
 @Entity
 @Builder
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,8 +30,9 @@ public class User {
     String password;
     String firstname;
     String lastname;
+
+    @Column(unique = true)
     String email;
-    LocalDate dob;
     boolean isEnabled;
     boolean isPasswordChangeable;
 
@@ -41,13 +41,11 @@ public class User {
     @ManyToMany
     Set<Role> roles;
 
-
-    public User(String username, String password, String firstname, String lastname, LocalDate dob) {
+    public User(String username, String password, String firstname, String lastname) {
         this.username = username;
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.dob = dob;
         this.isEnabled = false;
         this.isPasswordChangeable = false;
     }

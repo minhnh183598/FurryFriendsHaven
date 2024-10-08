@@ -8,8 +8,4 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "Spring")
 public interface ApplicationMapper {
-//    Application toApplication(ApplicationCreationRequest request);
-    ApplicationResponse toApplicationResponse(Application application);
-    void updateApplication(@MappingTarget Application application, ApplicationUpdateRequest request);
-
 }

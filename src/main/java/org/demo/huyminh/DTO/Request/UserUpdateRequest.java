@@ -23,6 +23,6 @@ public class UserUpdateRequest {
     String password;
     String firstname;
     String lastname;
-    LocalDate dob;
+
     List<String> roles;
 }
