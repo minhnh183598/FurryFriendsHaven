@@ -36,11 +36,8 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final String[] SECURED_ENDPOINTS = {};
-    private final String[] UNSECURED_ENDPOINTS = {
-            "/api/v1/auth/login",
-            "/api/v1/auth/introspect",
-            "/api/v1/auth/logout",
-            "/api/v1/auth/refresh",
+    private final String[] UNSECURED_ENDPOINTS = new String[]{
+            "/api/v1/auth/**",
             "/api/v1/users",
     };
 

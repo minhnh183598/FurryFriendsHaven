@@ -25,8 +25,21 @@ public enum ErrorCode {
     INVALID_DOB(HttpStatus.BAD_REQUEST.value(), "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     DELETE_PERMISSION_FAILED(HttpStatus.BAD_REQUEST.value(), "Delete permission failed", HttpStatus.BAD_REQUEST),
     DELETE_USER_FAILED(HttpStatus.BAD_REQUEST.value(), "Delete user failed", HttpStatus.BAD_REQUEST),
-    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST.value(), "Invalid refresh token", HttpStatus.BAD_REQUEST)
-    ;
+    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST.value(), "Invalid refresh token", HttpStatus.BAD_REQUEST),
+    EMAIL_PROCESSING_FAILED(HttpStatus.SERVICE_UNAVAILABLE.value(), "Email processing failed", HttpStatus.SERVICE_UNAVAILABLE),
+    USER_NOT_ENABLED(HttpStatus.FORBIDDEN.value(), "User is not enabled", HttpStatus.FORBIDDEN),
+    OTP_NOT_EXISTS(HttpStatus.BAD_REQUEST.value(), "OTP is not available", HttpStatus.BAD_REQUEST),
+    OTP_EXPIRED(HttpStatus.BAD_REQUEST.value(), "OTP expired", HttpStatus.BAD_REQUEST),
+    USER_IS_DISABLED(HttpStatus.BAD_REQUEST.value(), "Your account is not enabled", HttpStatus.BAD_REQUEST),
+    USER_IS_ENABLED(HttpStatus.BAD_REQUEST.value(), "Your account is enabled", HttpStatus.BAD_REQUEST),
+    OTP_IS_NOT_USED(HttpStatus.BAD_REQUEST.value(), "OTP is not used. You can not change password until you finish verification step.", HttpStatus.BAD_REQUEST),
+    PASSWORD_EXISTED(HttpStatus.FOUND.value(), "Password existed", HttpStatus.FOUND),
+    USER_IS_NOT_CHANGEABLE(HttpStatus.FORBIDDEN.value(), "User password is not changeable", HttpStatus.FORBIDDEN),
+    USER_NOT_EXISTED(HttpStatus.NOT_FOUND.value(), "User not existed", HttpStatus.NOT_FOUND),
+    EMAIL_EXISTS(HttpStatus.FORBIDDEN.value(), "Email is existed", HttpStatus.FORBIDDEN),
+    FORGOT_PASSWORD_REQUIRED_BEFORE_RESEND(HttpStatus.FORBIDDEN.value(), "Forgot password required before resend otp", HttpStatus.FORBIDDEN),
+    OTP_IS_USED(HttpStatus.FORBIDDEN.value(), "OTP is used", HttpStatus.FORBIDDEN),
+    OTP_LOCKED_OUT(HttpStatus.FORBIDDEN.value(), "OTP locked out. Please wait for 5 minutes to try again.", HttpStatus.FORBIDDEN);
 
     private int code;
     private String message;
