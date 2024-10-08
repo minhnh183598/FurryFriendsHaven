@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,19 +34,15 @@ public class User {
     String firstname;
     String lastname;
     String email;
-    LocalDate dob;
 
-    String applicationId;
 
     @ManyToMany
     Set<Role> roles;
 
-
-    public User(String username, String password, String firstname, String lastname, LocalDate dob) {
+    public User(String username, String password, String firstname, String lastname) {
         this.username = username;
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.dob = dob;
     }
 }

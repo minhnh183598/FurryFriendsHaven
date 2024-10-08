@@ -1,5 +1,7 @@
 package org.demo.huyminh.Service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
@@ -32,6 +34,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -59,6 +63,7 @@ public class UserService {
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse).toList();
     }
+
 
     @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public UserResponse getUser(String id) {
