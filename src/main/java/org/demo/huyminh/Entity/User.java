@@ -1,11 +1,9 @@
 package org.demo.huyminh.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
+
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -17,7 +15,8 @@ import java.util.Set;
 
 @Entity
 @Builder
-@Data
+@Getter
+@Setter
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,6 +30,8 @@ public class User {
     String password;
     String firstname;
     String lastname;
+
+    @Column(unique = true)
     String email;
     LocalDate dob;
     boolean isEnabled;

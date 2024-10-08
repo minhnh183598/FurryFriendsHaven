@@ -11,7 +11,7 @@ spring:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: false
   main:
     banner-mode: off
@@ -32,6 +32,11 @@ spring:
     content-type: text/html
     cache: false
 
+outbound:
+  identity:
+    client-id: "<CLIENT_ID>"
+    client-secret: "<CLIENT_SECRET>"
+    redirect-uri: "http://localhost:3000/authenticate"
 
 jwt:
   signerKey: "tAP7OqwVvg3eWAB0/SNQyk/OmS3159XCWNgaLKjBlOKEVYF3pzb6GhbYWEcQnGwp"

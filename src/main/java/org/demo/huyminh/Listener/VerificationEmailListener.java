@@ -10,7 +10,7 @@ import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Event.VerificationEmailEvent;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
-import org.demo.huyminh.Repository.OptRepository;
+import org.demo.huyminh.Repository.OtpRepository;
 import org.springframework.context.ApplicationListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -35,7 +35,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class VerificationEmailListener implements ApplicationListener<VerificationEmailEvent> {
 
-    final OptRepository optRepository;
+    final OtpRepository otpRepository;
     final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
@@ -45,17 +45,20 @@ public class VerificationEmailListener implements ApplicationListener<Verificati
         User user = event.getUser();
 
         String otp = generateOtp();
-        Otp existingOtp = optRepository.findByUserId(user.getId());
+        Otp existingOtp = otpRepository.findByUserId(user.getId());
         if(existingOtp != null) {
-            optRepository.save(Otp.builder()
+
+            otpRepository.save(Otp.builder()
                     .id(existingOtp.getId())
                     .expireTime(existingOtp.generateExpireTime())
                     .user(existingOtp.getUser())
+                    .refreshCount(existingOtp.getRefreshCount() + 1)
                     .code(otp)
                     .build()
             );
+            log.info("Refresh Count: {}", existingOtp.getRefreshCount());
         } else {
-            optRepository.save(new Otp(otp, user));
+            otpRepository.save(new Otp(otp, user));
         }
 
         try {
