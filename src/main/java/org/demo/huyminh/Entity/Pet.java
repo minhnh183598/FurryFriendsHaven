@@ -1,6 +1,8 @@
 package org.demo.huyminh.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,4 +32,5 @@ public class Pet {
     private String petGender;
     private String petVaccin;
     private String petStatus;
+
 }

@@ -3,17 +3,17 @@ package org.demo.huyminh.Controller;
 
 import jakarta.validation.Valid;
 
+import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Request.PetCreationRequest;
 import org.demo.huyminh.DTO.Request.PetUpdateRequest;
 import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Service.PetService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/pets")
 @CrossOrigin("http://localhost:3000")
@@ -67,6 +67,10 @@ public class PetController {
     public List<Pet> sort6Pets(){
         return petService.sort6pets();
     }
+}
+
+
+
 
 //    // Search By Name
 //        @GetMapping("/searchName")
@@ -113,4 +117,3 @@ public class PetController {
 //        return petService.availablePet();
 //}
 
-}
