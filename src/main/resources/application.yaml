@@ -12,10 +12,32 @@ spring:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     hibernate:
-      ddl-auto: update
+    ddl-auto: update
     show-sql: true
   main:
     banner-mode: off
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: auzemon@gmail.com
+    password: kyklsjvpjjrrckgc
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+  thymeleaf:
+    check-template-location: true
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    content-type: text/html
+    cache: false
+
+outbound:
+  identity:
+    client-id: "<CLIENT_ID>"
+    client-secret: "<CLIENT_SECRET>"
+    redirect-uri: "http://localhost:3000/authenticate"
 
 jwt:
   signerKey: "tAP7OqwVvg3eWAB0/SNQyk/OmS3159XCWNgaLKjBlOKEVYF3pzb6GhbYWEcQnGwp"

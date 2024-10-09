@@ -13,9 +13,7 @@ import org.demo.huyminh.Repository.InvalidateRepository;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 import java.text.ParseException;
-import java.util.Date;
 
 /**
  * @author Minh
@@ -42,15 +40,12 @@ public class TokenValidationAspect {
         }
 
         token = token.substring(7);
-        log.info("Chan lai truoc ca khi vao controller");
-        log.info("Token: {}", token);
 
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             String jti = signedJWT.getJWTClaimsSet().getJWTID();
 
             if (invalidateRepository.existsById(jti)) {
-                log.info("TokenID: {}", jti);
                 throw new AppException(ErrorCode.INVALID_TOKEN);
             }
         } catch (ParseException e) {
