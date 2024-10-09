@@ -22,14 +22,6 @@ public class ApplicationController {
     private PetRepository petRepository;
     //Create Application
     @PostMapping
-//    Application createApplication(@RequestBody ApplicationCreationRequest request){
-//     return applicationService.createApplication(request);
-//    }
-//    public ResponseEntity<Application> createApplication(@RequestBody Application application) {
-//        Application savedApplication = applicationService.saveApplication(application);
-//        return ResponseEntity.status(201).body(savedApplication);
-//    }
-
     public ResponseEntity<Application> submitApplication(@RequestBody ApplicationRequest request){
         Application application = applicationService.submitApplication(request.getId(),
                 request.getPetId(),request.getFullName(),request.getYob(),
@@ -39,7 +31,11 @@ public class ApplicationController {
                 request.getSecondPhone());
         return new ResponseEntity<>(application, HttpStatus.CREATED);
     }
-
+    //Update Application Status
+    @PutMapping("status/{applicationId}")
+    Application updateApplicationStatus(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request) {
+        return applicationService.updateAppilicationStatus(applicationId, request);
+    }
     //Get List Application
     @GetMapping
     List<Application> getApplications(){
@@ -62,5 +58,11 @@ public class ApplicationController {
         return "Application has been deleted";
     }
 
-
 }
+//    Application createApplication(@RequestBody ApplicationCreationRequest request){
+//     return applicationService.createApplication(request);
+//    }
+//    public ResponseEntity<Application> createApplication(@RequestBody Application application) {
+//        Application savedApplication = applicationService.saveApplication(application);
+//        return ResponseEntity.status(201).body(savedApplication);
+//    }
