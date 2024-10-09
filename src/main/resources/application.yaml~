@@ -35,8 +35,8 @@ spring:
 
 outbound:
   identity:
-    client-id: "<CLIENT_ID>"
-    client-secret: "<CLIENT_SECRET>"
+    client-id: "436982997993-ia619rn1di2e00sns1ncfafq5nmvotom.apps.googleusercontent.com"
+    client-secret: "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"
     redirect-uri: "http://localhost:3000/authenticate"
 
 jwt:

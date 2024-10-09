@@ -34,19 +34,19 @@ public class SWP391Application {
                 return;
             }
 
-                Role userRole = roleRepository.save(Role.builder()
-                        .name("USER")
-                        .description("User role")
-                        .build());
+            Role userRole = roleRepository.save(Role.builder()
+                    .name("USER")
+                    .description("User role")
+                    .build());
 
-                Role adminRole = roleRepository.save(Role.builder()
-                        .name("ADMIN")
-                        .description("Admin role")
-                        .build());
+            Role adminRole = roleRepository.save(Role.builder()
+                    .name("ADMIN")
+                    .description("Admin role")
+                    .build());
 
-                var roles = new HashSet<Role>();
-                roles.add(adminRole);
-                roles.add(userRole);
+            var roles = new HashSet<Role>();
+            roles.add(adminRole);
+            roles.add(userRole);
 
 
             User user = User.builder()
