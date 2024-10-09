@@ -1,13 +1,10 @@
 package org.demo.huyminh.Controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
-import org.demo.huyminh.DTO.Request.UserCreationRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
-import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;

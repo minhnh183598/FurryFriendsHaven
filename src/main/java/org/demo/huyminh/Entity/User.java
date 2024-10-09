@@ -3,7 +3,6 @@ package org.demo.huyminh.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +35,8 @@ public class User {
     boolean isEnabled;
     boolean isPasswordChangeable;
 
-    String applicationId;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<Application> applications;
 
     @ManyToMany
     Set<Role> roles;
