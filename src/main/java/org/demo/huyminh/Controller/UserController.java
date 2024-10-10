@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
+import org.demo.huyminh.DTO.Request.ChangePasswordRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;
@@ -59,16 +60,29 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    UserResponse updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request) {
-        return userService.updateUser(id, request);
+    public ApiResponse<Void> updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request) {
+        userService.updateUser(id, request);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update user successfully")
+                .build();
     }
 
     @DeleteMapping("/users/{id}")
-    ApiResponse<String> deleteUser(@PathVariable String id) {
+    ApiResponse<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
-        return ApiResponse.<String>builder()
+        return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
-                .result("Delete user successfully")
+                .message("Delete user successfully")
+                .build();
+    }
+
+    @PutMapping("/users/{id}/change-password")
+    ApiResponse<Void> changePassword(@PathVariable String id, @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(id, request);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Change password successfully")
                 .build();
     }
 }
