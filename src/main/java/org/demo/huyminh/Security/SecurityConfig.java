@@ -1,6 +1,5 @@
 package org.demo.huyminh.Security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Arrays;
 
@@ -38,7 +36,6 @@ public class SecurityConfig {
     private final String[] SECURED_ENDPOINTS = {};
     private final String[] UNSECURED_ENDPOINTS = new String[]{
             "/api/v1/auth/**",
-            "/api/v1/users",
     };
 
 

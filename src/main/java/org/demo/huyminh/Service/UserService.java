@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
+import org.demo.huyminh.DTO.Request.ChangePasswordRequest;
 import org.demo.huyminh.DTO.Request.PasswordCreationRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
 import org.demo.huyminh.Entity.User;
@@ -16,12 +17,10 @@ import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.RoleRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,12 +39,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder encoder;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
 
-//    @PreAuthorize("hasAuthority('APPROVE_POST')")
+    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public List<UserResponse> getUsers() {
         log.info("In method get Users");
         return userRepository.findAll().stream()
@@ -53,7 +51,7 @@ public class UserService {
     }
 
 
-    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
+//    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public UserResponse getUser(String id) {
         log.info("In method get User: {}", id);
         return userMapper.toUserResponse(userRepository.findById(id)
@@ -61,16 +59,29 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUser(String id, UserUpdateRequest request) {
-        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
+    public void updateUser(String id, UserUpdateRequest request) {
+        log.info("UserService: updateUser");
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
-        userMapper.updateUser(user, request);
-        user.setPassword(encoder.encode(request.getPassword()));
+        User newUser = user;
+        newUser.setUsername(request.getUsername());
+        newUser.setFirstname(request.getFirstname());
+        newUser.setLastname(request.getLastname());
 
-        var roles = roleRepository.findAllById(request.getRoles());
-        user.setRoles(new HashSet<>(roles));
+        var currentUser = SecurityContextHolder.getContext();
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        if (!currentUser.getAuthentication().getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"))) {
+            userRepository.save(newUser);
+            return;
+        }
+
+        var newRoles = roleRepository.findAllById(request.getRoles());
+        newUser.getRoles().addAll(newRoles);
+
+        userRepository.save(newUser);
     }
 
     @Transactional
@@ -124,5 +135,22 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
         return null;
+    }
+
+    public void changePassword(String id, ChangePasswordRequest request) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new AppException(ErrorCode.OLD_PASSWORD_WRONG);
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new AppException(ErrorCode.CONFIRM_PASSWORD_WRONG);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }

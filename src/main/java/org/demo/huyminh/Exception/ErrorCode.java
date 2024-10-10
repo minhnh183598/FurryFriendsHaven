@@ -39,7 +39,11 @@ public enum ErrorCode {
     EMAIL_EXISTS(HttpStatus.FORBIDDEN.value(), "Email is existed", HttpStatus.FORBIDDEN),
     FORGOT_PASSWORD_REQUIRED_BEFORE_RESEND(HttpStatus.FORBIDDEN.value(), "Forgot password required before resend otp", HttpStatus.FORBIDDEN),
     OTP_IS_USED(HttpStatus.FORBIDDEN.value(), "OTP is used", HttpStatus.FORBIDDEN),
-    OTP_LOCKED_OUT(HttpStatus.FORBIDDEN.value(), "OTP locked out. Please wait for 5 minutes to try again.", HttpStatus.FORBIDDEN);
+    OTP_LOCKED_OUT(HttpStatus.FORBIDDEN.value(), "OTP locked out. Please wait for 5 minutes to try again.", HttpStatus.FORBIDDEN),
+    OLD_PASSWORD_WRONG(HttpStatus.FORBIDDEN.value(), "Old password is wrong", HttpStatus.FORBIDDEN),
+    CONFIRM_PASSWORD_WRONG(HttpStatus.FORBIDDEN.value(), "Confirm password is wrong", HttpStatus.FORBIDDEN),
+    USERNAME_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Username not found", HttpStatus.NOT_FOUND),
+    ;
 
     private int code;
     private String message;

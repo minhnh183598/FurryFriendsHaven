@@ -20,9 +20,8 @@ import java.util.List;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class UserUpdateRequest {
 
-    String password;
+    String username;
     String firstname;
     String lastname;
-
     List<String> roles;
 }
