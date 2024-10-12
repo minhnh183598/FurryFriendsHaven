@@ -2,6 +2,7 @@ package org.demo.huyminh.Repository;
 
 
 
+import org.demo.huyminh.Entity.Application;
 import org.demo.huyminh.Entity.Pet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -35,6 +36,8 @@ public interface PetRepository extends JpaRepository<Pet, String> {
                          @Param("petVaccin") String petVaccin,
                          @Param("petStatus") String petStatus,
                          @Param("keyword") String keyword);
+
+    List<Pet> findAllByOrderByCreatedPetAtDesc();
 }
 
 

@@ -31,12 +31,12 @@ public class PetService {
             throw new RuntimeException("PetName has been Used");
         Pet pet = new Pet();
 
-        pet.setPetName(request.getPetName());
+        pet.setPetName(capitalizeFirstLetter(request.getPetName()));
         pet.setPetAge(request.getPetAge());
         pet.setPetType(request.getPetType());
-        pet.setPetBreed(request.getPetBreed());
+        pet.setPetBreed(capitalizeFirstLetter(request.getPetBreed()));
         pet.setPetColor(request.getPetColor());
-        pet.setPetDescription(request.getPetDescription());
+        pet.setPetDescription(capitalizeFirstLetter(request.getPetDescription()));
         pet.setPetSize(request.getPetSize());
         pet.setPetWeight(request.getPetWeight());
         pet.setPetGender(request.getPetGender());
@@ -45,12 +45,30 @@ public class PetService {
 
         return petRepository.save(pet);
     }
+    //In Hoa chu cai dau
+    private String capitalizeFirstLetter(String letter){
+        if(letter.isEmpty()){
+            return letter;
+        }
+        String[] words = letter.toLowerCase().split(" ");
+        StringBuilder capitalized = new StringBuilder();
+
+        for(String word : words){
+            if(word.length() > 0 ){
+                capitalized.append(Character.toUpperCase(word.charAt(0)))
+                        .append(word.substring(1))
+                        .append(" ");
+            }
+        }
+        return capitalized.toString().trim();
+    }
 
     //Get Pets
     public List<Pet> getPets() {
-        return petRepository.findAll();
+        return petRepository.findAllByOrderByCreatedPetAtDesc();
     }
 
+    //Get Pet By ID
     public Pet getPet(String petId) {
         return petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Pet not existed"));
@@ -59,12 +77,12 @@ public class PetService {
     public Pet updatePet(String petId, PetUpdateRequest request) {
         Pet pet = getPet(petId);
 
-        pet.setPetName(request.getPetName());
+        pet.setPetName(capitalizeFirstLetter(request.getPetName()));
         pet.setPetAge(request.getPetAge());
         pet.setPetType(request.getPetType());
-        pet.setPetBreed(request.getPetBreed());
+        pet.setPetBreed(capitalizeFirstLetter(request.getPetBreed()));
         pet.setPetColor(request.getPetColor());
-        pet.setPetDescription(request.getPetDescription());
+        pet.setPetDescription(capitalizeFirstLetter(request.getPetDescription()));
         pet.setPetSize(request.getPetSize());
         pet.setPetWeight(request.getPetWeight());
         pet.setPetVaccin(request.getPetVaccin());
