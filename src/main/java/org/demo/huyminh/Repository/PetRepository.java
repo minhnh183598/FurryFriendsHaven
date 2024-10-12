@@ -37,6 +37,7 @@ public interface PetRepository extends JpaRepository<Pet, String> {
                          @Param("petStatus") String petStatus,
                          @Param("keyword") String keyword);
 
+
     List<Pet> findAllByOrderByCreatedPetAtDesc();
 }
 
