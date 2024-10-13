@@ -1,5 +1,6 @@
 package org.demo.huyminh.Mapper;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
 import org.demo.huyminh.DTO.Request.UserCreationRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
@@ -18,6 +19,9 @@ import org.mapstruct.MappingTarget;
 public interface UserMapper {
     User toUser(UserCreationRequest request);
     UserResponse toUserResponse(User user);
+
+    @Mapping(target = "roles", ignore = true)
+    UserResponse toUserResponseForTask(User user);
 
     @Mapping(target = "roles", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);

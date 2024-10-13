@@ -1,5 +1,6 @@
 package org.demo.huyminh.Service;
 
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -21,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +48,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
 
-//    @PreAuthorize("hasAuthority('APPROVE_POST')")
     public List<UserResponse> getUsers() {
         log.info("In method get Users");
         return userRepository.findAll().stream()
@@ -60,12 +62,13 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found")));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public UserResponse updateUser(String id, UserUpdateRequest request) {
-        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
         userMapper.updateUser(user, request);
-        user.setPassword(encoder.encode(request.getPassword()));
 
         var roles = roleRepository.findAllById(request.getRoles());
         user.setRoles(new HashSet<>(roles));
@@ -124,5 +127,17 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
         return null;
+    }
+
+    public User findByToken(String token) {
+        String username = null;
+        try {
+            username = SignedJWT.parse(token).getJWTClaimsSet().getSubject();
+        } catch (ParseException e) {
+            throw new RuntimeException("Find user by token failed");
+        }
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
     }
 }

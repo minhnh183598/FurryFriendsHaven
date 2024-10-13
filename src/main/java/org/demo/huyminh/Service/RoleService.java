@@ -32,7 +32,7 @@ public class RoleService {
     private final PermissionRepository permissionRepository;
 
     @Transactional
-    public RoleResponse create(RoleRequest roleRequest) {
+    public RoleResponse createRole(RoleRequest roleRequest) {
         var role = roleMapper.toRole(roleRequest);
         List<Permission> permissions = permissionRepository.findAllById(roleRequest.getPermissions());
         role.setPermissions(new HashSet<>(permissions));
@@ -47,7 +47,7 @@ public class RoleService {
     }
 
     @Transactional
-    public void delete(String roleName) {
+    public void deleteRole(String roleName) {
         roleRepository.deleteById(roleName);
     }
 

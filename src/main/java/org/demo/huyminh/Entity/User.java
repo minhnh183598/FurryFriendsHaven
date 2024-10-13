@@ -1,5 +1,6 @@
 package org.demo.huyminh.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -14,8 +15,7 @@ import java.util.Set;
 
 @Entity
 @Builder
-@Getter
-@Setter
+@Data
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,7 +36,16 @@ public class User {
     boolean isPasswordChangeable;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Application> applications;
+    @JsonIgnore
+    private List<Application> applications;
+
+    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Issue> assignedIssues;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Task> tasks;
 
     @ManyToMany
     Set<Role> roles;

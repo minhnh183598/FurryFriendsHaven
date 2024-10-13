@@ -1,0 +1,53 @@
+package org.demo.huyminh.Entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * @author Minh
+ * Date: 10/10/2024
+ * Time: 11:00 AM
+ */
+
+@Entity
+@Builder
+@Data
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE)
+@Table(name = "task")
+@NoArgsConstructor
+@AllArgsConstructor
+public class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+
+    @Column(nullable = false, unique = true)
+    private String name;
+
+    private String description;
+
+    private String category;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        joinColumns = @JoinColumn(name = "task_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags;
+
+    @ManyToOne
+    private User owner;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Issue> issues;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        joinColumns = @JoinColumn(name = "task_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> team;
+}
