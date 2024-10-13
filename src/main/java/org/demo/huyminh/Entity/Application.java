@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.naming.Name;
 import java.time.LocalDateTime;
@@ -50,6 +51,12 @@ public class Application {
     //status = 1 = accept
     //status = 2 = refuse
     int status;
+
+    //Thoi gian update Status
+    @UpdateTimestamp
+    @Column(name = "update_status_at")
+    private LocalDateTime updateAt;
+
     @CreationTimestamp
     @Column(name = "create_at")
     private LocalDateTime createAt;

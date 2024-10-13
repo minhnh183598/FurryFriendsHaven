@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Data
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
@@ -35,4 +37,7 @@ public class ApplicationUpdateRequest {
     @Column(unique = true)
     String secondPhone;
     int status;
+
+    @Column(name = "update_status_at")
+    private LocalDateTime updateAt;
 }

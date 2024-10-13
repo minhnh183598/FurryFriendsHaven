@@ -57,16 +57,17 @@ public class ApplicationService {
     //Update Application Status
     public Application updateAppilicationStatus(String applicationId, ApplicationUpdateRequest request){
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application Id not Existed"));
+                .orElseThrow(() -> new RuntimeException("Application Id Not Existed"));
 
         application.setStatus(request.getStatus());
+
 
         return applicationRepository.save(application);
 
     }
     //GET APPLICATION LIST
     public List<Application> getApplications(){
-        return applicationRepository.findAllByOrderByCreateAtAsc();
+        return applicationRepository.findByStatusOrderByCreateAtAsc(0);
     }
     //GET APPLICATION BY ID
     public Optional<Application> getApplicaiton(String applicationId){
