@@ -53,7 +53,6 @@ public class PetService {
         String[] words = letter.toLowerCase().split(" ");
         StringBuilder capitalized = new StringBuilder();
 
-
         for(String word : words){
             if(word.length() > 0 ){
                 capitalized.append(Character.toUpperCase(word.charAt(0)))
