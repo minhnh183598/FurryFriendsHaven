@@ -69,6 +69,15 @@ public class ApplicationService {
     public List<Application> getApplications(){
         return applicationRepository.findByStatusOrderByCreateAtAsc(0);
     }
+
+    public List<Application> getApplicationsWithStatus1(){
+        return applicationRepository.findByStatusOrderByUpdateAtDesc(1);
+    }
+
+    public List<Application> getApplicationsWithStatus2(){
+        return applicationRepository.findByStatusOrderByUpdateAtDesc(2);
+    }
+
     //GET APPLICATION BY ID
     public Optional<Application> getApplicaiton(String applicationId){
         return Optional.ofNullable(applicationRepository.findById(applicationId)
