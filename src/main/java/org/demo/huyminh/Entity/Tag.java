@@ -1,9 +1,6 @@
 package org.demo.huyminh.Entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,8 +31,16 @@ public class Tag {
     @Column(length = 255)
     private String description;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TagType type;
+
+    @OneToMany
     private Set<Task> tasks;
+
+    public enum TagType {
+        TASK_LABEL,
+        ISSUE_LABEL
+    }
 }
 

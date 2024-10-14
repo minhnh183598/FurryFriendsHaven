@@ -19,4 +19,12 @@ public interface TagMapper {
     Tag toTag(TagRequest request);
 
     TagResponse toTagResponse(Tag tag);
+
+    default String mapTagTypeToString(Tag.TagType type) {
+        return type != null ? type.name() : null;
+    }
+
+    default Tag.TagType mapStringToTagType(String type) {
+        return type != null ? Tag.TagType.valueOf(type.toUpperCase()) : null;
+    }
 }

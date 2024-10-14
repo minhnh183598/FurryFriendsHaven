@@ -57,6 +57,14 @@ public enum ErrorCode {
     ISSUE_NOT_IN_TASK(HttpStatus.BAD_REQUEST.value(), "Issue not in task", HttpStatus.BAD_REQUEST),
     PARAMETER_INVALID(HttpStatus.BAD_REQUEST.value(), "Invalid parameter", HttpStatus.BAD_REQUEST),
     USER_ALREADY_IN_TASK(HttpStatus.BAD_REQUEST.value(), "User already in task", HttpStatus.BAD_REQUEST),
+    INVALID_TAG_TYPE(HttpStatus.BAD_REQUEST.value(), "Invalid tag type", HttpStatus.BAD_REQUEST),
+    TAG_WAS_ON_USE(HttpStatus.BAD_REQUEST.value(), "Tag was on use. So you can not update this tag name.", HttpStatus.BAD_REQUEST),
+    LIST_TAG_IS_EMPTY(HttpStatus.NOT_FOUND.value(), "List tag is empty", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_ADD_USER_TO_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to add user to this task", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED_TO_DELETE_USER_FROM_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete user from this task", HttpStatus.FORBIDDEN),
+    TASK_HAS_NO_ISSUES(HttpStatus.NOT_FOUND.value(), "Task has no issue", HttpStatus.NOT_FOUND),
+    ROLE_NOT_EXISTS(HttpStatus.BAD_REQUEST.value(), "Role does not exists", HttpStatus.BAD_REQUEST),
+    LIST_USER_IS_EMPTY(HttpStatus.NOT_FOUND.value(), "List user is empty", HttpStatus.NOT_FOUND),
     ;
 
     private int code;

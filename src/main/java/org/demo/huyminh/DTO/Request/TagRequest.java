@@ -21,4 +21,5 @@ public class TagRequest {
 
     String name;
     String description;
+    String type;
 }

@@ -12,9 +12,7 @@ import org.demo.huyminh.Service.IssueService;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Minh

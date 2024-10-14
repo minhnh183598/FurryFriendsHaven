@@ -31,17 +31,13 @@ public class Task {
 
     private String category;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        joinColumns = @JoinColumn(name = "task_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
+    @OneToMany
     private Set<Tag> tags;
 
     @ManyToOne
     private User owner;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY , mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Issue> issues;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -50,4 +46,14 @@ public class Task {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> team;
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", category='" + category + '\'' +
+                ", tags=" + tags +'}';
+    }
 }

@@ -54,7 +54,16 @@ public class IssueService {
     }
 
     public List<Issue> getIssuesByTasId(int taskId) {
-        return issueRepository.findByTaskId(taskId);
+        List<Issue> issues = issueRepository.findByTaskId(taskId);
+        if(taskRepository.findById(taskId).isEmpty()) {
+            throw new AppException(ErrorCode.TASK_NOT_EXISTS);
+        }
+
+        if(issues.isEmpty()) {
+            throw new AppException(ErrorCode.TASK_HAS_NO_ISSUES);
+        }
+
+        return issues;
     }
 
     public IssueResponse createIssue(IssueRequest request, User user, int taskId) {
@@ -99,7 +108,9 @@ public class IssueService {
         for (Tag tag : issue.getTags()) {
             Optional<Tag> existingTag = tagRepository.findById(tag.getName());
 
-            existingTag.ifPresent(existingTags::add);
+            if(existingTag.isPresent() && existingTag.get().getType().equals(Tag.TagType.ISSUE_LABEL)) {
+                existingTags.add(existingTag.get());
+            }
         }
 
         if(existingTags.isEmpty()) {
@@ -146,12 +157,12 @@ public class IssueService {
         }
 
 
-        if (!task.getTeam().contains(newAssignee)) {
-            throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
-        }
-
         if(!task.getIssues().contains(issue)) {
             throw new AppException(ErrorCode.ISSUE_NOT_IN_TASK);
+        }
+
+        if (!task.getTeam().contains(user)) {
+            throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
         }
 
         if(!(issue.getReporter().equals(user) || issue.getAssignees().contains(user))) {

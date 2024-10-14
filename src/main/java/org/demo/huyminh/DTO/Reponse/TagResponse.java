@@ -21,4 +21,5 @@ public class TagResponse {
 
     String name;
     String description;
+    String type;
 }

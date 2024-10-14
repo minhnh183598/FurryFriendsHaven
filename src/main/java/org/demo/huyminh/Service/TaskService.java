@@ -1,5 +1,6 @@
 package org.demo.huyminh.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -73,30 +74,26 @@ public class TaskService {
         for (Tag tag : task.getTags()) {
             Optional<Tag> existingTag = tagRepository.findById(tag.getName());
 
-            existingTag.ifPresent(existingTags::add);
+            if(!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
+                existingTags.add(existingTag.get());
+            }
+        }
+
+        if(existingTags.isEmpty()) {
+            throw new AppException(ErrorCode.TASK_HAS_NO_TAGS);
         }
 
         task.setTags(existingTags);
     }
 
-    public List<TaskResponse> getTaskByTeam(User user, String category, String tag) {
+    public List<TaskResponse> getTaskByTeam(User user) {
         if (user == null) {
             throw new AppException(ErrorCode.USER_NOT_EXISTS);
         }
 
         List<Task> tasks = taskRepository.findByTeamContainingOrOwner(user, user);
 
-        if (category != null && !category.isEmpty()) {
-            tasks = tasks.stream()
-                    .filter(task -> category.equals(task.getCategory()))
-                    .collect(Collectors.toList());
-        }
-
-        if (tag != null && !tag.isEmpty()) {
-            tasks = tasks.stream()
-                    .filter(task -> task.getTags().contains(tag))
-                    .collect(Collectors.toList());
-        }
+        log.info(tasks.toString());
 
         List<TaskResponse> taskResponses = tasks.stream().map(taskMapper::toTaskResponse).collect(Collectors.toList());
 
@@ -106,6 +103,7 @@ public class TaskService {
             taskResponse.setTags(tasks.getFirst().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
             taskResponse.setIssues(tasks.getFirst().getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
         }
+        log.info(taskResponses.toString());
 
         return taskResponses;
     }
@@ -145,7 +143,7 @@ public class TaskService {
         Task task = taskRepository.findById(updatedTask.getId())
                     .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
-        if(!task.getOwner().equals(existingUser)) {
+        if(!(task.getOwner().equals(existingUser) || task.getTeam().contains(existingUser))) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -161,7 +159,9 @@ public class TaskService {
             for (Tag updatedTag : updatedTask.getTags()) {
                 Optional<Tag> existingTag = tagRepository.findById(updatedTag.getName());
 
-                existingTag.ifPresent(existingTags::add);
+                if(!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
+                    existingTags.add(existingTag.get());
+                }
             }
 
             updateTask.setTags(existingTags);
@@ -179,12 +179,16 @@ public class TaskService {
     }
 
 
-    public void addUserToTask(int taskId, String userId) {
+    public void addUserToTask(int taskId, String userId, User existingUser) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        if(!(task.getOwner().equals(existingUser) || task.getTeam().contains(existingUser))) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_TO_ADD_USER_TO_TASK);
+        }
 
         if(!task.getTeam().contains(user)) {
             task.getTeam().add(user);
@@ -200,6 +204,10 @@ public class TaskService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        if(!(task.getOwner().equals(user) || task.getTeam().contains(user))) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_TO_DELETE_USER_FROM_TASK);
+        }
 
         if(!task.getTeam().contains(user)) {
             task.getTeam().remove(user);

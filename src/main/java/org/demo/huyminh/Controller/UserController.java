@@ -40,6 +40,15 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("users/role/{role}")
+    ApiResponse<List<UserResponse>> getUsersByRole(@PathVariable String role) {
+        return ApiResponse.<List<UserResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get users successfully")
+                .result(userService.getUsersByRole(role))
+                .build();
+    }
+
     @GetMapping("/users/{id}")
     ApiResponse<UserResponse> getUser(@PathVariable String id) {
         return ApiResponse.<UserResponse>builder()

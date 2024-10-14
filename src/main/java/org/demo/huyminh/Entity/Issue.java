@@ -34,10 +34,12 @@ public class Issue {
     @OneToMany
     private Set<Tag> tags;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<User> assignees;
 
     @ManyToOne
+    @JsonIgnore
     private User reporter;
 
     @JsonIgnore
@@ -46,6 +48,21 @@ public class Issue {
     private Task task;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
+
+    @Override
+    public String toString() {
+        return "Issue{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", status='" + status + '\'' +
+                ", taskID=" + taskID +
+                ", priority='" + priority + '\'' +
+                ", dueDate=" + dueDate +
+                ", tags=" + tags.stream().map(Tag::getName).toList() +
+                ", comments=" + comments +
+                '}';
+    }
 }

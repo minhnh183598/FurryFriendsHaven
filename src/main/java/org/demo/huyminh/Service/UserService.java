@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
 import org.demo.huyminh.DTO.Request.PasswordCreationRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
+import org.demo.huyminh.Entity.Role;
 import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
@@ -38,8 +39,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    @PersistenceContext
-    private EntityManager entityManager;
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -52,6 +51,17 @@ public class UserService {
         log.info("In method get Users");
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse).toList();
+    }
+
+    public List<UserResponse> getUsersByRole(String role) {
+        Role existingrole = roleRepository.findById(role)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTS));
+        List<UserResponse> users = userRepository.findUsersByRole(existingrole).stream()
+                .map(userMapper::toUserResponse).toList();
+        if(users.isEmpty()) {
+            throw new AppException(ErrorCode.LIST_USER_IS_EMPTY);
+        }
+        return users;
     }
 
 

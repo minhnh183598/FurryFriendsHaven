@@ -30,14 +30,12 @@ public class TaskController {
     private final UserService userService;
 
     @GetMapping
-    public ApiResponse<List<TaskResponse>> getTasks(
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String tag,
+    public ApiResponse<List<TaskResponse>> getTaskByTeam(
             @RequestHeader("Authorization") String jwt
     ) {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
-        List<TaskResponse> tasks = taskService.getTaskByTeam(user, category, tag);
+        List<TaskResponse> tasks = taskService.getTaskByTeam(user);
         return ApiResponse.<List<TaskResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find tasks successfully")
@@ -115,7 +113,7 @@ public class TaskController {
     ) {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
-        taskService.addUserToTask(taskId, userId);
+        taskService.addUserToTask(taskId, userId, user);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Add user to task successfully")
