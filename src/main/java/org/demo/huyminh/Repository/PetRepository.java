@@ -20,6 +20,7 @@ public interface PetRepository extends JpaRepository<Pet, String> {
     boolean existsByPetName(String petName);
     // Find pet_status
     List<Pet> findByPetStatus(String status);
+
     //Find pets by many fields
     @Query("SELECT p FROM Pet p WHERE " +
             "(:petType = 'All' OR p.petType = :petType) AND " +

@@ -109,6 +109,9 @@ public class PetService {
             case "sortByName":
                 pets.sort((p1, p2) -> p1.getPetName().compareTo(p2.getPetName()));
                 break;
+            case "sortByDate":
+                pets.sort((p1, p2) -> p2.getCreatedPetAt().compareTo(p1.getCreatedPetAt()));
+                break;
             case "sortByAge":
                 pets.sort(Comparator.comparingInt(pet -> {
                     switch (pet.getPetAge()) {

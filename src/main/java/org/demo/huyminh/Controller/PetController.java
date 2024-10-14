@@ -59,7 +59,7 @@ public class PetController {
             @RequestParam(defaultValue = "All") String petVaccin,
             @RequestParam(defaultValue = "All") String petStatus,
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(required = false) String sort) {
+            @RequestParam(defaultValue = "sortByDate") String sort) {
             return petService.searchPets(petType, petAge, petGender, petColor, petVaccin,petStatus, keyword, sort);
         }
     //Sort 6 pets
@@ -78,19 +78,6 @@ public class PetController {
 //        List<Pet> pets = petService.searchByPetName(keyword);
 //        return new ResponseEntity<>(pets, HttpStatus.OK);
 //        }
-//    //Search v2
-//    @GetMapping("/search")
-//    public ResponseEntity<List<Pet>> searchPets(
-//            @RequestParam(required = false) String petType,
-//            @RequestParam(required = false) String petGender,
-//            @RequestParam(required = false) String petAge,
-//            @RequestParam(required = false) String petColor,
-//            @RequestParam(required = false) String petStatus,
-//            @RequestParam(required = false) String petVaccin) {
-
-//        List<Pet> pets = petService.searchPets(petType, petGender, petAge, petColor, petStatus, petVaccin);
-//        return new ResponseEntity<>(pets, HttpStatus.OK);
-//    }
 //    //Sort Pets by Name
 //    @GetMapping("/sortByName")
 //    public List<Pet> sortByName(){
