@@ -20,6 +20,7 @@ public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;
     private PetRepository petRepository;
+
     //Create Application
     @PostMapping
     public ResponseEntity<Application> submitApplication(@RequestBody ApplicationRequest request){

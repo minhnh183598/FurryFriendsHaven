@@ -44,6 +44,7 @@ public class Application {
     String secondPerson;
     @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b")
     String secondPhone;
+
     //status = 0 = pending
     //status = 1 = accept
     //status = 2 = refuse

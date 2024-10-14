@@ -65,6 +65,7 @@ public class ApplicationService {
         return applicationRepository.save(application);
 
     }
+
     //GET APPLICATION LIST
     public List<Application> getApplications(){
         return applicationRepository.findByStatusOrderByCreateAtAsc(0);

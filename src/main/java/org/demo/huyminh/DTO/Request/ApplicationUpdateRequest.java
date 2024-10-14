@@ -23,18 +23,22 @@ public class ApplicationUpdateRequest {
     String address;
     String city;
     String job;
+
     @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b")
     String phone;
     String liveIn;
     String liveWith;
+
     String firstPerson;
     @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b")
     String firstPhone;
+
     String secondPerson;
     @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b")
     String secondPhone;
-    int status;
 
+    int status;
+    
     @Column(name = "update_status_at")
     private LocalDateTime updateAt;
 }
