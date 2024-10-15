@@ -40,12 +40,17 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("users/role/{role}")
-    ApiResponse<List<UserResponse>> getUsersByRole(@PathVariable String role) {
+    @GetMapping("users/search")
+    ApiResponse<List<UserResponse>> getUsersByRole(
+            @RequestParam(value = "role", defaultValue = "ALL") String role,
+            @RequestParam(value = "sort", defaultValue = "ASC") String sort,
+            @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+            @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword
+    ) {
         return ApiResponse.<List<UserResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Get users successfully")
-                .result(userService.getUsersByRole(role))
+                .result(userService.getUsersByRole(role, sort, sortBy, keyword))
                 .build();
     }
 

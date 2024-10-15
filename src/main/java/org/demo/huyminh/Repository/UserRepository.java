@@ -29,4 +29,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("SELECT u FROM User u WHERE ?1 MEMBER OF u.roles")
     List<User> findUsersByRole(Role role);
+//
+//    @Query("SELECT u FROM User u ORDER BY u.username :ASC")
+//    List<User> sortUsersByName();
 }

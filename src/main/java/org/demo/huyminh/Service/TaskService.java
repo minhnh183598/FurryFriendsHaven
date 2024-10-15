@@ -104,6 +104,9 @@ public class TaskService {
             taskResponse.setIssues(tasks.getFirst().getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
         }
         log.info(taskResponses.toString());
+        if(taskResponses.isEmpty()) {
+            throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
+        }
 
         return taskResponses;
     }
@@ -221,8 +224,8 @@ public class TaskService {
         log.info("PartialName: " + keyword);
         var result = taskRepository.findByPartialName(partialName);
 
-        for(Task index: result) {
-            log.info(String.valueOf(index));
+        if(result.isEmpty()) {
+            throw new AppException(ErrorCode.TASK_NOT_FOUND);
         }
         return result;
     }

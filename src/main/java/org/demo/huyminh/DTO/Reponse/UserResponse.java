@@ -27,5 +27,6 @@ public class UserResponse {
     String email;
     boolean noPassword;
     LocalDateTime createdAt;
+    int applicationQuantity;
     Set<RoleResponse> roles;
 }

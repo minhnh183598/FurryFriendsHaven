@@ -2,7 +2,10 @@ package org.demo.huyminh.Service;
 
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +26,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import java.text.ParseException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Minh
@@ -45,6 +45,7 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManager entityManager;
 
 
     public List<UserResponse> getUsers() {
@@ -53,17 +54,42 @@ public class UserService {
                 .map(userMapper::toUserResponse).toList();
     }
 
-    public List<UserResponse> getUsersByRole(String role) {
-        Role existingrole = roleRepository.findById(role)
+    public List<UserResponse> getUsersByRole(String role, String sort, String sortBy, String keyword) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> userRoot = cq.from(User.class);
+
+        Predicate predicate;
+        Role existingRole = roleRepository.findById(role.toUpperCase())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTS));
-        List<UserResponse> users = userRepository.findUsersByRole(existingrole).stream()
-                .map(userMapper::toUserResponse).toList();
-        if(users.isEmpty()) {
-            throw new AppException(ErrorCode.LIST_USER_IS_EMPTY);
+        if ("ALL".equals(role)) {
+            predicate = cb.isTrue(cb.literal(true));
+        } else {
+            predicate = cb.isMember(existingRole, userRoot.get("roles"));
+        }
+
+        if (keyword != null && !keyword.isEmpty()) {
+            Predicate keywordPredicate = cb.like(userRoot.get("username"), "%" + keyword + "%");
+            predicate = cb.and(predicate, keywordPredicate);
+        }
+
+        cq.where(predicate);
+
+        if ("username".equals(sortBy)) {
+            cq.orderBy("ASC".equals(sort) ? cb.asc(userRoot.get("username")) : cb.desc(userRoot.get("username")));
+        } else if ("createdAt".equals(sortBy)) {
+            cq.orderBy("ASC".equals(sort) ? cb.asc(userRoot.get("createdAt")) : cb.desc(userRoot.get("createdAt")));
+        } else if ("applicationQuantity".equals(sortBy)) {
+            cq.orderBy("ASC".equals(sort) ? cb.asc(userRoot.get("applicationQuantity")) : cb.desc(userRoot.get("applicationQuantity")));
+        }
+
+        List<UserResponse> users = new ArrayList<>();
+        for (User user : entityManager.createQuery(cq).getResultList()) {
+            UserResponse userResponse = userMapper.toUserResponse(user);
+            users.add(userResponse);
         }
         return users;
     }
-
 
     @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public UserResponse getUser(String id) {
