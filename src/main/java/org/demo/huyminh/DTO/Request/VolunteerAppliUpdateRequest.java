@@ -1,9 +1,12 @@
 package org.demo.huyminh.DTO.Request;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.demo.huyminh.Entity.User;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;

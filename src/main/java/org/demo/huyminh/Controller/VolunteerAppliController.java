@@ -61,8 +61,6 @@ public class VolunteerAppliController {
         return volunteerService.updateAppilicationStatus(volunteerAppliId, request);
     }
 
-
-
     //UpdateApplicaitonById
     @PutMapping("/{volunteerAppliId}")
     VolunteerApplication updateApplication(@PathVariable("volunteerAppliId") String volunteerAppliId,@RequestBody VolunteerAppliUpdateRequest request){

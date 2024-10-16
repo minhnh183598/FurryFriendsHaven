@@ -1,6 +1,5 @@
 package org.demo.huyminh.Controller;
 
-import org.demo.huyminh.DTO.Reponse.ApplicationResponse;
 import org.demo.huyminh.DTO.Request.ApplicationRequest;
 import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
 import org.demo.huyminh.Entity.Application;
@@ -47,27 +46,30 @@ public class ApplicationController {
     List<Application> getApplicationsWithStatus1(){
         return applicationService.getApplicationsWithStatus1();
     }
+
     @GetMapping("status/2")
     List<Application> getApplicationsWithStatus2(){
         return applicationService.getApplicationsWithStatus2();
     }
+
     //Get Application By Id
     @GetMapping("/{applicationId}")
     Optional<Application> getApplication(@PathVariable("applicationId") String applicationId){
            return applicationService.getApplicaiton(applicationId);
     }
+
     //Update Application
     @PutMapping("/{applicationId}")
     Application updateApplication(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
              return applicationService.updateApplication(applicationId,request);
     }
+
     //Delete Application
     @DeleteMapping("/{applicationId}")
     String deleteApplication(@PathVariable("applicationId") String applicationId){
         applicationService.deleteApplication(applicationId);
         return "Application has been deleted";
     }
-
 }
 //    Application createApplication(@RequestBody ApplicationCreationRequest request){
 //     return applicationService.createApplication(request);

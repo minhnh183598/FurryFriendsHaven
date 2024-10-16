@@ -66,7 +66,8 @@ public class VolunteerService {
 
     //UpdateApplicaitonById
     public VolunteerApplication updateVolunApplication(String volunteerAppliId, VolunteerAppliUpdateRequest request){
-        VolunteerApplication application = new VolunteerApplication();
+        VolunteerApplication application = volunteerRepository.findById(volunteerAppliId)
+                .orElseThrow(() -> new RuntimeException("Application ID not found"));
 
         application.setFullName(request.getFullName());
         application.setYob(request.getYob());
