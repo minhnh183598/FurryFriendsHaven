@@ -97,4 +97,20 @@ public class IssueController {
                 .message("Add user to issue successfully")
                 .build();
     }
+
+    @PutMapping("{issueId}/task/{taskId}")
+    public ApiResponse<Void> updateIssue(
+            @PathVariable("issueId") int issueId,
+            @PathVariable("taskId") int taskId,
+            @RequestBody IssueRequest request,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
+        issueService.updateIssue(request, issueId, taskId, user);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update issue successfully")
+                .build();
+    }
 }

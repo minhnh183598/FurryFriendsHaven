@@ -35,7 +35,7 @@ public class Tag {
     @Column(nullable = false)
     private TagType type;
 
-    @OneToMany
+    @ManyToMany
     private Set<Task> tasks;
 
     public enum TagType {

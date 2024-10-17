@@ -148,16 +148,16 @@ CREATE TABLE refresh_token
 
 CREATE TABLE role
 (
-    name        varchar(100) NOT NULL,
-    description varchar(max
-) ,
+    name        varchar(255) NOT NULL,
+    description varchar(255),
     CONSTRAINT pk_role PRIMARY KEY (name)
-) GO
+)
+    GO
 
 CREATE TABLE role_permissions
 (
-    role_name        varchar(100) NOT NULL,
-    permissions_name varchar(100) NOT NULL,
+    role_name        varchar(255) NOT NULL,
+    permissions_name varchar(255) NOT NULL,
     CONSTRAINT pk_role_permissions PRIMARY KEY (role_name, permissions_name)
 )
     GO
@@ -165,22 +165,31 @@ CREATE TABLE role_permissions
 CREATE TABLE tag
 (
     name        varchar(255) NOT NULL,
-    description varchar(max
-) ,
+    description varchar(255),
     type        varchar(255) NOT NULL,
     CONSTRAINT pk_tag PRIMARY KEY (name)
-) GO
+)
+    GO
+
+CREATE TABLE tag_tasks
+(
+    tag_name varchar(255) NOT NULL,
+    tasks_id int          NOT NULL,
+    CONSTRAINT pk_tag_tasks PRIMARY KEY (tag_name, tasks_id)
+)
+    GO
 
 CREATE TABLE task
 (
     id          int          NOT NULL,
     name        varchar(255) NOT NULL,
-    description varchar(max
-) ,
+    description varchar(255),
     category    varchar(255),
+    due_date    datetime,
     owner_id    varchar(255),
     CONSTRAINT pk_task PRIMARY KEY (id)
-) GO
+)
+    GO
 
 CREATE TABLE task_tags
 (
@@ -200,11 +209,11 @@ CREATE TABLE task_team
 CREATE TABLE users
 (
     id                     varchar(255) NOT NULL,
-    username               varchar(100),
+    username               varchar(255),
     password               varchar(255),
-    firstname              varchar(100),
-    lastname               varchar(100),
-    email                  varchar(100),
+    firstname              varchar(255),
+    lastname               varchar(255),
+    email                  varchar(255),
     is_enabled             bit          NOT NULL,
     is_password_changeable bit          NOT NULL,
     created_at             datetime,
@@ -216,7 +225,7 @@ CREATE TABLE users
 CREATE TABLE users_roles
 (
     user_id    varchar(255) NOT NULL,
-    roles_name varchar(30)  NOT NULL,
+    roles_name varchar(255) NOT NULL,
     CONSTRAINT pk_users_roles PRIMARY KEY (user_id, roles_name)
 )
     GO
@@ -258,6 +267,10 @@ ALTER TABLE refresh_token
 
 ALTER TABLE refresh_token
     ADD CONSTRAINT uc_refreshtoken_user UNIQUE (user_id)
+    GO
+
+ALTER TABLE tag_tasks
+    ADD CONSTRAINT uc_tag_tasks_tanataid UNIQUE (tag_name, tasks_id)
     GO
 
 ALTER TABLE task
@@ -330,6 +343,14 @@ ALTER TABLE role_permissions
 
 ALTER TABLE role_permissions
     ADD CONSTRAINT fk_rolper_on_role FOREIGN KEY (role_name) REFERENCES role (name)
+    GO
+
+ALTER TABLE tag_tasks
+    ADD CONSTRAINT fk_tag_tasks_on_tag FOREIGN KEY (tag_name) REFERENCES tag (name)
+    GO
+
+ALTER TABLE tag_tasks
+    ADD CONSTRAINT fk_tag_tasks_on_task FOREIGN KEY (tasks_id) REFERENCES task (id)
     GO
 
 ALTER TABLE task_tags

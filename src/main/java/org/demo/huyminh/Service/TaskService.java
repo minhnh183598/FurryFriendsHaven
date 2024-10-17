@@ -1,5 +1,6 @@
 package org.demo.huyminh.Service;
 
+import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,7 +19,10 @@ import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.TagRepository;
 import org.demo.huyminh.Repository.TaskRepository;
 import org.demo.huyminh.Repository.UserRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -43,9 +47,13 @@ public class TaskService {
     final TagRepository tagRepository;
     private final UserMapper userMapper;
 
+    @PreAuthorize("hasRole('ADMIN')")
     public TaskResponse createTask(TaskCreationRequest task, User user) {
         task.setOwner(user);
         Task newTask = taskMapper.toTask(task);
+        if(newTask.getDueDate().isBefore(LocalDateTime.now())) {
+            throw new AppException(ErrorCode.INVALID_DUE_DATE);
+        }
 
         newTask.getTeam().add(user);
         saveTaskWithTags(newTask);
@@ -139,6 +147,7 @@ public class TaskService {
         taskRepository.deleteById(task.getId());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public TaskResponse updateTask(TaskUpdateRequest updatedTask, User user) {
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
@@ -146,11 +155,14 @@ public class TaskService {
         Task task = taskRepository.findById(updatedTask.getId())
                     .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
-        if(!(task.getOwner().equals(existingUser) || task.getTeam().contains(existingUser))) {
+        if(!(task.getOwner().equals(existingUser))) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         Task updateTask = taskMapper.updateTask(updatedTask);
+        if(updateTask.getDueDate().isBefore(LocalDateTime.now())) {
+            throw new AppException(ErrorCode.INVALID_DUE_DATE);
+        }
         log.info("Update Task: " + updateTask);
         updateTask.setTeam(task.getTeam());
         updateTask.setIssues(task.getIssues());
@@ -208,7 +220,7 @@ public class TaskService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
-        if(!(task.getOwner().equals(user) || task.getTeam().contains(user))) {
+        if(!(task.getOwner().equals(user))) {
             throw new AppException(ErrorCode.UNAUTHORIZED_TO_DELETE_USER_FROM_TASK);
         }
 

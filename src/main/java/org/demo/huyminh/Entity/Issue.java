@@ -3,6 +3,8 @@ package org.demo.huyminh.Entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.demo.huyminh.Enums.Status;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +28,7 @@ public class Issue {
     private int id;
     private String title;
     private String description;
-    private String status;
+    private Status status;
     private int taskID;
     private String priority;
     private LocalDate dueDate;
@@ -43,7 +45,7 @@ public class Issue {
     private User reporter;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "task_id")
     private Task task;
 

@@ -60,17 +60,27 @@ public class UserService {
         Root<User> userRoot = cq.from(User.class);
 
         Predicate predicate;
-        Role existingRole = roleRepository.findById(role.toUpperCase())
-                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTS));
+
         if ("ALL".equals(role)) {
             predicate = cb.isTrue(cb.literal(true));
+        } else if ("ADMIN".equals(role)) {
+            predicate = cb.and(
+                    cb.isMember(roleRepository.findById("ADMIN")
+                            .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTS)), userRoot.get("roles"))
+            );
         } else {
-            predicate = cb.isMember(existingRole, userRoot.get("roles"));
-        }
+            Role existingRole = roleRepository.findById(role.toUpperCase())
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTS));
 
-        if (keyword != null && !keyword.isEmpty()) {
-            Predicate keywordPredicate = cb.like(userRoot.get("username"), "%" + keyword + "%");
-            predicate = cb.and(predicate, keywordPredicate);
+            Predicate notAdminPredicate = cb.not(
+                    cb.isMember(roleRepository.findById("ADMIN")
+                            .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTS)), userRoot.get("roles"))
+            );
+
+            predicate = cb.and(
+                    notAdminPredicate,
+                    cb.isMember(existingRole, userRoot.get("roles"))
+            );
         }
 
         cq.where(predicate);

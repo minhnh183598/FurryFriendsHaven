@@ -28,6 +28,8 @@ public class TaskUpdateRequest {
     int id;
     String name;
     String description;
+    String status;
     String category;
+    String dueDate;
     Set<Tag> tags;
 }

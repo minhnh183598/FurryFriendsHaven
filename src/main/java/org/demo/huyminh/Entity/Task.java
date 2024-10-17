@@ -3,6 +3,8 @@ package org.demo.huyminh.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.demo.huyminh.Enums.Status;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -21,17 +23,22 @@ import java.util.Set;
 @AllArgsConstructor
 public class Task {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(nullable = false, unique = true)
     private String name;
-
     private String description;
-
+    private Status status;
     private String category;
+    private LocalDateTime dueDate;
 
-    @OneToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinTable(
+            name = "task_tags",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
     private Set<Tag> tags;
 
     @ManyToOne

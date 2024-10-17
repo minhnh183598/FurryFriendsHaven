@@ -65,6 +65,12 @@ public enum ErrorCode {
     TASK_HAS_NO_ISSUES(HttpStatus.NOT_FOUND.value(), "Task has no issue", HttpStatus.NOT_FOUND),
     ROLE_NOT_EXISTS(HttpStatus.BAD_REQUEST.value(), "Role does not exists", HttpStatus.BAD_REQUEST),
     LIST_USER_IS_EMPTY(HttpStatus.NOT_FOUND.value(), "List user is empty", HttpStatus.NOT_FOUND),
+    DUE_DATE_IS_REQUIRED(HttpStatus.BAD_REQUEST.value(), "Due date is required", HttpStatus.BAD_REQUEST),
+    INVALID_DUE_DATE(HttpStatus.BAD_REQUEST.value(), "Due date must be prior to the current date", HttpStatus.BAD_REQUEST),
+    DUE_DATE_IS_BEFORE_TASK_DUE_DATE(HttpStatus.BAD_REQUEST.value(), "Issue Due date must be before Task due date", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TO_UPDATE_ISSUE(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this issue", HttpStatus.FORBIDDEN),
+    INVALID_STATUS(HttpStatus.BAD_REQUEST.value(), "Invalid status", HttpStatus.BAD_REQUEST),
+    STATUS_IS_REQUIRED(HttpStatus.BAD_REQUEST.value(), "Status is required", HttpStatus.BAD_REQUEST),
     ;
 
     private int code;

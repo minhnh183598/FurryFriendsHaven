@@ -15,7 +15,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "Spring")
 public interface IssueMapper {
 
-    @Mapping(target = "reporter", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     Issue toIssue(IssueRequest request);
 
     @Mapping(target = "tags", ignore = true)
