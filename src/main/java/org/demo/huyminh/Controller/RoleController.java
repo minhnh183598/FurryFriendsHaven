@@ -31,7 +31,7 @@ public class RoleController {
         return ApiResponse.<RoleResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("Roles created successfully")
-                .result(roleService.create(request))
+                .result(roleService.createRole(request))
                 .build();
     }
 
@@ -48,7 +48,7 @@ public class RoleController {
     @DeleteMapping("/{role}")
     ApiResponse<Void> delete(@PathVariable String role) {
 
-        roleService.delete(role);
+        roleService.deleteRole(role);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Permission deleted successfully")

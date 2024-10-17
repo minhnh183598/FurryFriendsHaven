@@ -4,7 +4,7 @@ server:
 spring:
   application:
     api-prefix: /api/v1
-    name: FurryFriendsHave
+    name: FurryFriendsHaven
   datasource:
     url: jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true;databaseName=PAWSHOP
     username: sa
@@ -33,11 +33,12 @@ spring:
     content-type: text/html
     cache: false
 
+
 outbound:
   identity:
     client-id: "<CLIENT_ID>"
     client-secret: "<CLIENT_SECRET>"
-    redirect-uri: "http://localhost:3000/authenticate"
+    redirect-uri: "http://localhost:3000/login"
 
 jwt:
   signerKey: "tAP7OqwVvg3eWAB0/SNQyk/OmS3159XCWNgaLKjBlOKEVYF3pzb6GhbYWEcQnGwp"

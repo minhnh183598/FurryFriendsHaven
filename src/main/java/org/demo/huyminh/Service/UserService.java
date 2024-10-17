@@ -1,7 +1,11 @@
 package org.demo.huyminh.Service;
 
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +14,7 @@ import org.demo.huyminh.DTO.Reponse.UserResponse;
 import org.demo.huyminh.DTO.Request.ChangePasswordRequest;
 import org.demo.huyminh.DTO.Request.PasswordCreationRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
+import org.demo.huyminh.Entity.Role;
 import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
@@ -21,6 +26,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import java.text.ParseException;
+import java.util.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,22 +41,66 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    @PersistenceContext
-    private EntityManager entityManager;
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManager entityManager;
 
-
-    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
+    //@PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public List<UserResponse> getUsers() {
         log.info("In method get Users");
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse).toList();
     }
 
+    public List<UserResponse> getUsersByRole(String role, String sort, String sortBy, String keyword) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> userRoot = cq.from(User.class);
+
+        Predicate predicate;
+
+        if ("ALL".equals(role)) {
+            predicate = cb.isTrue(cb.literal(true));
+        } else if ("ADMIN".equals(role)) {
+            predicate = cb.and(
+                    cb.isMember(roleRepository.findById("ADMIN")
+                            .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTS)), userRoot.get("roles"))
+            );
+        } else {
+            Role existingRole = roleRepository.findById(role.toUpperCase())
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTS));
+
+            Predicate notAdminPredicate = cb.not(
+                    cb.isMember(roleRepository.findById("ADMIN")
+                            .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTS)), userRoot.get("roles"))
+            );
+
+            predicate = cb.and(
+                    notAdminPredicate,
+                    cb.isMember(existingRole, userRoot.get("roles"))
+            );
+        }
+
+        cq.where(predicate);
+
+        if ("username".equals(sortBy)) {
+            cq.orderBy("ASC".equals(sort) ? cb.asc(userRoot.get("username")) : cb.desc(userRoot.get("username")));
+        } else if ("createdAt".equals(sortBy)) {
+            cq.orderBy("ASC".equals(sort) ? cb.asc(userRoot.get("createdAt")) : cb.desc(userRoot.get("createdAt")));
+        } else if ("applicationQuantity".equals(sortBy)) {
+            cq.orderBy("ASC".equals(sort) ? cb.asc(userRoot.get("applicationQuantity")) : cb.desc(userRoot.get("applicationQuantity")));
+        }
+
+        List<UserResponse> users = new ArrayList<>();
+        for (User user : entityManager.createQuery(cq).getResultList()) {
+            UserResponse userResponse = userMapper.toUserResponse(user);
+            users.add(userResponse);
+        }
+        return users;
+    }
 
 //    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public UserResponse getUser(String id) {
@@ -58,30 +109,19 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found")));
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
-    public void updateUser(String id, UserUpdateRequest request) {
-        log.info("UserService: updateUser");
+    public UserResponse updateUser(String id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
-        User newUser = user;
-        newUser.setUsername(request.getUsername());
-        newUser.setFirstname(request.getFirstname());
-        newUser.setLastname(request.getLastname());
+        userMapper.updateUser(user, request);
 
-        var currentUser = SecurityContextHolder.getContext();
+        var roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
 
-        if (!currentUser.getAuthentication().getAuthorities().stream()
-                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"))) {
-            userRepository.save(newUser);
-            return;
-        }
-
-        var newRoles = roleRepository.findAllById(request.getRoles());
-        newUser.getRoles().addAll(newRoles);
-
-        userRepository.save(newUser);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     @Transactional
@@ -135,6 +175,18 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
         return null;
+    }
+
+    public User findByToken(String token) {
+        String username = null;
+        try {
+            username = SignedJWT.parse(token).getJWTClaimsSet().getSubject();
+        } catch (ParseException e) {
+            throw new RuntimeException("Find user by token failed");
+        }
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
     }
 
     public void changePassword(String id, ChangePasswordRequest request) {

@@ -197,7 +197,7 @@ public class AuthenticationService {
         String tokenId = SignedJWT.parse(token).getJWTClaimsSet().getJWTID();
         String refreshTokenId = SignedJWT.parse(refreshToken).getJWTClaimsSet().getJWTID();
 
-        // Tìm RefreshToken hiện có cho user
+        // Find current refreshToken if exists
         Optional<RefreshToken> existingTokenOpt = refreshTokenRepository.findByUserId(user.getId());
 
         RefreshToken refreshTokenEntity;

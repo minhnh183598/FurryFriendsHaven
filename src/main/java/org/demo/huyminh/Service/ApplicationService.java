@@ -30,6 +30,8 @@ public class ApplicationService {
                 .orElseThrow(() -> new RuntimeException("Pet not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not Found"));
+        user.setApplicationQuantity(user.getApplicationQuantity() + 1);
+        userRepository.save(user);
 
         Application application = new Application();
         application.setId(userId);

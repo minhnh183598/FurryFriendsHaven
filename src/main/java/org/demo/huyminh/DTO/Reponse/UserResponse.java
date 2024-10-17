@@ -3,7 +3,7 @@ package org.demo.huyminh.DTO.Reponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
@@ -26,5 +26,7 @@ public class UserResponse {
     String lastname;
     String email;
     boolean noPassword;
+    LocalDateTime createdAt;
+    int applicationQuantity;
     Set<RoleResponse> roles;
 }

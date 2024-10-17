@@ -36,6 +36,8 @@ public class SecurityConfig {
     private final String[] SECURED_ENDPOINTS = {};
     private final String[] UNSECURED_ENDPOINTS = new String[]{
             "/api/v1/auth/**",
+            "/api/v1/users",
+            "/api/v1/pets/**",
     };
 
 
