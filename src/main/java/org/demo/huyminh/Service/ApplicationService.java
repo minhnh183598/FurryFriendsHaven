@@ -89,21 +89,25 @@ public class ApplicationService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application Id not Existed"));
 
-        application.setFullName(request.getFullName());
-        application.setYob(request.getYob());
-        application.setGender(request.getGender());
-        application.setAddress(request.getAddress());
-        application.setCity(request.getCity());
-        application.setJob(request.getJob());
-        application.setPhone(request.getPhone());
-        application.setLiveIn(request.getLiveIn());
-        application.setLiveWith(request.getLiveWith());
-        application.setFirstPerson(request.getFirstPerson());
-        application.setFirstPhone(request.getFirstPhone());
-        application.setSecondPerson(request.getSecondPerson());
-        application.setSecondPhone(request.getSecondPhone());
-
-         return applicationRepository.save(application);
+        if(application.getStatus() == 0){
+            application.setFullName(request.getFullName());
+            application.setYob(request.getYob());
+            application.setGender(request.getGender());
+            application.setAddress(request.getAddress());
+            application.setCity(request.getCity());
+            application.setJob(request.getJob());
+            application.setPhone(request.getPhone());
+            application.setLiveIn(request.getLiveIn());
+            application.setLiveWith(request.getLiveWith());
+            application.setFirstPerson(request.getFirstPerson());
+            application.setFirstPhone(request.getFirstPhone());
+            application.setSecondPerson(request.getSecondPerson());
+            application.setSecondPhone(request.getSecondPhone());
+            return applicationRepository.save(application);
+        }
+        else{
+            throw new RuntimeException("Can Not Update Application Form");
+        }
     }
     //DELETE APPLICATION
     public void deleteApplication(String applicationId) {

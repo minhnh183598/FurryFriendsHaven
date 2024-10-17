@@ -68,19 +68,23 @@ public class VolunteerService {
     public VolunteerApplication updateVolunApplication(String volunteerAppliId, VolunteerAppliUpdateRequest request){
         VolunteerApplication application = volunteerRepository.findById(volunteerAppliId)
                 .orElseThrow(() -> new RuntimeException("Application ID not found"));
+        if(application.getStatus() == 0){
+            application.setFullName(request.getFullName());
+            application.setYob(request.getYob());
+            application.setGender(request.getGender());
+            application.setAddress(request.getAddress());
+            application.setPhone(request.getPhone());
+            application.setAdoptionExp(request.getAdoptionExp());
+            application.setDaysOfWeek(request.getDaysOfWeek());
+            application.setMorning(request.getMorning());
+            application.setAfternoon(request.getAfternoon());
+            application.setReason(request.getReason());
 
-        application.setFullName(request.getFullName());
-        application.setYob(request.getYob());
-        application.setGender(request.getGender());
-        application.setAddress(request.getAddress());
-        application.setPhone(request.getPhone());
-        application.setAdoptionExp(request.getAdoptionExp());
-        application.setDaysOfWeek(request.getDaysOfWeek());
-        application.setMorning(request.getMorning());
-        application.setAfternoon(request.getAfternoon());
-        application.setReason(request.getReason());
-
-        return volunteerRepository.save(application);
+            return volunteerRepository.save(application);
+        }
+        else{
+            throw new RuntimeException("Can Not Update Volunteer Application");
+        }
     }
 
     //Update Application Status
