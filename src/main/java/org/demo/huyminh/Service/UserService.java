@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
+import org.demo.huyminh.DTO.Request.ChangePasswordRequest;
 import org.demo.huyminh.DTO.Request.PasswordCreationRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
 import org.demo.huyminh.Entity.Role;
@@ -21,13 +22,14 @@ import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.RoleRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import java.text.ParseException;
 import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Minh
@@ -42,12 +44,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder encoder;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
 
-
+    //@PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public List<UserResponse> getUsers() {
         log.info("In method get Users");
         return userRepository.findAll().stream()
@@ -101,12 +102,13 @@ public class UserService {
         return users;
     }
 
-    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
+//    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public UserResponse getUser(String id) {
         log.info("In method get User: {}", id);
         return userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found")));
     }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -185,5 +187,22 @@ public class UserService {
 
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+    }
+
+    public void changePassword(String id, ChangePasswordRequest request) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new AppException(ErrorCode.OLD_PASSWORD_WRONG);
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new AppException(ErrorCode.CONFIRM_PASSWORD_WRONG);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }

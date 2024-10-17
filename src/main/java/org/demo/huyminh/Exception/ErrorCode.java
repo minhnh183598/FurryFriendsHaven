@@ -71,6 +71,9 @@ public enum ErrorCode {
     UNAUTHORIZED_TO_UPDATE_ISSUE(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this issue", HttpStatus.FORBIDDEN),
     INVALID_STATUS(HttpStatus.BAD_REQUEST.value(), "Invalid status", HttpStatus.BAD_REQUEST),
     STATUS_IS_REQUIRED(HttpStatus.BAD_REQUEST.value(), "Status is required", HttpStatus.BAD_REQUEST),
+    OLD_PASSWORD_WRONG(HttpStatus.FORBIDDEN.value(), "Old password is wrong", HttpStatus.FORBIDDEN),
+    CONFIRM_PASSWORD_WRONG(HttpStatus.FORBIDDEN.value(), "Confirm password is wrong", HttpStatus.FORBIDDEN),
+    USERNAME_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Username not found", HttpStatus.NOT_FOUND),
     ;
 
     private int code;

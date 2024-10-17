@@ -22,6 +22,5 @@ public class UserUpdateRequest {
     String username;
     String firstname;
     String lastname;
-
     List<String> roles;
 }
