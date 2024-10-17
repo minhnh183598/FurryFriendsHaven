@@ -9,6 +9,8 @@ import lombok.experimental.FieldDefaults;
 import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Entity.User;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,6 +40,9 @@ public class ApplicationResponse {
     String secondPhone;
     int status;
     String id;
+
+    @Column(name = "update_status_at")
+    private LocalDateTime updateAt;
 
     @ManyToOne
     @JoinColumn(name = "petId", referencedColumnName = "petId", insertable = false, updatable = false)
