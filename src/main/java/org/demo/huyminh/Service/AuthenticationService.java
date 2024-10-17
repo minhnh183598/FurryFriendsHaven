@@ -181,10 +181,14 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.USER_IS_DISABLED);
         }
 
+        if(!user.getUsername().equals(request.getUsername())){
+            throw new AppException(ErrorCode.USERNAME_NOT_FOUND);
+        }
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if (!authenticated) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(ErrorCode.PASSWORD_INVALID);
         }
 
         var token = generateToken(user, VALID_DURATION);
@@ -193,7 +197,7 @@ public class AuthenticationService {
         String tokenId = SignedJWT.parse(token).getJWTClaimsSet().getJWTID();
         String refreshTokenId = SignedJWT.parse(refreshToken).getJWTClaimsSet().getJWTID();
 
-        // Tìm RefreshToken hiện có cho user
+        // Find current refreshToken if exists
         Optional<RefreshToken> existingTokenOpt = refreshTokenRepository.findByUserId(user.getId());
 
         RefreshToken refreshTokenEntity;

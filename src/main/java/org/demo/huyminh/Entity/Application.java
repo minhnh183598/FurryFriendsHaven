@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import javax.naming.Name;
 import java.time.LocalDateTime;
 
 @Entity
@@ -66,6 +67,4 @@ public class Application {
     @ManyToOne
     @JoinColumn(name = "petId", referencedColumnName = "petId", insertable = false, updatable = false)
     Pet pet;
-
-
 }

@@ -64,6 +64,12 @@ public class ApplicationController {
              return applicationService.updateApplication(applicationId,request);
     }
 
+    //Update Application Status
+    @PutMapping("/status/{applicationId}")
+    Application updateApplicationStatus(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
+        return applicationService.updateApplicationStatus(applicationId,request);
+    }
+
     //Delete Application
     @DeleteMapping("/{applicationId}")
     String deleteApplication(@PathVariable("applicationId") String applicationId){
@@ -71,6 +77,7 @@ public class ApplicationController {
         return "Application has been deleted";
     }
 }
+
 //    Application createApplication(@RequestBody ApplicationCreationRequest request){
 //     return applicationService.createApplication(request);
 //    }

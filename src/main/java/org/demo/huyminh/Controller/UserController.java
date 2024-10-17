@@ -1,13 +1,11 @@
 package org.demo.huyminh.Controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
-import org.demo.huyminh.DTO.Request.UserCreationRequest;
+import org.demo.huyminh.DTO.Request.ChangePasswordRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
-import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,6 +41,20 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("users/search")
+    ApiResponse<List<UserResponse>> getUsersByRole(
+            @RequestParam(value = "role", defaultValue = "ALL") String role,
+            @RequestParam(value = "sort", defaultValue = "ASC") String sort,
+            @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+            @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword
+    ) {
+        return ApiResponse.<List<UserResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get users successfully")
+                .result(userService.getUsersByRole(role, sort, sortBy, keyword))
+                .build();
+    }
+
     @GetMapping("/users/{id}")
     ApiResponse<UserResponse> getUser(@PathVariable String id) {
         return ApiResponse.<UserResponse>builder()
@@ -62,16 +74,29 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    UserResponse updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request) {
-        return userService.updateUser(id, request);
+    public ApiResponse<Void> updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request) {
+        userService.updateUser(id, request);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update user successfully")
+                .build();
     }
 
     @DeleteMapping("/users/{id}")
-    ApiResponse<String> deleteUser(@PathVariable String id) {
+    ApiResponse<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
-        return ApiResponse.<String>builder()
+        return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
-                .result("Delete user successfully")
+                .message("Delete user successfully")
+                .build();
+    }
+
+    @PutMapping("/users/{id}/change-password")
+    ApiResponse<Void> changePassword(@PathVariable String id, @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(id, request);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Change password successfully")
                 .build();
     }
 }
