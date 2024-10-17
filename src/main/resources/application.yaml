@@ -13,7 +13,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-    show-sql: true
+    show-sql: false
   main:
     banner-mode: off
   mail:
