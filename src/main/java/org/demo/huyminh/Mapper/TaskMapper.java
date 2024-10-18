@@ -22,18 +22,21 @@ import java.time.format.DateTimeParseException;
 @Mapper(componentModel = "Spring")
 public interface TaskMapper {
 
+    @Mapping(target = "feedbacks", ignore = true)
     Task toTask(TaskCreationRequest request);
 
     @Mapping(target = "tags", ignore = true)
     @Mapping(target = "issues", ignore = true)
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "team", ignore = true)
+    @Mapping(target = "feedbacks", ignore = true)
     TaskResponse toTaskResponse(Task task);
 
     @Mapping(target = "tags", ignore = true)
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "team", ignore = true)
     @Mapping(target = "issues", ignore = true)
+    @Mapping(target = "feedbacks", ignore = true)
     Task updateTask(TaskUpdateRequest request);
 
     default LocalDateTime mapStringToLocalDateTime(String dueDate) {

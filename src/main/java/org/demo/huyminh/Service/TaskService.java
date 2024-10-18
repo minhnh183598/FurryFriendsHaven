@@ -14,6 +14,7 @@ import org.demo.huyminh.Entity.Task;
 import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
+import org.demo.huyminh.Mapper.FeedbackMapper;
 import org.demo.huyminh.Mapper.TaskMapper;
 import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.TagRepository;
@@ -45,7 +46,8 @@ public class TaskService {
     final UserRepository userRepository;
     final TaskMapper taskMapper;
     final TagRepository tagRepository;
-    private final UserMapper userMapper;
+    final UserMapper userMapper;
+    final FeedbackMapper feedbackMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
     public TaskResponse createTask(TaskCreationRequest task, User user) {
@@ -110,6 +112,7 @@ public class TaskService {
             taskResponse.setTeam(tasks.getFirst().getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
             taskResponse.setTags(tasks.getFirst().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
             taskResponse.setIssues(tasks.getFirst().getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
+            taskResponse.setFeedbacks(tasks.getFirst().getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
         }
         log.info(taskResponses.toString());
         if(taskResponses.isEmpty()) {

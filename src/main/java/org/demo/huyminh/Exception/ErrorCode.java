@@ -74,7 +74,13 @@ public enum ErrorCode {
     OLD_PASSWORD_WRONG(HttpStatus.FORBIDDEN.value(), "Old password is wrong", HttpStatus.FORBIDDEN),
     CONFIRM_PASSWORD_WRONG(HttpStatus.FORBIDDEN.value(), "Confirm password is wrong", HttpStatus.FORBIDDEN),
     USERNAME_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Username not found", HttpStatus.NOT_FOUND),
-    ;
+    FEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Feedback not found", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_DELETE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this feedback", HttpStatus.FORBIDDEN),
+    FEEDBACK_NOT_BELONG_TO_TASK(HttpStatus.BAD_REQUEST.value(), "Feedback not belong to task", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TO_UPDATE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this feedback", HttpStatus.FORBIDDEN),
+    USER_NOT_IN_ISSUE(HttpStatus.FORBIDDEN.value(), "User not in issue", HttpStatus.FORBIDDEN),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Comment not found", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_UPDATE_COMMENT(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this comment", HttpStatus.FORBIDDEN),;
 
     private int code;
     private String message;

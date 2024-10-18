@@ -31,4 +31,5 @@ public class TaskResponse {
     List<String> issues;
     UserResponse owner;
     List<UserResponse> team;
+    List<FeedbackResponse> feedbacks;
 }
