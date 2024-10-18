@@ -1,12 +1,13 @@
 package org.demo.huyminh.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,24 +32,60 @@ public class User {
     String password;
     String firstname;
     String lastname;
+
+    @Column(unique = true)
     String email;
-    LocalDate dob;
     boolean isEnabled;
     boolean isPasswordChangeable;
 
-    String applicationId;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Application> applications;
+
+    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Issue> assignedIssues;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Task> tasks;
 
     @ManyToMany
     Set<Role> roles;
 
+    @Column
+    private int applicationQuantity;
 
-    public User(String username, String password, String firstname, String lastname, LocalDate dob) {
+    public User(String username, String password, String firstname, String lastname) {
         this.username = username;
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.dob = dob;
         this.isEnabled = false;
         this.isPasswordChangeable = false;
+        this.createdAt = LocalDateTime.now();
+        this.applicationQuantity = 0;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", email='" + email + '\'' +
+                ", isEnabled=" + isEnabled +
+                ", isPasswordChangeable=" + isPasswordChangeable +
+                ", createdAt=" + createdAt +
+                ", applicationQuantity=" + applicationQuantity +
+                ", applications=" + applications +
+                ", roles=" + roles.stream().map(Role::getName).toList() +
+                '}';
     }
 }

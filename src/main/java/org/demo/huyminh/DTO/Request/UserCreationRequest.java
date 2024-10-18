@@ -3,9 +3,6 @@ package org.demo.huyminh.DTO.Request;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.demo.huyminh.Validator.DobConstraint;
-
-import java.time.LocalDate;
 
 /**
  * @author Minh
@@ -28,7 +25,4 @@ public class UserCreationRequest {
     String firstname;
     String lastname;
     String email;
-
-    @DobConstraint(min = 10, message = "INVALID_DOB")
-    LocalDate dob;
 }

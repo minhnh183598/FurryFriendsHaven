@@ -30,6 +30,7 @@ public class PermissionService {
     PermissionRepository permissionRepository;
     PermissionMapper permissionMapper;
 
+    @Transactional
     public PermissionResponse create(PermissionRequest request) {
         Permission permission = permissionMapper.toPermission(request);
         permission = permissionRepository.save(permission);

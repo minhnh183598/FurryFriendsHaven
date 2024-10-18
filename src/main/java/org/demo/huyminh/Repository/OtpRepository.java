@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
  * Time: 8:14 PM
  */
 
-public interface OptRepository extends JpaRepository<Otp, Integer> {
+public interface OtpRepository extends JpaRepository<Otp, Integer> {
      @Query("SELECT o FROM Otp o WHERE o.code = ?1 AND o.user.id = ?2")
      Otp findByCode(String otp, String userId);
 

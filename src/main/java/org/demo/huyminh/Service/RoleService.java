@@ -1,5 +1,6 @@
 package org.demo.huyminh.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,8 @@ public class RoleService {
     RoleMapper roleMapper;
     private final PermissionRepository permissionRepository;
 
-    public RoleResponse create(RoleRequest roleRequest) {
+    @Transactional
+    public RoleResponse createRole(RoleRequest roleRequest) {
         var role = roleMapper.toRole(roleRequest);
         List<Permission> permissions = permissionRepository.findAllById(roleRequest.getPermissions());
         role.setPermissions(new HashSet<>(permissions));
@@ -44,7 +46,8 @@ public class RoleService {
                 .map(roleMapper::toRoleResponse).toList();
     }
 
-    public void delete(String roleName) {
+    @Transactional
+    public void deleteRole(String roleName) {
         roleRepository.deleteById(roleName);
     }
 

@@ -1,6 +1,5 @@
 package org.demo.huyminh.Controller;
 
-import org.demo.huyminh.DTO.Reponse.ApplicationResponse;
 import org.demo.huyminh.DTO.Request.ApplicationRequest;
 import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
 import org.demo.huyminh.Entity.Application;
@@ -20,9 +19,9 @@ public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;
     private PetRepository petRepository;
+
     //Create Application
     @PostMapping
-
     public ResponseEntity<Application> submitApplication(@RequestBody ApplicationRequest request){
         Application application = applicationService.submitApplication(request.getId(),
                 request.getPetId(),request.getFullName(),request.getYob(),
@@ -32,27 +31,39 @@ public class ApplicationController {
                 request.getSecondPhone());
         return new ResponseEntity<>(application, HttpStatus.CREATED);
     }
-
+    //Update Application Status
+    @PutMapping("status/{applicationId}")
+    Application updateApplicationStatus(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request) {
+        return applicationService.updateAppilicationStatus(applicationId, request);
+    }
     //Get List Application
     @GetMapping
     List<Application> getApplications(){
         return applicationService.getApplications();
     }
+
+    @GetMapping("status/1")
+    List<Application> getApplicationsWithStatus1(){
+        return applicationService.getApplicationsWithStatus1();
+    }
+
+    @GetMapping("status/2")
+    List<Application> getApplicationsWithStatus2(){
+        return applicationService.getApplicationsWithStatus2();
+    }
+
     //Get Application By Id
     @GetMapping("/{applicationId}")
     Optional<Application> getApplication(@PathVariable("applicationId") String applicationId){
            return applicationService.getApplicaiton(applicationId);
     }
+
     //Update Application
     @PutMapping("/{applicationId}")
     Application updateApplication(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
              return applicationService.updateApplication(applicationId,request);
     }
-    //Update Application Status
-    @PutMapping("/status/{applicationId}")
-    Application updateApplicationStatus(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
-        return applicationService.updateApplicationStatus(applicationId,request);
-    }
+
     //Delete Application
     @DeleteMapping("/{applicationId}")
     String deleteApplication(@PathVariable("applicationId") String applicationId){
@@ -60,11 +71,3 @@ public class ApplicationController {
         return "Application has been deleted";
     }
 }
-
-//    Application createApplication(@RequestBody ApplicationCreationRequest request){
-//     return applicationService.createApplication(request);
-//    }
-//    public ResponseEntity<Application> createApplication(@RequestBody Application application) {
-//        Application savedApplication = applicationService.saveApplication(application);
-//        return ResponseEntity.status(201).body(savedApplication);
-//    }

@@ -10,6 +10,8 @@ public interface ApplicationRepository extends JpaRepository<Application, String
 
     Optional<Application> findById(String applicationId);
 
-    List<Application> findAllByOrderByCreateAtAsc();
+    List<Application> findByStatusOrderByCreateAtAsc(int status);
+
+    List<Application> findByStatusOrderByUpdateAtDesc(int status);
 
 }
