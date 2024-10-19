@@ -20,4 +20,5 @@ public class PetCreationRequest {
      String petGender;
      String petVaccin;
      String petStatus;
+     String petImage;
 }

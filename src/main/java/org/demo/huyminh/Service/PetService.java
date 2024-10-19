@@ -35,6 +35,7 @@ public class PetService {
         pet.setPetGender(request.getPetGender());
         pet.setPetVaccin(request.getPetVaccin());
         pet.setPetStatus(request.getPetStatus());
+        pet.setPetImage(request.getPetImage());
 
         return petRepository.save(pet);
     }
@@ -63,6 +64,7 @@ public class PetService {
         pet.setPetVaccin(request.getPetVaccin());
         pet.setPetGender(request.getPetGender());
         pet.setPetStatus(request.getPetStatus());
+        pet.setPetImage(request.getPetImage());
 
         return petRepository.save(pet);
     }

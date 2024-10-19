@@ -41,15 +41,28 @@ public class ApplicationController {
     List<Application> getApplications(){
         return applicationService.getApplications();
     }
-
+    //Accept Applicaiton
     @GetMapping("status/1")
     List<Application> getApplicationsWithStatus1(){
         return applicationService.getApplicationsWithStatus1();
     }
 
+    //Refuse Application
     @GetMapping("status/2")
     List<Application> getApplicationsWithStatus2(){
         return applicationService.getApplicationsWithStatus2();
+    }
+
+    //Accept Adoption
+    @GetMapping("status/3")
+    List<Application> getApplicationsWithStatus3(){
+        return applicationService.getApplicationsWithStatus3();
+    }
+
+    //Denied Adoption
+    @GetMapping("status/4")
+    List<Application> getApplicationsWithStatus4(){
+        return applicationService.getApplicationsWithStatus4();
     }
 
     //Get Application By Id
@@ -71,10 +84,4 @@ public class ApplicationController {
         return "Application has been deleted";
     }
 }
-//    Application createApplication(@RequestBody ApplicationCreationRequest request){
-//     return applicationService.createApplication(request);
-//    }
-//    public ResponseEntity<Application> createApplication(@RequestBody Application application) {
-//        Application savedApplication = applicationService.saveApplication(application);
-//        return ResponseEntity.status(201).body(savedApplication);
-//    }
+
