@@ -22,4 +22,5 @@ public class PetUpdateRequest {
     String petVaccin;
     String petStatus;
     String petImage;
+
 }

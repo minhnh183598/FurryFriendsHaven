@@ -45,6 +45,7 @@ public class PetService {
         return petRepository.findAll();
     }
 
+    //Get Pet By Id
     public Pet getPet(String petId) {
         return petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Pet not existed"));

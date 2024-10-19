@@ -83,5 +83,6 @@ public class ApplicationController {
         applicationService.deleteApplication(applicationId);
         return "Application has been deleted";
     }
+
 }
 
