@@ -22,6 +22,7 @@ import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.RoleRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
