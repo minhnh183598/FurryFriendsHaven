@@ -27,6 +27,10 @@ public class Rating {
     @JoinColumn(name = "feedback_id", nullable = false)
     Feedback feedback;
 
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @JsonIgnore
+    Application application;
+
     @Column(nullable = false)
     int livingSpace;
 

@@ -2,15 +2,16 @@ package org.demo.huyminh.Service;
 
 import jakarta.validation.constraints.Pattern;
 import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
-import org.demo.huyminh.Entity.Application;
-import org.demo.huyminh.Entity.Pet;
-import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Entity.*;
+import org.demo.huyminh.Enums.Status;
 import org.demo.huyminh.Repository.ApplicationRepository;
 import org.demo.huyminh.Repository.PetRepository;
+import org.demo.huyminh.Repository.TaskRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +23,8 @@ public class ApplicationService {
     private PetRepository petRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TaskRepository taskRepository;
 
     //CREATE APPLICATION
 
@@ -54,16 +57,39 @@ public class ApplicationService {
 
         return applicationRepository.save(application);
     }
+
     //Update Application Status
-    public Application updateAppilicationStatus(String applicationId, ApplicationUpdateRequest request){
+    public Application updateApplicationStatus(String applicationId, ApplicationUpdateRequest request, User user) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application Id Not Existed"));
 
+        if (application.getStatus() == 0) {
+            Task newTask = Task.builder()
+                    .name("Visit the house of " + application.getFullName())
+                    .status(Status.NOT_STARTED)
+                    .description("Visit the house of " + application.getFullName() + " to check whether it is suitable for adoption")
+                    .category("Adoption")
+                    .owner(user)
+                    .dueDate(LocalDateTime.now().plusDays(7))
+                    .build();
+
+            if (newTask.getTeam() == null) {
+                newTask.setTeam(new ArrayList<>());
+            }
+            newTask.getTeam().add(user);
+
+            Task savedTask = taskRepository.save(newTask);
+
+            user.getTasks().add(savedTask);
+            userRepository.save(user);
+
+            application.setTask(savedTask);
+            applicationRepository.save(application);
+        }
+
         application.setStatus(request.getStatus());
 
-
         return applicationRepository.save(application);
-
     }
 
     //GET APPLICATION LIST
@@ -80,7 +106,7 @@ public class ApplicationService {
     }
 
     //GET APPLICATION BY ID
-    public Optional<Application> getApplicaiton(String applicationId){
+    public Optional<Application> getApplication(String applicationId){
         return Optional.ofNullable(applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application Id Not Existed")));
     }

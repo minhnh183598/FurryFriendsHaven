@@ -14,4 +14,5 @@ public interface ApplicationRepository extends JpaRepository<Application, String
 
     List<Application> findByStatusOrderByUpdateAtDesc(int status);
 
+    Application getApplicationByTaskId(int taskId);
 }

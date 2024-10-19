@@ -31,5 +31,5 @@ public class TaskUpdateRequest {
     String status;
     String category;
     String dueDate;
-    Set<Tag> tags;
+    Set<String> tags;
 }

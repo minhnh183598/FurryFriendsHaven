@@ -1,28 +1,25 @@
 package org.demo.huyminh.Service;
 
-import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
-import org.demo.huyminh.Entity.Issue;
-import org.demo.huyminh.Entity.Tag;
-import org.demo.huyminh.Entity.Task;
-import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Entity.*;
+import org.demo.huyminh.Enums.Roles;
+import org.demo.huyminh.Enums.Status;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.FeedbackMapper;
 import org.demo.huyminh.Mapper.TaskMapper;
 import org.demo.huyminh.Mapper.UserMapper;
+import org.demo.huyminh.Repository.ApplicationRepository;
 import org.demo.huyminh.Repository.TagRepository;
 import org.demo.huyminh.Repository.TaskRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +40,7 @@ import java.util.stream.Collectors;
 public class TaskService {
 
     final TaskRepository taskRepository;
+    final ApplicationRepository applicationRepository;
     final UserRepository userRepository;
     final TaskMapper taskMapper;
     final TagRepository tagRepository;
@@ -57,6 +55,7 @@ public class TaskService {
             throw new AppException(ErrorCode.INVALID_DUE_DATE);
         }
 
+        newTask.setTags(taskMapper.mapTagsToSet(task.getTags()));
         newTask.getTeam().add(user);
         saveTaskWithTags(newTask);
 
@@ -69,7 +68,7 @@ public class TaskService {
         TaskResponse temp = taskMapper.toTaskResponse(newTask);
         temp.setOwner(userMapper.toUserResponseForTask(user));
         temp.setTeam(newTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
-        temp.setTags(newTask.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+        temp.setTags(taskMapper.mapTagsToString(newTask.getTags()));
 
         return temp;
     }
@@ -120,6 +119,29 @@ public class TaskService {
         }
 
         return taskResponses;
+    }
+
+    public TaskResponse getTaskByApplicationId(String applicationId, User user) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTS));
+
+        Task task = application.getTask();
+        if(task == null) {
+            throw new AppException(ErrorCode.TASK_NOT_EXISTS);
+        }
+
+        if (user.getRoles() == null || user.getRoles().isEmpty() ||
+                !(user.getRoles().contains(Roles.ADMIN) || user.getRoles().contains(Roles.VOLUNTEER))) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        TaskResponse taskResponse = taskMapper.toTaskResponse(task);
+        taskResponse.setOwner(userMapper.toUserResponseForTask(task.getOwner()));
+        taskResponse.setTeam(task.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
+        taskResponse.setTags(task.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+        taskResponse.setIssues(task.getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
+        taskResponse.setFeedbacks(task.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
+        return taskResponse;
     }
 
     public TaskResponse getTaskById(int taskId) {
@@ -174,8 +196,8 @@ public class TaskService {
         if (updatedTask.getTags() != null && !updatedTask.getTags().isEmpty()) {
             Set<Tag> existingTags = new HashSet<>(task.getTags());
 
-            for (Tag updatedTag : updatedTask.getTags()) {
-                Optional<Tag> existingTag = tagRepository.findById(updatedTag.getName());
+            for (String updatedTag : updatedTask.getTags()) {
+                Optional<Tag> existingTag = tagRepository.findById(updatedTag);
 
                 if(!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
                     existingTags.add(existingTag.get());
@@ -184,17 +206,33 @@ public class TaskService {
 
             updateTask.setTags(existingTags);
         }
-
         Task savedTask = taskRepository.save(updateTask);
 
         TaskResponse taskResponse = taskMapper.toTaskResponse(savedTask);
-
         taskResponse.setOwner(userMapper.toUserResponseForTask(savedTask.getOwner()));
         taskResponse.setTeam(savedTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
-        taskResponse.setTags(savedTask.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+        taskResponse.setTags(taskMapper.mapTagsToString(savedTask.getTags()));
 
         return taskResponse;
     }
+
+//    public void changeStatus(int taskId, String status, User user) {
+//        Task task = taskRepository.findById(taskId)
+//                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
+//
+//        User existingUser = userRepository.findById(user.getId())
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+//
+//        if(task.getTeam().contains(existingUser)) {
+//            task.setStatus(Status.valueOf(status.toUpperCase()));
+//            if(task.getStatus().equals(Status.DONE)) {
+//                Feedback feedback = Feedback.builder()
+//                        .content()
+//                        .build();
+//            }
+//            taskRepository.save(task);
+//        }
+//    }
 
 
     public void addUserToTask(int taskId, String userId, User existingUser) {
@@ -216,21 +254,30 @@ public class TaskService {
         }
     }
 
-    public void removeUserFromTask(int taskId, String userId) {
+    public void removeUserFromTask(int taskId, String userId, User user) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
-        User user = userRepository.findById(userId)
+        User userToRemove = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
         if(!(task.getOwner().equals(user))) {
             throw new AppException(ErrorCode.UNAUTHORIZED_TO_DELETE_USER_FROM_TASK);
         }
 
-        if(!task.getTeam().contains(user)) {
-            task.getTeam().remove(user);
-            taskRepository.save(task);
+        if(!task.getTeam().contains(userToRemove)) {
+            throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
         }
+
+        if(task.getOwner().equals(userToRemove)) {
+            throw new AppException(ErrorCode.CANNOT_REMOVE_OWNER);
+        }
+
+        if(task.getTeam().size() == 1) {
+            throw new AppException(ErrorCode.CANNOT_REMOVE_LAST_USER);
+        }
+        task.getTeam().remove(userToRemove);
+        taskRepository.save(task);
     }
 
     public List<Task> searchTask(String keyword) {

@@ -20,7 +20,6 @@ public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String petId;
-
     private String petName;
     private String petType;
     private String petAge;

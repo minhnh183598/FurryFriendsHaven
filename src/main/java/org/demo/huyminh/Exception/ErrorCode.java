@@ -80,7 +80,14 @@ public enum ErrorCode {
     UNAUTHORIZED_TO_UPDATE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this feedback", HttpStatus.FORBIDDEN),
     USER_NOT_IN_ISSUE(HttpStatus.FORBIDDEN.value(), "User not in issue", HttpStatus.FORBIDDEN),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Comment not found", HttpStatus.NOT_FOUND),
-    UNAUTHORIZED_TO_UPDATE_COMMENT(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this comment", HttpStatus.FORBIDDEN),;
+    UNAUTHORIZED_TO_UPDATE_COMMENT(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this comment", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED_TO_CHANGE_APPLICATION_STATUS(HttpStatus.FORBIDDEN.value(), "You don't have authority to change application status", HttpStatus.FORBIDDEN),
+    APPLICATION_NOT_EXISTS(HttpStatus.NOT_FOUND.value(), "Application not exists", HttpStatus.NOT_FOUND),
+    CANNOT_REMOVE_LAST_USER(HttpStatus.BAD_REQUEST.value(), "You can not remove last user in task", HttpStatus.BAD_REQUEST),
+    CANNOT_REMOVE_OWNER(HttpStatus.BAD_REQUEST.value(), "You can not remove owner in task", HttpStatus.BAD_REQUEST),
+    PET_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Pet not found", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_GET_THIS_INFORMATION(HttpStatus.FORBIDDEN.value(), "You don't have authority to get this information", HttpStatus.FORBIDDEN),
+    ;
 
     private int code;
     private String message;

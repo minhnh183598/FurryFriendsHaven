@@ -4,7 +4,6 @@ import org.demo.huyminh.Entity.Rating;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import java.util.List;
 
 /**
@@ -17,7 +16,7 @@ public interface RatingRepository extends JpaRepository<Rating, Integer> {
 
     @Query("SELECT AVG(r.averageRating) FROM Rating r " +
             "WHERE r.feedback.task.id = :taskId")
-    Double getAverageRatingByTaskId(@Param("taskId") Integer taskId);
+    Double getAverageRatingByTaskId(@Param("taskId") int taskId);
 
     List<Rating> findByAverageRatingGreaterThan(Double threshold);
 
@@ -25,12 +24,13 @@ public interface RatingRepository extends JpaRepository<Rating, Integer> {
             "WHERE r.livingSpace >= :spaceMin " +
             "AND r.familyIncome >= :incomeMin")
     List<Rating> findHighQualityRatings(
-            @Param("spaceMin") Integer spaceMin,
-            @Param("incomeMin") Integer incomeMin
+            @Param("spaceMin") int spaceMin,
+            @Param("incomeMin") int incomeMin
     );
 
     @Query("SELECT r FROM Rating r " +
-            "ORDER BY r.averageRating DESC " +
-            "LIMIT :limit")
-    List<Rating> findTopRatings(@Param("limit") int limit);
+            "Where r.application.petId=:petId " +
+            "ORDER BY r.averageRating DESC "
+    )
+    List<Rating> findTopRatings(@Param("petId") String petId);
 }

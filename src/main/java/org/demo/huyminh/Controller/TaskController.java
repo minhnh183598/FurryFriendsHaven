@@ -119,4 +119,19 @@ public class TaskController {
                 .message("Add user to task successfully")
                 .build();
     }
+
+    @DeleteMapping("{taskId}/user/{userId}")
+    public ApiResponse<Void> deleteUserToTask(
+            @PathVariable("taskId") int taskId,
+            @PathVariable("userId") String userId,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
+        taskService.removeUserFromTask(taskId, userId, user);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Delete user from task successfully")
+                .build();
+    }
 }

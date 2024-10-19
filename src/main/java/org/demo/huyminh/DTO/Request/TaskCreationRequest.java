@@ -27,7 +27,7 @@ public class TaskCreationRequest {
     String description;
     String status;
     String category;
-    Set<Tag> tags;
+    List<String> tags;
     User owner;
     String dueDate;
     List<User> team;

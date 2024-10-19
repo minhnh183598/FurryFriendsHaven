@@ -97,6 +97,7 @@ public class IssueService {
         taskRepository.save(task);
 
         IssueResponse result = issueMapper.toIssueResponse(issue);
+        result.setTaskId(taskId);
         result.setTags(issue.getTags().stream().map(Tag::getName).toList());
         result.setReporter(userMapper.toUserResponse(user));
 

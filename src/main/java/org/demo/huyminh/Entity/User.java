@@ -84,7 +84,6 @@ public class User {
                 ", isPasswordChangeable=" + isPasswordChangeable +
                 ", createdAt=" + createdAt +
                 ", applicationQuantity=" + applicationQuantity +
-                ", applications=" + applications +
                 ", roles=" + roles.stream().map(Role::getName).toList() +
                 '}';
     }

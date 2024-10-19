@@ -7,17 +7,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.FeedbackResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.Entity.*;
+import org.demo.huyminh.Enums.Roles;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.FeedbackMapper;
 import org.demo.huyminh.Mapper.UserMapper;
-import org.demo.huyminh.Repository.FeedbackRepository;
-import org.demo.huyminh.Repository.RatingRepository;
-import org.demo.huyminh.Repository.TaskRepository;
+import org.demo.huyminh.Repository.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author Minh
@@ -36,6 +40,8 @@ public class FeedbackService {
     RatingRepository ratingRepository;
     FeedbackMapper feedbackMapper;
     UserMapper userMapper;
+    PetRepository petRepository;
+    ApplicationRepository applicationRepository;
 
     public FeedbackResponse createFeedback(int taskId, FeedbackCreationRequest request, User reporter) {
         Task task = taskRepository.findById(taskId)
@@ -56,6 +62,9 @@ public class FeedbackService {
         Rating rating = request.getRating();
         if (rating != null) {
             rating.setFeedback(feedback);
+            if(task.getCategory().equals("Adoption")) {
+                rating.setApplication(applicationRepository.getApplicationByTaskId(task.getId()));
+            }
             feedback.setRating(rating);
         }
 
@@ -79,6 +88,27 @@ public class FeedbackService {
         response.setRating(feedback.getRating());
 
         return response;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<FeedbackResponse> getPotentialAdopters(double minRating) {
+
+        return ratingRepository.findByAverageRatingGreaterThan(minRating)
+                .stream()
+                .map(rating -> feedbackMapper.toFeedbackResponse(rating.getFeedback()))
+                .toList();
+    }
+
+    public List<FeedbackResponse> getHighRatingApplication(String petId, User user) {
+        petRepository.findById(petId)
+                .orElseThrow(() -> new AppException(ErrorCode.PET_NOT_FOUND));
+
+        List<FeedbackResponse> feedbacks = ratingRepository.findTopRatings(petId)
+                .stream()
+                .map(newRating -> feedbackMapper.toFeedbackResponse(newRating.getFeedback()))
+                .toList();
+
+        return feedbacks;
     }
 
     public List<FeedbackResponse> getFeedbacksByTaskId(int taskId) {

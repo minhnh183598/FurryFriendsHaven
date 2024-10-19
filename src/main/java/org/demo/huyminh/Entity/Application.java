@@ -1,5 +1,6 @@
 package org.demo.huyminh.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -62,9 +63,24 @@ public class Application {
 
     @ManyToOne
     @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JsonIgnore
     User user;
 
     @ManyToOne
     @JoinColumn(name = "petId", referencedColumnName = "petId", insertable = false, updatable = false)
     Pet pet;
+
+    @OneToOne(cascade = CascadeType.ALL, optional = true)
+    Task task;
+
+    @Override
+    public String toString() {
+        return "Application{" +
+                "applicationId='" + applicationId + '\'' +
+                ", petId='" + petId + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", status=" + status +
+                ", userId=" + (user != null ? user.getId() : "null") +
+                '}';
+    }
 }

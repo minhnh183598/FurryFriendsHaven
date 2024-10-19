@@ -11,7 +11,6 @@ import org.demo.huyminh.Service.FeedbackService;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 /**
@@ -85,6 +84,22 @@ public class FeedbackController {
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Update feedback successfully")
+                .build();
+    }
+
+    @GetMapping("/pet/{petId}")
+    public ApiResponse<List<FeedbackResponse>> getAllFeedbackByPetId(
+            @PathVariable String petId,
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.substring(7);
+        User user = userService.findByToken(jwt);
+        log.info("Hello, I'm here 🐳");
+
+        return ApiResponse.<List<FeedbackResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get feedbacks successfully")
+                .result(feedbackService.getHighRatingApplication(petId, user))
                 .build();
     }
 }
