@@ -2,24 +2,31 @@ package org.demo.huyminh.Service;
 
 
 
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Request.PetCreationRequest;
 import org.demo.huyminh.DTO.Request.PetUpdateRequest;
 import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Repository.PetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+@Slf4j
 @Service
 public class PetService {
     @Autowired
     private PetRepository petRepository;
 
     //CREATE PET
-    public Pet createPet(PetCreationRequest request) {
+    public Pet createPet(@Valid PetCreationRequest request) {
+
+        log.info("Service : Create Pet");
+
         if (petRepository.existsByPetName(request.getPetName()))
             throw new RuntimeException("PetName has been Used");
         Pet pet = new Pet();
@@ -118,6 +125,7 @@ public class PetService {
         }
         return PetList;
     }
+}
 
 
 //    //Search by name
@@ -152,10 +160,3 @@ public class PetService {
 //    public List<Pet> availablePet(){
 //        return petRepository.findByPetStatus("Available");
 //    }
-
-
-
-
-
-
-}
