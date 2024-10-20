@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
+import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
 import org.demo.huyminh.Entity.Task;
@@ -141,6 +142,23 @@ public class TaskController {
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Delete user from task successfully")
+                .build();
+    }
+
+
+    @PutMapping("{taskId}/status/{statusName}")
+    public ApiResponse<Void> changeStatus(
+            @PathVariable("taskId") int taskId,
+            @PathVariable("statusName") String statusName,
+            @RequestBody FeedbackCreationRequest feedback,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
+        taskService.changeStatus(taskId, statusName, feedback, user);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Change status successfully")
                 .build();
     }
 }

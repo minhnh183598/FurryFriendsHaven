@@ -87,6 +87,10 @@ public enum ErrorCode {
     CANNOT_REMOVE_OWNER(HttpStatus.BAD_REQUEST.value(), "You can not remove owner in task", HttpStatus.BAD_REQUEST),
     PET_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Pet not found", HttpStatus.NOT_FOUND),
     UNAUTHORIZED_TO_GET_THIS_INFORMATION(HttpStatus.FORBIDDEN.value(), "You don't have authority to get this information", HttpStatus.FORBIDDEN),
+    NO_FEEDBACK(HttpStatus.NOT_FOUND.value(), "You need to create feedback before change status to DONE", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_CHANGE_TASK_STATUS(HttpStatus.FORBIDDEN.value(), "You don't have authority to change task status", HttpStatus.FORBIDDEN),
+    CANNOT_CHANGE_STATUS_TO_SAME_STATUS(HttpStatus.BAD_REQUEST.value(), "You can not change status to same status", HttpStatus.BAD_REQUEST),
+    EACH_USER_CAN_POST_ONE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "Each volunteer was allowed to post one feedback per task", HttpStatus.FORBIDDEN),
     ;
 
     private int code;

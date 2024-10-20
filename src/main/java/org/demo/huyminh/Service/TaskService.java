@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
+import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
 import org.demo.huyminh.Entity.*;
@@ -14,10 +15,7 @@ import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.FeedbackMapper;
 import org.demo.huyminh.Mapper.TaskMapper;
 import org.demo.huyminh.Mapper.UserMapper;
-import org.demo.huyminh.Repository.ApplicationRepository;
-import org.demo.huyminh.Repository.TagRepository;
-import org.demo.huyminh.Repository.TaskRepository;
-import org.demo.huyminh.Repository.UserRepository;
+import org.demo.huyminh.Repository.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -46,6 +44,8 @@ public class TaskService {
     final TagRepository tagRepository;
     final UserMapper userMapper;
     final FeedbackMapper feedbackMapper;
+    final FeedbackService feedbackService;
+    final FeedbackRepository feedbackRepository;
 
     @PreAuthorize("hasRole('ADMIN')")
     public TaskResponse createTask(TaskCreationRequest task, User user) {
@@ -215,24 +215,61 @@ public class TaskService {
         return taskResponse;
     }
 
-//    public void changeStatus(int taskId, String status, User user) {
-//        Task task = taskRepository.findById(taskId)
-//                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
-//
-//        User existingUser = userRepository.findById(user.getId())
-//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
-//
-//        if(task.getTeam().contains(existingUser)) {
-//            task.setStatus(Status.valueOf(status.toUpperCase()));
-//            if(task.getStatus().equals(Status.DONE)) {
-//                Feedback feedback = Feedback.builder()
-//                        .content()
-//                        .build();
-//            }
-//            taskRepository.save(task);
-//        }
-//    }
+    public void changeStatus(int taskId, String status, FeedbackCreationRequest feedback, User user) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
+        if (Status.valueOf(status.toUpperCase()).equals(task.getStatus())) {
+            throw new AppException(ErrorCode.CANNOT_CHANGE_STATUS_TO_SAME_STATUS);
+        }
+
+        if (!task.getTeam().contains(user)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_TO_CHANGE_TASK_STATUS);
+        }
+
+        Status newStatus = Status.valueOf(status.toUpperCase());
+        if (Status.valueOf(status.toUpperCase()).equals(Status.DONE)) {
+            if (feedback == null || feedback.getContent() == null || feedback.getContent().isEmpty()) {
+                throw new AppException(ErrorCode.NO_FEEDBACK);
+            }
+
+            if (feedbackRepository.findByUser(user) != null) {
+                throw new AppException(ErrorCode.EACH_USER_CAN_POST_ONE_FEEDBACK);
+            }
+
+            log.info("Create feedback: " + feedback);
+            Feedback newFeedback = Feedback.builder()
+                    .content(feedback.getContent())
+                    .task(task)
+                    .reporter(user)
+                    .build();
+
+            Rating rating = feedback.getRating();
+            if (rating != null) {
+                rating.setFeedback(newFeedback);
+                if (task.getCategory().equals("Adoption")) {
+                    rating.setApplication(applicationRepository.getApplicationByTaskId(task.getId()));
+                }
+                newFeedback.setRating(rating);
+            }
+
+            List<Image> images = feedback.getImages().stream()
+                    .map(imageUrl -> Image.builder()
+                            .feedback(newFeedback)
+                            .imageUrl(imageUrl)
+                            .build())
+                    .toList();
+
+            newFeedback.setImages(images);
+            task.getFeedbacks().add(newFeedback);
+
+            feedbackRepository.save(newFeedback);
+        }
+
+        log.info("Change status: " + newStatus);
+        task.setStatus(newStatus);
+        taskRepository.save(task);
+    }
 
     public void addUserToTask(int taskId, String userId, User existingUser) {
         Task task = taskRepository.findById(taskId)
