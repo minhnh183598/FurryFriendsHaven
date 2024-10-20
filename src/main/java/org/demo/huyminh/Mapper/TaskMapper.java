@@ -55,18 +55,6 @@ public interface TaskMapper {
         }
     }
 
-    default Set<Tag> mapTagsToSet(List<String> tagNames) {
-        if (tagNames == null) {
-            return Collections.emptySet();
-        }
-        return tagNames.stream()
-                .map(tagName -> Tag.builder()
-                        .name(tagName)
-                        .type(Tag.TagType.TASK_LABEL)
-                        .build())
-                .collect(Collectors.toSet());
-    }
-
     default List<String> mapTagsToString(Set<Tag> status) {
         if (status == null) {
             return Collections.emptyList();

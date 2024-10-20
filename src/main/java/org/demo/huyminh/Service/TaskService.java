@@ -55,7 +55,6 @@ public class TaskService {
             throw new AppException(ErrorCode.INVALID_DUE_DATE);
         }
 
-        newTask.setTags(taskMapper.mapTagsToSet(task.getTags()));
         newTask.getTeam().add(user);
         saveTaskWithTags(newTask);
 
@@ -196,8 +195,8 @@ public class TaskService {
         if (updatedTask.getTags() != null && !updatedTask.getTags().isEmpty()) {
             Set<Tag> existingTags = new HashSet<>(task.getTags());
 
-            for (String updatedTag : updatedTask.getTags()) {
-                Optional<Tag> existingTag = tagRepository.findById(updatedTag);
+            for (Tag updatedTag : updatedTask.getTags()) {
+                Optional<Tag> existingTag = tagRepository.findById(updatedTag.getName());
 
                 if(!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
                     existingTags.add(existingTag.get());
@@ -290,5 +289,21 @@ public class TaskService {
             throw new AppException(ErrorCode.TASK_NOT_FOUND);
         }
         return result;
+    }
+
+    @PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
+    public List<TaskResponse> getAllTasks() {
+        List<Task> tasks = taskRepository.findAll();
+        List<TaskResponse> taskResponses = tasks.stream().map(taskMapper::toTaskResponse).collect(Collectors.toList());
+
+        for (TaskResponse taskResponse : taskResponses) {
+            taskResponse.setOwner(userMapper.toUserResponseForTask(tasks.getFirst().getOwner()));
+            taskResponse.setTeam(tasks.getFirst().getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
+            taskResponse.setTags(tasks.getFirst().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+            taskResponse.setIssues(tasks.getFirst().getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
+            taskResponse.setFeedbacks(tasks.getFirst().getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
+        }
+
+        return taskResponses;
     }
 }

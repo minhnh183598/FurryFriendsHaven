@@ -21,4 +21,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
 
     @Query("SELECT t FROM Task t WHERE :user MEMBER OF t.team OR t.owner = :owner")
     List<Task> findByTeamContainingOrOwner(@Param("user") User user, @Param("owner") User owner);
+
+    @Query(value = "SELECT * FROM task", nativeQuery = true)
+    List<Task> findAllTasks();
 }

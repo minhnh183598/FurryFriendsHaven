@@ -39,8 +39,8 @@ public class IssueController {
     }
 
     @GetMapping("tasks/{taskId}")
-    public ApiResponse<List<Issue>> getIssuesByTaskId(@PathVariable int taskId) {
-        return ApiResponse.<List<Issue>>builder()
+    public ApiResponse<List<IssueResponse>> getIssuesByTaskId(@PathVariable int taskId) {
+        return ApiResponse.<List<IssueResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find issues successfully")
                 .result(issueService.getIssuesByTasId(taskId))

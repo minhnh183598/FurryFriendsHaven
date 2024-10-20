@@ -54,7 +54,7 @@ public class IssueService {
         return issue.get();
     }
 
-    public List<Issue> getIssuesByTasId(int taskId) {
+    public List<IssueResponse> getIssuesByTasId(int taskId) {
         List<Issue> issues = issueRepository.findByTaskId(taskId);
         if(taskRepository.findById(taskId).isEmpty()) {
             throw new AppException(ErrorCode.TASK_NOT_EXISTS);
@@ -64,7 +64,8 @@ public class IssueService {
             throw new AppException(ErrorCode.TASK_HAS_NO_ISSUES);
         }
 
-        return issues;
+        List<IssueResponse> result = issues.stream().map(issueMapper::toIssueResponse).toList();
+        return result;
     }
 
     public IssueResponse createIssue(IssueRequest request, User user, int taskId) {

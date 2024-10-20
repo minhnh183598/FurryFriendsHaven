@@ -29,7 +29,7 @@ public class TaskController {
     private final TaskService taskService;
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/team")
     public ApiResponse<List<TaskResponse>> getTaskByTeam(
             @RequestHeader("Authorization") String jwt
     ) {
@@ -40,6 +40,15 @@ public class TaskController {
                 .code(HttpStatus.OK.value())
                 .message("Find tasks successfully")
                 .result(tasks)
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<List<TaskResponse>> getAllTasks() {
+        return ApiResponse.<List<TaskResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Find tasks successfully")
+                .result(taskService.getAllTasks())
                 .build();
     }
 
