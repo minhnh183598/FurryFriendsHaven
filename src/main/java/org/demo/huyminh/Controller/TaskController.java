@@ -145,17 +145,18 @@ public class TaskController {
                 .build();
     }
 
-
-    @PutMapping("{taskId}/status/{statusName}")
-    public ApiResponse<Void> changeStatus(
+    @PutMapping("{taskId}/status/{status}")
+    public ApiResponse<Void> changeTaskStatus(
             @PathVariable("taskId") int taskId,
-            @PathVariable("statusName") String statusName,
+            @PathVariable("status") String status,
             @RequestBody FeedbackCreationRequest feedback,
             @RequestHeader("Authorization") String jwt
     ) {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
-        taskService.changeStatus(taskId, statusName, feedback, user);
+        taskService.changeStatus(taskId, status, feedback, user);
+        log.info("Change status successfully");
+        log.info("User: {}", user);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Change status successfully")

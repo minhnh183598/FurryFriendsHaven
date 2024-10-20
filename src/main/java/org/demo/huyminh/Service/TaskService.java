@@ -18,6 +18,7 @@ import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -215,6 +216,7 @@ public class TaskService {
         return taskResponse;
     }
 
+    @Transactional
     public void changeStatus(int taskId, String status, FeedbackCreationRequest feedback, User user) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));

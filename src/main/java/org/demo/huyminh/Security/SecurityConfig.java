@@ -57,8 +57,6 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(UNSECURED_ENDPOINTS).permitAll()
-//                        .requestMatchers(HttpMethod.GET, "/api/v1/users").hasAuthority("ROLE_ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole(Roles.ADMIN.name())
                         .anyRequest().authenticated()
         );
 

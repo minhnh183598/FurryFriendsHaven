@@ -44,9 +44,15 @@ public class SWP391Application {
                     .description("Admin role")
                     .build());
 
+            Role volunteerRole = roleRepository.save(Role.builder()
+                    .name("VOLUNTEER")
+                    .description("Volunteer role")
+                    .build());
+
             var roles = new HashSet<Role>();
             roles.add(adminRole);
             roles.add(userRole);
+            roles.add(volunteerRole);
 
 
             User user = User.builder()
