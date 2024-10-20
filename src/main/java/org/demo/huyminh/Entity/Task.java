@@ -45,6 +45,10 @@ public class Task {
     @ManyToOne
     User owner;
 
+    @ManyToOne
+    @JsonIgnore
+    User adopter;
+
     @OneToMany(fetch = FetchType.LAZY , mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Issue> issues;
 

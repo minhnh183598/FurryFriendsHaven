@@ -65,12 +65,13 @@ public class ApplicationService {
 
         if (application.getStatus() == 0) {
             Task newTask = Task.builder()
-                    .name("Visit the house of " + application.getFullName())
+                    .name("Visit the house of " + application.getFullName() + " with applicationId (" + applicationId + ")")
                     .status(Status.NOT_STARTED)
                     .description("Visit the house of " + application.getFullName() + " to check whether it is suitable for adoption")
                     .category("Adoption")
                     .owner(user)
                     .dueDate(LocalDateTime.now().plusDays(7))
+                    .adopter(application.getUser())
                     .build();
 
             if (newTask.getTeam() == null) {

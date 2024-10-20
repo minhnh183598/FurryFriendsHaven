@@ -61,9 +61,6 @@ public class Feedback {
                 ", createdAt=" + createdAt +
                 ", editedAt=" + editedAt +
                 ", images=" + images +
-                ", task=" + task.getName() +
-                ", reporter=" + reporter.getUsername() +
-                ", rating=" + rating.getAverageRating() +
                 '}';
     }
 }

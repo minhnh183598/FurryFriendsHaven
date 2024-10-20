@@ -31,6 +31,7 @@ public interface TaskMapper {
 
     @Mapping(target = "issues", ignore = true)
     @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "adopter", ignore = true)
     @Mapping(target = "team", ignore = true)
     @Mapping(target = "feedbacks", ignore = true)
     @Mapping(target = "tags", ignore = true)

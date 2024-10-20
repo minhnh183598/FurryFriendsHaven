@@ -30,6 +30,7 @@ public class TaskResponse {
     List<String> tags;
     List<String> issues;
     UserResponse owner;
+    UserResponse adopter;
     List<UserResponse> team;
     List<FeedbackResponse> feedbacks;
 }

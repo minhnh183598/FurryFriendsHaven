@@ -96,25 +96,35 @@ public class TaskService {
     }
 
     public List<TaskResponse> getTaskByTeam(User user) {
+
         if (user == null) {
             throw new AppException(ErrorCode.USER_NOT_EXISTS);
         }
 
         List<Task> tasks = taskRepository.findByTeamContainingOrOwner(user, user);
-
         log.info(tasks.toString());
 
         List<TaskResponse> taskResponses = tasks.stream().map(taskMapper::toTaskResponse).collect(Collectors.toList());
 
-        for (TaskResponse taskResponse : taskResponses) {
-            taskResponse.setOwner(userMapper.toUserResponseForTask(tasks.getFirst().getOwner()));
-            taskResponse.setTeam(tasks.getFirst().getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
-            taskResponse.setTags(tasks.getFirst().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-            taskResponse.setIssues(tasks.getFirst().getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
-            taskResponse.setFeedbacks(tasks.getFirst().getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
+        for (int i = 0; i < taskResponses.size(); i++) {
+            Task currentTask = tasks.get(i);
+            TaskResponse taskResponse = taskResponses.get(i);
+
+            taskResponse.setOwner(userMapper.toUserResponseForTask(currentTask.getOwner()));
+            taskResponse.setTeam(currentTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
+            taskResponse.setTags(currentTask.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+            taskResponse.setIssues(currentTask.getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
+            taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
+
+            if (currentTask.getCategory().equalsIgnoreCase("Adoption") && currentTask.getAdopter() != null) {
+                log.info("🎊🐳🍀");
+                taskResponse.setAdopter(userMapper.toUserResponseForTask(currentTask.getAdopter()));
+            }
         }
+
         log.info(taskResponses.toString());
-        if(taskResponses.isEmpty()) {
+
+        if (taskResponses.isEmpty()) {
             throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
         }
 
@@ -333,14 +343,24 @@ public class TaskService {
     @PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
     public List<TaskResponse> getAllTasks() {
         List<Task> tasks = taskRepository.findAll();
+
         List<TaskResponse> taskResponses = tasks.stream().map(taskMapper::toTaskResponse).collect(Collectors.toList());
 
-        for (TaskResponse taskResponse : taskResponses) {
-            taskResponse.setOwner(userMapper.toUserResponseForTask(tasks.getFirst().getOwner()));
-            taskResponse.setTeam(tasks.getFirst().getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
-            taskResponse.setTags(tasks.getFirst().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-            taskResponse.setIssues(tasks.getFirst().getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
-            taskResponse.setFeedbacks(tasks.getFirst().getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
+        for (int i = 0; i < taskResponses.size(); i++) {
+            Task currentTask = tasks.get(i);
+            TaskResponse taskResponse = taskResponses.get(i);
+
+            // Gán thông tin cho taskResponse từ currentTask
+            taskResponse.setOwner(userMapper.toUserResponseForTask(currentTask.getOwner()));
+            taskResponse.setTeam(currentTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
+            taskResponse.setTags(currentTask.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+            taskResponse.setIssues(currentTask.getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
+            taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
+
+            if ("Adoption".equalsIgnoreCase(currentTask.getCategory())) {
+                log.info("🎊🐳🍀");
+                taskResponse.setAdopter(userMapper.toUserResponseForTask(currentTask.getAdopter()));
+            }
         }
 
         return taskResponses;
