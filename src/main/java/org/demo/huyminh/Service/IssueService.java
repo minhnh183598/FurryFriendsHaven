@@ -74,6 +74,7 @@ public class IssueService {
             throw new AppException(ErrorCode.TASK_HAS_NO_ISSUES);
         }
 
+        log.info("Issue Service: getIssuesByTasId: {}", issues);
         List<IssueResponse> result = issues.stream().map(issueMapper::toIssueResponse).toList();
         return result;
     }
@@ -103,12 +104,16 @@ public class IssueService {
                 .build();
         saveIssueWithTags(issue);
 
-        issueRepository.save(issue);
+        try {
+            issueRepository.save(issue);
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.ISSUE_ALREADY_EXISTS);
+        }
         task.getIssues().add(issue);
         taskRepository.save(task);
 
         IssueResponse result = issueMapper.toIssueResponse(issue);
-        result.setTaskId(taskId);
+        result.setTaskID(taskId);
         result.setTags(issue.getTags().stream().map(Tag::getName).toList());
         result.setReporter(userMapper.toUserResponse(user));
 

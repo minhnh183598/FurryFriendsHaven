@@ -28,7 +28,7 @@ public class TaskResponse {
     String category;
     LocalDateTime dueDate;
     List<String> tags;
-    List<String> issues;
+    List<BriefIssueResponse> issues;
     UserResponse owner;
     UserResponse adopter;
     List<UserResponse> team;

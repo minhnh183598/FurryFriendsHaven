@@ -26,6 +26,7 @@ public class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false, unique = true)
     private String title;
     private String description;
     private Status status;
@@ -33,7 +34,7 @@ public class Issue {
     private String priority;
     private LocalDate dueDate;
 
-    @OneToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     private Set<Tag> tags;
 
     @OneToMany(fetch = FetchType.LAZY)

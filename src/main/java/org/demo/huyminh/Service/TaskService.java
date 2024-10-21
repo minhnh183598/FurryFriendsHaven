@@ -3,6 +3,7 @@ package org.demo.huyminh.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.demo.huyminh.DTO.Reponse.BriefIssueResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
@@ -113,7 +114,12 @@ public class TaskService {
             taskResponse.setOwner(userMapper.toUserResponseForTask(currentTask.getOwner()));
             taskResponse.setTeam(currentTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
             taskResponse.setTags(currentTask.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-            taskResponse.setIssues(currentTask.getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
+            taskResponse.setIssues(currentTask.getIssues().stream().map(issue -> BriefIssueResponse.builder()
+                    .title(issue.getTitle())
+                    .description(issue.getDescription())
+                    .status(issue.getStatus().toString())
+                    .dueDate(issue.getDueDate()).build())
+                    .collect(Collectors.toList()));
             taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
 
             if (currentTask.getCategory().equalsIgnoreCase("Adoption") && currentTask.getAdopter() != null) {
@@ -148,7 +154,12 @@ public class TaskService {
         taskResponse.setOwner(userMapper.toUserResponseForTask(task.getOwner()));
         taskResponse.setTeam(task.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
         taskResponse.setTags(task.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-        taskResponse.setIssues(task.getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
+        taskResponse.setIssues(task.getIssues().stream().map(issue -> BriefIssueResponse.builder()
+                        .title(issue.getTitle())
+                        .description(issue.getDescription())
+                        .status(issue.getStatus().toString())
+                        .dueDate(issue.getDueDate()).build())
+                .collect(Collectors.toList()));
         taskResponse.setFeedbacks(task.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
         return taskResponse;
     }
@@ -161,7 +172,12 @@ public class TaskService {
 
         TaskResponse taskResponse = taskMapper.toTaskResponse(optionalTask.get());
         taskResponse.setOwner(userMapper.toUserResponseForTask(optionalTask.get().getOwner()));
-        taskResponse.setIssues(optionalTask.get().getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
+        taskResponse.setIssues(optionalTask.get().getIssues().stream().map(issue -> BriefIssueResponse.builder()
+                .title(issue.getTitle())
+                .description(issue.getDescription())
+                .status(issue.getStatus().toString())
+                .dueDate(issue.getDueDate())
+                .build()).collect(Collectors.toList()));
         taskResponse.setTeam(optionalTask.get().getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
         taskResponse.setTags(optionalTask.get().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
         taskResponse.setAdopter(optionalTask.get().getAdopter() != null ? userMapper.toUserResponseForTask(optionalTask.get().getAdopter()) : null);
@@ -357,7 +373,12 @@ public class TaskService {
             taskResponse.setOwner(userMapper.toUserResponseForTask(currentTask.getOwner()));
             taskResponse.setTeam(currentTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
             taskResponse.setTags(currentTask.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-            taskResponse.setIssues(currentTask.getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
+            taskResponse.setIssues(currentTask.getIssues().stream().map(issue -> BriefIssueResponse.builder()
+                            .title(issue.getTitle())
+                            .description(issue.getDescription())
+                            .status(issue.getStatus().toString())
+                            .dueDate(issue.getDueDate()).build())
+                    .collect(Collectors.toList()));
             taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
 
             if ("Adoption".equalsIgnoreCase(currentTask.getCategory())) {
