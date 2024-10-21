@@ -29,14 +29,22 @@ public class IssueController {
     final UserService userService;
     final TaskController taskController;
 
-    @GetMapping("{issueId}")
-    public ApiResponse<Issue> getIssueById(@PathVariable int issueId) {
+    @GetMapping("{issueId}/task/{taskId}")
+    public ApiResponse<Issue> getIssueById(
+            @PathVariable("issueId") int issueId,
+            @PathVariable("taskId") int taskId,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
         return ApiResponse.<Issue>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find issue successfully")
-                .result(issueService.getIssueById(issueId))
+                .result(issueService.getIssueById(issueId, taskId, user))
                 .build();
     }
+
+
 
     @GetMapping("tasks/{taskId}/detail")
     public ApiResponse<List<IssueResponse>> getIssuesByTaskId(

@@ -42,16 +42,6 @@ public class IssueService {
     TagRepository tagRepository;
     private final UserMapper userMapper;
 
-    public Issue getIssueById(int issueId) {
-        Optional<Issue> issue = issueRepository.findById(issueId);
-
-        if(!issue.isPresent()) {
-            throw new AppException(ErrorCode.ISSUE_NOT_FOUND);
-        }
-
-        return issue.get();
-    }
-
     public List<IssueResponse> getIssuesByTasId(int taskId, String status, String sort) {
         List<Issue> issues;
         if(status.equalsIgnoreCase("ALL")) {
@@ -204,6 +194,22 @@ public class IssueService {
         }
 
         issueRepository.delete(issue);
+    }
+
+    public Issue getIssueById(int issueId, int taskId, User user) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
+        Issue issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new AppException(ErrorCode.ISSUE_NOT_FOUND));
+
+        if(!task.getTeam().contains(user)) {
+            throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
+        }
+
+        if(!task.getIssues().contains(issue)) {
+            throw new AppException(ErrorCode.ISSUE_NOT_IN_TASK);
+        }
+        return issue;
     }
 
     public void addUserToIssue(int issueId, int taskId, User user, String userId, String username) {

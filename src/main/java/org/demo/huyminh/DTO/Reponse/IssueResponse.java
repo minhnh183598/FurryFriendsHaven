@@ -21,6 +21,7 @@ import java.util.List;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class IssueResponse {
 
+    String id;
     String title;
     String description;
     int taskID;
