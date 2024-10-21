@@ -117,7 +117,6 @@ public class TaskService {
             taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
 
             if (currentTask.getCategory().equalsIgnoreCase("Adoption") && currentTask.getAdopter() != null) {
-                log.info("🎊🐳🍀");
                 taskResponse.setAdopter(userMapper.toUserResponseForTask(currentTask.getAdopter()));
             }
         }
@@ -168,6 +167,7 @@ public class TaskService {
         return taskResponse;
     }
 
+    @Transactional
     public void deleteTask(int taskId, User user) {
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
@@ -182,6 +182,7 @@ public class TaskService {
         taskRepository.deleteById(task.getId());
     }
 
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public TaskResponse updateTask(TaskUpdateRequest updatedTask, User user) {
         User existingUser = userRepository.findById(user.getId())
@@ -358,7 +359,6 @@ public class TaskService {
             taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
 
             if ("Adoption".equalsIgnoreCase(currentTask.getCategory())) {
-                log.info("🎊🐳🍀");
                 taskResponse.setAdopter(userMapper.toUserResponseForTask(currentTask.getAdopter()));
             }
         }
