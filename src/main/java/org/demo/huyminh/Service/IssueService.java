@@ -20,10 +20,8 @@ import org.demo.huyminh.Repository.TagRepository;
 import org.demo.huyminh.Repository.TaskRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.springframework.stereotype.Service;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  * @author Minh
@@ -54,8 +52,20 @@ public class IssueService {
         return issue.get();
     }
 
-    public List<IssueResponse> getIssuesByTasId(int taskId) {
-        List<Issue> issues = issueRepository.findByTaskId(taskId);
+    public List<IssueResponse> getIssuesByTasId(int taskId, String status, String sort) {
+        List<Issue> issues;
+        if(status.equalsIgnoreCase("ALL")) {
+            issues = issueRepository.findByTaskId(taskId);
+        } else {
+            if(sort.equalsIgnoreCase("ASC")) {
+                issues = issueRepository.findByTaskIdAndStatusAscOrder(taskId, Status.fromString(status));
+            } else if(sort.equalsIgnoreCase("DESC")) {
+                issues = issueRepository.findByTaskIdAndStatusDescOrder(taskId, Status.fromString(status));
+            } else {
+                throw new AppException(ErrorCode.INVALID_SORT_ORDER);
+            }
+        }
+
         if(taskRepository.findById(taskId).isEmpty()) {
             throw new AppException(ErrorCode.TASK_NOT_EXISTS);
         }

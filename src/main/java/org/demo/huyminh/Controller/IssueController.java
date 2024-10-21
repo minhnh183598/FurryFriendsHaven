@@ -38,12 +38,16 @@ public class IssueController {
                 .build();
     }
 
-    @GetMapping("tasks/{taskId}")
-    public ApiResponse<List<IssueResponse>> getIssuesByTaskId(@PathVariable int taskId) {
+    @GetMapping("tasks/{taskId}/detail")
+    public ApiResponse<List<IssueResponse>> getIssuesByTaskId(
+            @PathVariable int taskId,
+            @RequestParam(value = "status", defaultValue = "ALL") String status,
+            @RequestParam(value = "sort", defaultValue = "ASC") String sort
+    ) {
         return ApiResponse.<List<IssueResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find issues successfully")
-                .result(issueService.getIssuesByTasId(taskId))
+                .result(issueService.getIssuesByTasId(taskId, status, sort))
                 .build();
     }
 

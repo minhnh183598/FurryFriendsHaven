@@ -91,7 +91,7 @@ public enum ErrorCode {
     UNAUTHORIZED_TO_CHANGE_TASK_STATUS(HttpStatus.FORBIDDEN.value(), "You don't have authority to change task status", HttpStatus.FORBIDDEN),
     CANNOT_CHANGE_STATUS_TO_SAME_STATUS(HttpStatus.BAD_REQUEST.value(), "You can not change status to same status", HttpStatus.BAD_REQUEST),
     EACH_USER_CAN_POST_ONE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "Each volunteer was allowed to post one feedback per task", HttpStatus.FORBIDDEN),
-    ;
+    INVALID_SORT_ORDER(HttpStatus.BAD_REQUEST.value(), "Invalid sort order", HttpStatus.BAD_REQUEST);
 
     private int code;
     private String message;

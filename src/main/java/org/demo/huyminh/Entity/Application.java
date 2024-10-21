@@ -58,7 +58,7 @@ public class Application {
     private LocalDateTime updateAt;
 
     @CreationTimestamp
-    @Column(name = "create_at")
+    @Column(name = "create_at", updatable = false)
     private LocalDateTime createAt;
 
     @ManyToOne

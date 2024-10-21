@@ -161,8 +161,10 @@ public class TaskService {
 
         TaskResponse taskResponse = taskMapper.toTaskResponse(optionalTask.get());
         taskResponse.setOwner(userMapper.toUserResponseForTask(optionalTask.get().getOwner()));
+        taskResponse.setIssues(optionalTask.get().getIssues().stream().map(Issue::getTitle).collect(Collectors.toList()));
         taskResponse.setTeam(optionalTask.get().getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
         taskResponse.setTags(optionalTask.get().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+        taskResponse.setAdopter(optionalTask.get().getAdopter() != null ? userMapper.toUserResponseForTask(optionalTask.get().getAdopter()) : null);
 
         return taskResponse;
     }
