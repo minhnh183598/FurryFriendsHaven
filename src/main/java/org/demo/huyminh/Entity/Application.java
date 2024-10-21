@@ -45,10 +45,8 @@ public class Application {
     String secondPhone;
 
     //status = 0 = pending
-    //status = 1 = accept
-    //status = 2 = refuse
-    //status = 3 = adopted
-    //status = 4 = Reject
+    //status = 1 = adopted
+    //status = 2 = Reject
     int status;
 
     //Thoi gian update Status
