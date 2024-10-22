@@ -19,6 +19,8 @@ public interface EventService {
 
     List<Event> searchEvent(String name, String postedBy, String location, LocalDate date, List<String> tags);
 
+    List<Event> searchByLikeCount(int minLikes, int maxLikes);
+
     Event updateEvent(Long eventId, Event event, String username);
 
     void deleteEvent(Long eventId);

@@ -15,6 +15,8 @@ public interface EventRepository extends CrudRepository<Event, Long> {
 
     List<Event> findByCategory(String category);
 
+    List<Event> findByLikeCountBetween(int minLikes, int maxLikes);
+
     @Query("SELECT e FROM Event e WHERE "
             + "(?1 IS NULL OR e.name LIKE %?1%) AND "
             + "(?2 IS NULL OR e.postedBy LIKE %?2%) AND "

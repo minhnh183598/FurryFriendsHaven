@@ -105,6 +105,10 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findEventsByCriteria(name, postedBy, location, date, tags);
     }
 
+    public List<Event> searchByLikeCount(int minLikes, int maxLikes) {
+        return eventRepository.findByLikeCountBetween(minLikes, maxLikes);
+    }
+
     public Event updateEvent(Long eventId, Event event, String username) {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         if (optionalEvent.isPresent()) {

@@ -113,6 +113,20 @@ public class EventController {
         }
     }
 
+    @GetMapping("/search-by-likes")
+    public ResponseEntity<List<Event>> searchByLikeCount(@RequestParam int minLikes, @RequestParam int maxLikes) {
+        try {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();  // Lấy tên người dùng hiện tại
+
+            List<Event> events = eventService.searchByLikeCount(minLikes, maxLikes);
+            return ResponseEntity.ok(events);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
     @DeleteMapping("/{eventId}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long eventId) {
         try {
