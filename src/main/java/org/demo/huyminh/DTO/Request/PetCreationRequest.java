@@ -29,6 +29,8 @@ public class PetCreationRequest {
      String petStatus;
      String petImage;
 
+     String petImage;
+
      @CreationTimestamp
      @Column(name = "create_pet_at")
      private LocalDateTime createdPetAt;
