@@ -2,6 +2,7 @@ package org.demo.huyminh.Service;
 
 
 import jakarta.persistence.EntityNotFoundException;
+import org.demo.huyminh.Entity.Event;
 import org.demo.huyminh.Entity.Post;
 import org.demo.huyminh.Repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +102,10 @@ public class PostServiceImpl implements PostService{
         // Giả định bạn có một repository tương ứng để truy vấn cơ sở dữ liệu
         // Sử dụng phương thức tìm kiếm dựa trên tiêu chí đã cho
         return postRepository.findPostsByCriteria(name, postedBy, date, tags);
+    }
+
+    public List<Post> searchByLikeCount(int minLikes, int maxLikes) {
+        return postRepository.findByLikeCountBetween(minLikes, maxLikes);
     }
 
     public Post updatePost(Long postId, Post post, String username) {

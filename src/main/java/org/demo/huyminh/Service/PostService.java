@@ -19,6 +19,8 @@ public interface PostService {
 
     List<Post> searchPost(String name, String postedBy, LocalDate date, List<String> tags);
 
+    List<Post> searchByLikeCount(int minLikes, int maxLikes);
+
     Post updatePost(Long postId, Post post, String username);
 
     void deletePost(Long postId);

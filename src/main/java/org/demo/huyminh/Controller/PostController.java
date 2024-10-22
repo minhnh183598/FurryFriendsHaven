@@ -1,6 +1,7 @@
 package org.demo.huyminh.Controller;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.demo.huyminh.Entity.Event;
 import org.demo.huyminh.Entity.Post;
 import org.demo.huyminh.Service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +106,19 @@ public class PostController {
             String username = authentication.getName();  // Lấy tên người dùng hiện tại
 
             List<Post> posts = postService.searchPost(name, postedBy, date, tags);
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/search-by-likes")
+    public ResponseEntity<List<Post>> searchByLikeCount(@RequestParam int minLikes, @RequestParam int maxLikes) {
+        try {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();  // Lấy tên người dùng hiện tại
+
+            List<Post> posts = postService.searchByLikeCount(minLikes, maxLikes);
             return ResponseEntity.ok(posts);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

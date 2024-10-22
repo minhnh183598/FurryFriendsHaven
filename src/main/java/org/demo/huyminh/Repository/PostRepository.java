@@ -1,6 +1,7 @@
 package org.demo.huyminh.Repository;
 
 
+import org.demo.huyminh.Entity.Event;
 import org.demo.huyminh.Entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +14,8 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByCategory(String category);
+
+    List<Post> findByLikeCountBetween(int minLikes, int maxLikes);
 
     @Query("SELECT p FROM Post p WHERE (:name IS NULL OR p.name LIKE %:name%) " +
             "AND (:postedBy IS NULL OR p.postedBy = :postedBy) " +
