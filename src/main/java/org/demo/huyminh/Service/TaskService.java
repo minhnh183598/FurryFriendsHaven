@@ -6,9 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.BriefIssueResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
+import org.demo.huyminh.DTO.Request.InvitationEventData;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
 import org.demo.huyminh.Entity.*;
+import org.demo.huyminh.Enums.InvitationStatus;
 import org.demo.huyminh.Enums.Roles;
 import org.demo.huyminh.Enums.Status;
 import org.demo.huyminh.Exception.AppException;
@@ -21,10 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,18 +35,21 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(level = lombok.AccessLevel.PRIVATE)
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class TaskService {
 
-    final TaskRepository taskRepository;
-    final ApplicationRepository applicationRepository;
-    final UserRepository userRepository;
-    final TaskMapper taskMapper;
-    final TagRepository tagRepository;
-    final UserMapper userMapper;
-    final FeedbackMapper feedbackMapper;
-    final FeedbackService feedbackService;
-    final FeedbackRepository feedbackRepository;
+    TaskRepository taskRepository;
+    ApplicationRepository applicationRepository;
+    UserRepository userRepository;
+    TaskMapper taskMapper;
+    TagRepository tagRepository;
+    UserMapper userMapper;
+    FeedbackMapper feedbackMapper;
+    FeedbackService feedbackService;
+    FeedbackRepository feedbackRepository;
+    InvitationRepository invitationRepository;
+    RoleService roleService;
+
 
     @PreAuthorize("hasRole('ADMIN')")
     public TaskResponse createTask(TaskCreationRequest task, User user) {
@@ -387,5 +389,95 @@ public class TaskService {
         }
 
         return taskResponses;
+    }
+
+    @PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
+    public InvitationEventData inviteUserToTask(int taskId, String username, User user) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
+
+        if(!(task.getOwner().equals(user)) && !task.getTeam().contains(user)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_TO_INVITE_USER_TO_TASK);
+        }
+
+        User invitedUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        if(task.getTeam().contains(invitedUser)) {
+            throw new AppException(ErrorCode.USER_ALREADY_IN_TASK);
+        }
+
+        if(user.equals(invitedUser)) {
+            throw new AppException(ErrorCode.CANNOT_INVITE_YOURSELF);
+        }
+
+        if (!roleService.hasRole(invitedUser, "VOLUNTEER") && !roleService.hasRole(invitedUser, "ADMIN")) {
+            throw new AppException(ErrorCode.USER_NOT_HAVE_PROPER_ROLE);
+        }
+
+        InvitationEventData eventData = InvitationEventData.builder()
+                                            .taskId(String.valueOf(taskId))
+                                            .user(invitedUser)
+                                            .build();
+
+        Invitation invitation = invitationRepository.findByTaskIdAndUserId(taskId, invitedUser.getId());
+        if (invitation != null && (invitation.getStatus().equals(InvitationStatus.ACCEPTED)
+                || invitation.getStatus().equals(InvitationStatus.PENDING))) {
+            throw new AppException(ErrorCode.USER_ALREADY_INVITED);
+        } else if (invitation != null && (invitation.getStatus().equals(InvitationStatus.REJECTED)
+                || invitation.getStatus().equals(InvitationStatus.EXPIRED))) {
+            invitation.setStatus(InvitationStatus.PENDING);
+            invitation.setExpiredAt(LocalDateTime.now().plusDays(1));
+            invitationRepository.save(invitation);
+
+            return eventData;
+        }
+
+        invitationRepository.save(Invitation.builder()
+                .userId(invitedUser.getId())
+                .taskId(taskId)
+                .expiredAt(LocalDateTime.now().plusDays(1))
+                .build());
+
+        return eventData;
+    }
+
+    public String acceptInvitation(int taskId, String username, User user, String choice) {
+        User invitedUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        Invitation invitation = invitationRepository.findByTaskIdAndUserId(taskId, invitedUser.getId());
+
+        if(invitation == null) {
+            throw new AppException(ErrorCode.INVITATION_NOT_FOUND);
+        }
+
+        if(!invitation.getExpiredAt().isAfter(LocalDateTime.now())) {
+            invitation.setStatus(InvitationStatus.EXPIRED);
+            invitationRepository.save(invitation);
+            throw new AppException(ErrorCode.INVITATION_EXPIRED);
+        }
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
+
+        if(choice.equalsIgnoreCase("Reject")) {
+            invitation.setStatus(InvitationStatus.REJECTED);
+            invitationRepository.save(invitation);
+            return "User has declined the invitation";
+        } else if(!choice.equalsIgnoreCase("Accept")) {
+            throw new AppException(ErrorCode.INVALID_CHOICE);
+        }
+
+        if(task.getTeam().contains(invitedUser)) {
+            throw new AppException(ErrorCode.USER_ALREADY_IN_TASK);
+        }
+
+        task.getTeam().add(invitedUser);
+        taskRepository.save(task);
+        invitation.setStatus(InvitationStatus.ACCEPTED);
+        invitationRepository.save(invitation);
+
+        return "User has accepted the invitation";
     }
 }

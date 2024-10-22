@@ -1,16 +1,23 @@
 package org.demo.huyminh.Controller;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
+import org.demo.huyminh.DTO.Request.InvitationEventData;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
 import org.demo.huyminh.Entity.Task;
 import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Event.TaskInvitationEvent;
+import org.demo.huyminh.Exception.AppException;
+import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Service.TaskService;
 import org.demo.huyminh.Service.UserService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -25,10 +32,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/tasks")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TaskController {
 
-    private final TaskService taskService;
-    private final UserService userService;
+    TaskService taskService;
+    UserService userService;
+    ApplicationEventPublisher eventPublisher;
 
     @GetMapping("/team")
     public ApiResponse<List<TaskResponse>> getTaskByTeam(
@@ -112,6 +121,41 @@ public class TaskController {
                 .code(HttpStatus.OK.value())
                 .message("Find tasks successfully")
                 .result(tasks)
+                .build();
+    }
+
+    @GetMapping("/{taskId}/invitation")
+    public ApiResponse<Void> inviteUserToTask(
+            @PathVariable("taskId") int taskId,
+            @RequestParam("username") String username,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
+
+        InvitationEventData invitationEventData = taskService.inviteUserToTask(taskId, username, user);
+
+        eventPublisher.publishEvent(new TaskInvitationEvent(invitationEventData));
+
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Invite user to task successfully. Please check your email")
+                .build();
+    }
+
+
+    @GetMapping("{taskId}/invitation/user")
+    public ApiResponse<String> getInvitation(
+            @PathVariable("taskId") int taskId,
+            @RequestParam("username") String username,
+            @RequestParam("choice") String choice,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
+        return ApiResponse.<String>builder()
+                .code(HttpStatus.OK.value())
+                .result(taskService.acceptInvitation(taskId, username, user, choice))
                 .build();
     }
 

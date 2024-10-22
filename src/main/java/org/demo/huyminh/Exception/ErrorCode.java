@@ -93,6 +93,13 @@ public enum ErrorCode {
     EACH_USER_CAN_POST_ONE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "Each volunteer was allowed to post one feedback per task", HttpStatus.FORBIDDEN),
     INVALID_SORT_ORDER(HttpStatus.BAD_REQUEST.value(), "Invalid sort order", HttpStatus.BAD_REQUEST),
     ISSUE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST.value(), "Issue already exists. Please choose another name.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TO_INVITE_USER_TO_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to invite user to this task", HttpStatus.FORBIDDEN),
+    CANNOT_INVITE_YOURSELF(HttpStatus.BAD_REQUEST.value(), "You can not invite yourself", HttpStatus.BAD_REQUEST),
+    USER_NOT_HAVE_PROPER_ROLE(HttpStatus.BAD_REQUEST.value(), "User not have proper role to be invited to task", HttpStatus.BAD_REQUEST),
+    USER_ALREADY_INVITED(HttpStatus.BAD_REQUEST.value(), "User already invited to task", HttpStatus.BAD_REQUEST),
+    INVITATION_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Invitation not found", HttpStatus.NOT_FOUND),
+    INVITATION_EXPIRED(HttpStatus.BAD_REQUEST.value(), "Invitation expired", HttpStatus.BAD_REQUEST),
+    INVALID_CHOICE(HttpStatus.BAD_REQUEST.value(), "Invalid choice. Please choose valid choice again.", HttpStatus.BAD_REQUEST),
     ;
 
     private int code;
