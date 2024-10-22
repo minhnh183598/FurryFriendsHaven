@@ -1,15 +1,12 @@
 package org.demo.huyminh.Entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,7 +34,6 @@ public class Pet {
     private String petImage;
 
     @CreationTimestamp
-    @Column(name = "create_pet_at")
-    private LocalDateTime createPetAt;
-
+    @Column(name = "created_pet_at")
+    private LocalDateTime createdPetAt;
 }

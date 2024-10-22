@@ -9,7 +9,6 @@ import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Service.PetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @Slf4j
@@ -42,6 +41,13 @@ public class PetController {
         return petService.updatePet(petId, request);
     }
 
+
+    //UPDATE PET STATUS
+    @PutMapping("status/{petId}")
+    Pet updatePetStatus(@PathVariable("petId") String petId, @RequestBody PetUpdateRequest request) {
+        return petService.updatePetStatus(petId, request);
+    }
+
     //DELETE PET
     @DeleteMapping("/{petId}")
     String deletePet(@PathVariable("petId") String petId) {
@@ -59,7 +65,7 @@ public class PetController {
             @RequestParam(defaultValue = "All") String petVaccin,
             @RequestParam(defaultValue = "All") String petStatus,
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(required = false) String sort) {
+            @RequestParam(defaultValue = "sortByDate") String sort) {
         return petService.searchPets(petType, petAge, petGender, petColor, petVaccin, petStatus, keyword, sort);
     }
 
@@ -77,19 +83,6 @@ public class PetController {
 //        List<Pet> pets = petService.searchByPetName(keyword);
 //        return new ResponseEntity<>(pets, HttpStatus.OK);
 //        }
-//    //Search v2
-//    @GetMapping("/search")
-//    public ResponseEntity<List<Pet>> searchPets(
-//            @RequestParam(required = false) String petType,
-//            @RequestParam(required = false) String petGender,
-//            @RequestParam(required = false) String petAge,
-//            @RequestParam(required = false) String petColor,
-//            @RequestParam(required = false) String petStatus,
-//            @RequestParam(required = false) String petVaccin) {
-
-//        List<Pet> pets = petService.searchPets(petType, petGender, petAge, petColor, petStatus, petVaccin);
-//        return new ResponseEntity<>(pets, HttpStatus.OK);
-//    }
 //    //Sort Pets by Name
 //    @GetMapping("/sortByName")
 //    public List<Pet> sortByName(){
