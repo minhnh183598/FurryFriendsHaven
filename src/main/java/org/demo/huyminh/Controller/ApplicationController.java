@@ -12,8 +12,10 @@ import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/applications")
@@ -56,14 +58,6 @@ public class ApplicationController {
         return applicationService.getApplications();
     }
 
-
-//    @GetMapping("/{applicationId}/task")
-//    public ApiResponse<TaskResponse> getTaskByApplicationId(
-//            @PathVariable String applicationId
-//    ) {
-//
-//    }
-
     @GetMapping("status/1")
     List<Application> getApplicationsWithStatus1(){
         return applicationService.getApplicationsWithStatus1();
@@ -84,6 +78,21 @@ public class ApplicationController {
     @PutMapping("/{applicationId}")
     Application updateApplication(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
              return applicationService.updateApplication(applicationId,request);
+    }
+
+    @GetMapping("/status/{status}/sorted")
+    public List<Application> getSortedApplications(@PathVariable("status") int status) {
+        return applicationService.getApplicationsSortedByUpdateAt(status);
+    }
+
+    //Get Applications sorted by User ID
+    @GetMapping("/sorted-by-user/{userId}")
+    public List<Application> getApplicationsSortedByUserId(@PathVariable("userId") String userId) {
+        // Lấy danh sách application của user có userId, và sắp xếp theo applicationId
+        return applicationService.getApplicationsByUserId(userId)
+                .stream()
+                .sorted(Comparator.comparing(Application::getApplicationId)) // Sắp xếp theo applicationId
+                .collect(Collectors.toList());
     }
 
     //Delete Application

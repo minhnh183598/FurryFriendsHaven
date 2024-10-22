@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ApplicationService {
@@ -145,6 +147,26 @@ public class ApplicationService {
         return applicationRepository.save(application);
 
     }
+
+    // Phương thức để lấy danh sách đơn ứng dụng đã sắp xếp theo updateAt
+    public List<Application> getApplicationsSortedByUpdateAt(int status) {
+        List<Application> applications = applicationRepository.findAll();
+        // Lọc ra các đơn ứng dụng với status = 1 và sắp xếp
+        return applications.stream()
+                .filter(application -> application.getStatus() == status)
+                .sorted(Comparator.comparing(Application::getUpdateAt).reversed())
+                .collect(Collectors.toList());
+    }
+
+
+    // Lấy danh sách application của user dựa vào userId
+    public List<Application> getApplicationsByUserId(String userId) {
+        return applicationRepository.findAll()
+                .stream()
+                .filter(application -> application.getUser().getId().equals(userId)) // Lọc theo userId
+                .collect(Collectors.toList());
+    }
+
 
     //DELETE APPLICATION
     public void deleteApplication(String applicationId) {
