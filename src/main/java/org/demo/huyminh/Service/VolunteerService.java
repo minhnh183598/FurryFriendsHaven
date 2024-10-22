@@ -1,16 +1,11 @@
 package org.demo.huyminh.Service;
 
 import jakarta.validation.constraints.Pattern;
-import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
-import org.demo.huyminh.DTO.Request.VolunteerAppliCreationRequest;
 import org.demo.huyminh.DTO.Request.VolunteerAppliUpdateRequest;
-import org.demo.huyminh.Entity.Application;
 import org.demo.huyminh.Entity.VolunteerApplication;
-import org.demo.huyminh.Repository.ApplicationRepository;
 import org.demo.huyminh.Repository.VolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -23,7 +18,7 @@ public class VolunteerService {
     public VolunteerApplication createVolunteerAppli(String userId, String fullName
             , int yob, String gender, String address
             , @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone
-            ,String adoptionExp,String daysOfWeek,String morning,String afternoon,String reason){
+            , String adoptionExp, String daysOfWeek, String morning, String afternoon, String reason) {
 
         VolunteerApplication application = new VolunteerApplication();
 
@@ -43,32 +38,32 @@ public class VolunteerService {
     }
 
     //GetAllApplication
-    public List<VolunteerApplication> getVolunteerApplications(){
+    public List<VolunteerApplication> getVolunteerApplications() {
         return volunteerRepository.findByStatusOrderByCreateAtAsc(0);
     }
 
     //GetApplicationStatus = 1
-    public List<VolunteerApplication> getVolunteerApplicationsWithStatus1(){
+    public List<VolunteerApplication> getVolunteerApplicationsWithStatus1() {
         return volunteerRepository.findByStatusOrderByUpdateAtDesc(1);
     }
 
     //GetApplicationStatus = 2
-    public List<VolunteerApplication> getVolunteerApplicationsWithStatus2(){
+    public List<VolunteerApplication> getVolunteerApplicationsWithStatus2() {
         return volunteerRepository.findByStatusOrderByUpdateAtDesc(2);
     }
 
     //GetApplicaitonById
-    public VolunteerApplication getVolunteerApplication(String volunteerAppliId){
+    public VolunteerApplication getVolunteerApplication(String volunteerAppliId) {
         return volunteerRepository.findById(volunteerAppliId)
                 .orElseThrow(() -> new RuntimeException("Volunteer Application not founded"));
     }
 
 
     //UpdateApplicaitonById
-    public VolunteerApplication updateVolunApplication(String volunteerAppliId, VolunteerAppliUpdateRequest request){
+    public VolunteerApplication updateVolunApplication(String volunteerAppliId, VolunteerAppliUpdateRequest request) {
         VolunteerApplication application = volunteerRepository.findById(volunteerAppliId)
                 .orElseThrow(() -> new RuntimeException("Application ID not found"));
-        if(application.getStatus() == 0){
+        if (application.getStatus() == 0) {
             application.setFullName(request.getFullName());
             application.setYob(request.getYob());
             application.setGender(request.getGender());
@@ -81,14 +76,13 @@ public class VolunteerService {
             application.setReason(request.getReason());
 
             return volunteerRepository.save(application);
-        }
-        else{
+        } else {
             throw new RuntimeException("Can Not Update Volunteer Application");
         }
     }
 
     //Update Application Status
-    public VolunteerApplication updateAppilicationStatus(String volunteerAppliId, VolunteerAppliUpdateRequest request){
+    public VolunteerApplication updateAppilicationStatus(String volunteerAppliId, VolunteerAppliUpdateRequest request) {
         VolunteerApplication application = volunteerRepository.findById(volunteerAppliId)
                 .orElseThrow(() -> new RuntimeException("Application Id Not Existed"));
 
@@ -99,7 +93,7 @@ public class VolunteerService {
     }
 
     //DeleteApplicaitonById
-    public void deleteVolunApplication(String volunteerAppliId){
+    public void deleteVolunApplication(String volunteerAppliId) {
         volunteerRepository.deleteById(volunteerAppliId);
     }
 

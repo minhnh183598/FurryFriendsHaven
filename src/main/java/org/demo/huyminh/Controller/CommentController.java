@@ -1,6 +1,5 @@
 package org.demo.huyminh.Controller;
 
-import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
@@ -11,7 +10,6 @@ import org.demo.huyminh.Service.CommentService;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 /**

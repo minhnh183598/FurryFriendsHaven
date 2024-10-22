@@ -22,6 +22,7 @@ import org.demo.huyminh.Repository.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,7 +56,7 @@ public class TaskService {
     public TaskResponse createTask(TaskCreationRequest task, User user) {
         task.setOwner(user);
         Task newTask = taskMapper.toTask(task);
-        if(newTask.getDueDate().isBefore(LocalDateTime.now())) {
+        if (newTask.getDueDate().isBefore(LocalDateTime.now())) {
             throw new AppException(ErrorCode.INVALID_DUE_DATE);
         }
 
@@ -86,12 +87,12 @@ public class TaskService {
         for (Tag tag : task.getTags()) {
             Optional<Tag> existingTag = tagRepository.findById(tag.getName());
 
-            if(!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
+            if (!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
                 existingTags.add(existingTag.get());
             }
         }
 
-        if(existingTags.isEmpty()) {
+        if (existingTags.isEmpty()) {
             throw new AppException(ErrorCode.TASK_HAS_NO_TAGS);
         }
 
@@ -117,10 +118,10 @@ public class TaskService {
             taskResponse.setTeam(currentTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
             taskResponse.setTags(currentTask.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
             taskResponse.setIssues(currentTask.getIssues().stream().map(issue -> BriefIssueResponse.builder()
-                    .title(issue.getTitle())
-                    .description(issue.getDescription())
-                    .status(issue.getStatus().toString())
-                    .dueDate(issue.getDueDate()).build())
+                            .title(issue.getTitle())
+                            .description(issue.getDescription())
+                            .status(issue.getStatus().toString())
+                            .dueDate(issue.getDueDate()).build())
                     .collect(Collectors.toList()));
             taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
 
@@ -143,7 +144,7 @@ public class TaskService {
                 .orElseThrow(() -> new AppException(ErrorCode.APPLICATION_NOT_EXISTS));
 
         Task task = application.getTask();
-        if(task == null) {
+        if (task == null) {
             throw new AppException(ErrorCode.TASK_NOT_EXISTS);
         }
 
@@ -168,7 +169,7 @@ public class TaskService {
 
     public TaskResponse getTaskById(int taskId) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if(optionalTask.isEmpty()) {
+        if (optionalTask.isEmpty()) {
             throw new AppException(ErrorCode.TASK_NOT_EXISTS);
         }
 
@@ -195,7 +196,7 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
-        if(!task.getOwner().equals(existingUser)) {
+        if (!task.getOwner().equals(existingUser)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -209,14 +210,14 @@ public class TaskService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
         Task task = taskRepository.findById(updatedTask.getId())
-                    .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
+                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
-        if(!(task.getOwner().equals(existingUser))) {
+        if (!(task.getOwner().equals(existingUser))) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         Task updateTask = taskMapper.updateTask(updatedTask);
-        if(updateTask.getDueDate().isBefore(LocalDateTime.now())) {
+        if (updateTask.getDueDate().isBefore(LocalDateTime.now())) {
             throw new AppException(ErrorCode.INVALID_DUE_DATE);
         }
         log.info("Update Task: " + updateTask);
@@ -230,7 +231,7 @@ public class TaskService {
             for (Tag updatedTag : updatedTask.getTags()) {
                 Optional<Tag> existingTag = tagRepository.findById(updatedTag.getName());
 
-                if(!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
+                if (!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
                     existingTags.add(existingTag.get());
                 }
             }
@@ -329,11 +330,11 @@ public class TaskService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
-        if(!(task.getOwner().equals(existingUser) || task.getTeam().contains(existingUser))) {
+        if (!(task.getOwner().equals(existingUser) || task.getTeam().contains(existingUser))) {
             throw new AppException(ErrorCode.UNAUTHORIZED_TO_ADD_USER_TO_TASK);
         }
 
-        if(!task.getTeam().contains(user)) {
+        if (!task.getTeam().contains(user)) {
             task.getTeam().add(user);
             taskRepository.save(task);
         } else {
@@ -348,19 +349,19 @@ public class TaskService {
         User userToRemove = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
-        if(!(task.getOwner().equals(user))) {
+        if (!(task.getOwner().equals(user))) {
             throw new AppException(ErrorCode.UNAUTHORIZED_TO_DELETE_USER_FROM_TASK);
         }
 
-        if(!task.getTeam().contains(userToRemove)) {
+        if (!task.getTeam().contains(userToRemove)) {
             throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
         }
 
-        if(task.getOwner().equals(userToRemove)) {
+        if (task.getOwner().equals(userToRemove)) {
             throw new AppException(ErrorCode.CANNOT_REMOVE_OWNER);
         }
 
-        if(task.getTeam().size() == 1) {
+        if (task.getTeam().size() == 1) {
             throw new AppException(ErrorCode.CANNOT_REMOVE_LAST_USER);
         }
         task.getTeam().remove(userToRemove);
@@ -373,7 +374,7 @@ public class TaskService {
         log.info("PartialName: " + keyword);
         var result = taskRepository.findByPartialName(partialName);
 
-        if(result.isEmpty()) {
+        if (result.isEmpty()) {
             throw new AppException(ErrorCode.TASK_NOT_FOUND);
         }
         return result;
@@ -414,18 +415,18 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
-        if(!(task.getOwner().equals(user)) && !task.getTeam().contains(user)) {
+        if (!(task.getOwner().equals(user)) && !task.getTeam().contains(user)) {
             throw new AppException(ErrorCode.UNAUTHORIZED_TO_INVITE_USER_TO_TASK);
         }
 
         User invitedUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
-        if(task.getTeam().contains(invitedUser)) {
+        if (task.getTeam().contains(invitedUser)) {
             throw new AppException(ErrorCode.USER_ALREADY_IN_TASK);
         }
 
-        if(user.equals(invitedUser)) {
+        if (user.equals(invitedUser)) {
             throw new AppException(ErrorCode.CANNOT_INVITE_YOURSELF);
         }
 
@@ -434,9 +435,9 @@ public class TaskService {
         }
 
         InvitationEventData eventData = InvitationEventData.builder()
-                                            .taskId(String.valueOf(taskId))
-                                            .user(invitedUser)
-                                            .build();
+                .taskId(String.valueOf(taskId))
+                .user(invitedUser)
+                .build();
 
         Invitation invitation = invitationRepository.findByTaskIdAndUserId(taskId, invitedUser.getId());
         if (invitation != null && (invitation.getStatus().equals(InvitationStatus.ACCEPTED)
@@ -467,11 +468,11 @@ public class TaskService {
 
         Invitation invitation = invitationRepository.findByTaskIdAndUserId(taskId, invitedUser.getId());
 
-        if(invitation == null) {
+        if (invitation == null) {
             throw new AppException(ErrorCode.INVITATION_NOT_FOUND);
         }
 
-        if(!invitation.getExpiredAt().isAfter(LocalDateTime.now())) {
+        if (!invitation.getExpiredAt().isAfter(LocalDateTime.now())) {
             invitation.setStatus(InvitationStatus.EXPIRED);
             invitationRepository.save(invitation);
             throw new AppException(ErrorCode.INVITATION_EXPIRED);
@@ -480,15 +481,15 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
-        if(choice.equalsIgnoreCase("Reject")) {
+        if (choice.equalsIgnoreCase("Reject")) {
             invitation.setStatus(InvitationStatus.REJECTED);
             invitationRepository.save(invitation);
             return "User has declined the invitation";
-        } else if(!choice.equalsIgnoreCase("Accept")) {
+        } else if (!choice.equalsIgnoreCase("Accept")) {
             throw new AppException(ErrorCode.INVALID_CHOICE);
         }
 
-        if(task.getTeam().contains(invitedUser)) {
+        if (task.getTeam().contains(invitedUser)) {
             throw new AppException(ErrorCode.USER_ALREADY_IN_TASK);
         }
 

@@ -1,8 +1,6 @@
 package org.demo.huyminh.Service;
 
-import org.demo.huyminh.Entity.Donation;
 import org.demo.huyminh.Vnpay.Payment;
-
 import java.math.BigDecimal;
 import java.util.List;
 

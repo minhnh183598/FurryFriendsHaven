@@ -21,7 +21,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Arrays;
 
-
 /**
  * @author Minh
  * Date: 9/24/2024
@@ -63,7 +62,7 @@ public class SecurityConfig {
         //Provide JWT Authentication Provider a decoder to verify JWT signature
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         //When OAuth2 authentication fails, return 401
                         .authenticationEntryPoint(new JWTAuthenticationEntryPoint())
         );
@@ -94,7 +93,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

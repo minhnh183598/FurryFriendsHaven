@@ -1,12 +1,15 @@
 package org.demo.huyminh.Exception;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-/** @author Minh
-* Date: 9/24/2024
-* Time: 9:14 AM
-*/ 
+/**
+ * @author Minh
+ * Date: 9/24/2024
+ * Time: 9:14 AM
+ */
 
 @Getter
 @AllArgsConstructor
@@ -100,7 +103,8 @@ public enum ErrorCode {
     INVITATION_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Invitation not found", HttpStatus.NOT_FOUND),
     INVITATION_EXPIRED(HttpStatus.BAD_REQUEST.value(), "Invitation expired", HttpStatus.BAD_REQUEST),
     INVALID_CHOICE(HttpStatus.BAD_REQUEST.value(), "Invalid choice. Please choose valid choice again.", HttpStatus.BAD_REQUEST),
-    UNAUTHORIZED_TO_ATTEND_TO_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to attend to this task", HttpStatus.FORBIDDEN),;
+    UNAUTHORIZED_TO_ATTEND_TO_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to attend to this task", HttpStatus.FORBIDDEN),
+    ;
 
     private int code;
     private String message;

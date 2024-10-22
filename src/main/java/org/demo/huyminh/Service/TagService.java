@@ -35,7 +35,7 @@ public class TagService {
             throw new AppException(ErrorCode.TAG_ALREADY_EXISTS);
         }
         Tag tag = tagMapper.toTag(request);
-        if(!(tag.getType() == Tag.TagType.TASK_LABEL || tag.getType() == Tag.TagType.ISSUE_LABEL)) {
+        if (!(tag.getType() == Tag.TagType.TASK_LABEL || tag.getType() == Tag.TagType.ISSUE_LABEL)) {
             throw new AppException(ErrorCode.INVALID_TAG_TYPE);
         }
 
@@ -46,7 +46,7 @@ public class TagService {
     public List<TagResponse> getAll() {
         List<TagResponse> tags = tagRepository.findAll()
                 .stream().map(tagMapper::toTagResponse).toList();
-        if(tags.isEmpty()) {
+        if (tags.isEmpty()) {
             throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
         }
         return tags;
@@ -70,7 +70,7 @@ public class TagService {
 
     public List<TagResponse> getIssueTags(String type) {
         List<Tag> tags = tagRepository.findTagByType(type);
-        if(tags.isEmpty()) {
+        if (tags.isEmpty()) {
             throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
         }
         return tags.stream().map(tagMapper::toTagResponse).collect(Collectors.toList());
@@ -78,7 +78,7 @@ public class TagService {
 
     public List<TagResponse> getTaskTags(String type) {
         List<Tag> tags = tagRepository.findTagByType(type);
-        if(tags.isEmpty()) {
+        if (tags.isEmpty()) {
             throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
         }
         return tags.stream().map(tagMapper::toTagResponse).collect(Collectors.toList());
@@ -101,7 +101,7 @@ public class TagService {
         }
 
 
-        if(tagRepository.existsTagByDescription(request.getDescription())) {
+        if (tagRepository.existsTagByDescription(request.getDescription())) {
             tagRepository.findByIdAndType(request.getName(), request.getType().toUpperCase())
                     .orElseThrow(() -> new AppException(ErrorCode.TAG_ALREADY_EXISTS));
         }

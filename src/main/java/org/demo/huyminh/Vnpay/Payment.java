@@ -7,9 +7,11 @@ import org.demo.huyminh.Entity.User;
 @Entity
 @Data
 public class Payment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String amount;
     private String bankCode;
     private String bankTranNo;

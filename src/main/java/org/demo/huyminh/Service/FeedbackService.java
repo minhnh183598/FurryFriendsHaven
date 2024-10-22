@@ -7,21 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.FeedbackResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.Entity.*;
-import org.demo.huyminh.Enums.Roles;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.FeedbackMapper;
 import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.*;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * @author Minh
@@ -62,7 +56,7 @@ public class FeedbackService {
         Rating rating = request.getRating();
         if (rating != null) {
             rating.setFeedback(feedback);
-            if(task.getCategory().equals("Adoption")) {
+            if (task.getCategory().equals("Adoption")) {
                 rating.setApplication(applicationRepository.getApplicationByTaskId(task.getId()));
             }
             feedback.setRating(rating);
@@ -118,7 +112,7 @@ public class FeedbackService {
 
         List<Feedback> feedbacks = feedbackRepository.findAllByTaskId(taskId);
         List<FeedbackResponse> responses = feedbacks.stream().map(feedbackMapper::toFeedbackResponse).toList();
-        for(FeedbackResponse response : responses) {
+        for (FeedbackResponse response : responses) {
             response.setImages(feedbacks.getFirst().getImages().stream().map(Image::getImageUrl).toList());
             response.setRating(feedbacks.getFirst().getRating());
         }
@@ -177,7 +171,7 @@ public class FeedbackService {
         Feedback feedback = feedbackRepository.findById(feedbackId)
                 .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND));
 
-        if(!feedback.getTask().equals(task)) {
+        if (!feedback.getTask().equals(task)) {
             throw new AppException(ErrorCode.FEEDBACK_NOT_BELONG_TO_TASK);
         }
 

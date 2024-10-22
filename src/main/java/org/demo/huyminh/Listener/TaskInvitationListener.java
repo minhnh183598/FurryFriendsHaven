@@ -29,7 +29,7 @@ public class TaskInvitationListener implements ApplicationListener<TaskInvitatio
     public void onApplicationEvent(TaskInvitationEvent event) {
         InvitationEventData invitationData = event.getInvitationEventData();
 
-        if(invitationData == null) {
+        if (invitationData == null) {
             throw new AppException(ErrorCode.EMAIL_PROCESSING_FAILED);
         }
 

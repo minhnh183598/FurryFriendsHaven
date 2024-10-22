@@ -115,7 +115,7 @@ public class UserService {
         return users;
     }
 
-//    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
+    //    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public UserResponse getUser(String id) {
         log.info("In method get User: {}", id);
         return userMapper.toUserResponse(userRepository.findById(id)
@@ -140,13 +140,13 @@ public class UserService {
     @Transactional
     public void deleteUser(String id) {
 
-        if(!userRepository.existsById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new AppException(ErrorCode.USER_NOT_EXISTS);
         }
 
         userRepository.deleteById(id);
 
-        if(userRepository.existsById(id)) {
+        if (userRepository.existsById(id)) {
             log.error("Failed to delete permission: {}", id);
             throw new AppException(ErrorCode.DELETE_USER_FAILED);
         }
@@ -155,7 +155,7 @@ public class UserService {
     public User findByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
 
-        if(user.isEmpty()) {
+        if (user.isEmpty()) {
             throw new AppException(ErrorCode.USER_NOT_EXISTS);
         }
 
@@ -182,7 +182,7 @@ public class UserService {
 
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        if(StringUtils.hasText(user.getPassword()))
+        if (StringUtils.hasText(user.getPassword()))
             throw new AppException(ErrorCode.PASSWORD_EXISTED);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));

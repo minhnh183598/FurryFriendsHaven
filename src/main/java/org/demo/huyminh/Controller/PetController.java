@@ -2,7 +2,6 @@ package org.demo.huyminh.Controller;
 
 
 import jakarta.validation.Valid;
-
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Request.PetCreationRequest;
 import org.demo.huyminh.DTO.Request.PetUpdateRequest;
@@ -21,30 +20,31 @@ public class PetController {
     @Autowired
     private PetService petService;
 
-
     @PostMapping
-    Pet createPets(@RequestBody @Valid PetCreationRequest request){
-         return petService.createPet(request);
+    Pet createPets(@RequestBody @Valid PetCreationRequest request) {
+        return petService.createPet(request);
     }
+
     @GetMapping
-    List<Pet> getPets(){
-         return petService.getPets();
+    List<Pet> getPets() {
+        return petService.getPets();
     }
 
     //GET PET BY ID
     @GetMapping("/{petId}")
-    Pet getPet(@PathVariable("petId") String petId){
+    Pet getPet(@PathVariable("petId") String petId) {
         return petService.getPet(petId);
     }
 
     //UPDATE PET
     @PutMapping("/{petId}")
-    Pet updatePet(@PathVariable("petId") String petId ,@RequestBody PetUpdateRequest request){
+    Pet updatePet(@PathVariable("petId") String petId, @RequestBody PetUpdateRequest request) {
         return petService.updatePet(petId, request);
     }
+
     //DELETE PET
     @DeleteMapping("/{petId}")
-    String deletePet(@PathVariable("petId") String petId){
+    String deletePet(@PathVariable("petId") String petId) {
         petService.deletePet(petId);
         return "Pet has been deleted";
     }
@@ -60,16 +60,15 @@ public class PetController {
             @RequestParam(defaultValue = "All") String petStatus,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(required = false) String sort) {
-            return petService.searchPets(petType, petAge, petGender, petColor, petVaccin,petStatus, keyword, sort);
-        }
+        return petService.searchPets(petType, petAge, petGender, petColor, petVaccin, petStatus, keyword, sort);
+    }
+
     //Sort 6 pets
     @GetMapping("/sort6Pets")
-    public List<Pet> sort6Pets(){
+    public List<Pet> sort6Pets() {
         return petService.sort6pets();
     }
 }
-
-
 
 
 //    // Search By Name

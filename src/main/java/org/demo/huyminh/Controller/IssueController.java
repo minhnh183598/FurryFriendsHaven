@@ -45,7 +45,6 @@ public class IssueController {
     }
 
 
-
     @GetMapping("tasks/{taskId}/detail")
     public ApiResponse<List<IssueResponse>> getIssuesByTaskId(
             @PathVariable int taskId,
@@ -82,7 +81,7 @@ public class IssueController {
     ) {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
-        issueService.deleteIssue(issueId, taskId,user);
+        issueService.deleteIssue(issueId, taskId, user);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Delete issue successfully")
@@ -99,7 +98,7 @@ public class IssueController {
     ) {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
-        if(userId == null && username == null) {
+        if (userId == null && username == null) {
             throw new AppException(ErrorCode.PARAMETER_INVALID);
         }
 

@@ -100,12 +100,24 @@ public class ApplicationService {
         return applicationRepository.findByStatusOrderByCreateAtAsc(0);
     }
 
+    //Accept Applicaiton
     public List<Application> getApplicationsWithStatus1(){
         return applicationRepository.findByStatusOrderByUpdateAtDesc(1);
     }
 
+    //Refuse Application
     public List<Application> getApplicationsWithStatus2(){
         return applicationRepository.findByStatusOrderByUpdateAtDesc(2);
+    }
+
+    //Accept Adoption
+    public List<Application> getApplicationsWithStatus3(){
+        return applicationRepository.findByStatusOrderByUpdateAtDesc(3);
+    }
+
+    //Denied Adoption
+    public List<Application> getApplicationsWithStatus4(){
+        return applicationRepository.findByStatusOrderByUpdateAtDesc(4);
     }
 
     //GET APPLICATION BY ID

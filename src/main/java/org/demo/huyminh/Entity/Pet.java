@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Builder
@@ -31,4 +34,10 @@ public class Pet {
     private String petGender;
     private String petVaccin;
     private String petStatus;
+    private String petImage;
+
+    @CreationTimestamp
+    @Column(name = "create_pet_at")
+    private LocalDateTime createPetAt;
+
 }

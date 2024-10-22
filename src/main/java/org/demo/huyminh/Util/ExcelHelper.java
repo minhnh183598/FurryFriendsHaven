@@ -22,7 +22,7 @@ import java.util.*;
 public class ExcelHelper {
 
     public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    static String[] HEADERs = { "pet_weight", "pet_age", "pet_breed", "pet_color", "pet_description", "pet_gender", "pet_name", "pet_size", "pet_status", "pet_type", "pet_vaccin"};
+    static String[] HEADERs = {"pet_weight", "pet_age", "pet_breed", "pet_color", "pet_description", "pet_gender", "pet_name", "pet_size", "pet_status", "pet_type", "pet_vaccin"};
     static String SHEET = "Sheet1";
 
     public static boolean hasExcelFormat(MultipartFile file) {
@@ -49,10 +49,10 @@ public class ExcelHelper {
             Set<String> duplicatedPetNames = new HashSet<>();
 
             int rowNumber = 0;
-            while(rows.hasNext()) {
+            while (rows.hasNext()) {
                 Row currentRow = rows.next();
 
-                if(rowNumber == 0 || currentRow == null) {
+                if (rowNumber == 0 || currentRow == null) {
                     rowNumber++;
                     continue;
                 }

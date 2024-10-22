@@ -30,12 +30,12 @@ public class ApplicationController {
     @PostMapping
     public ResponseEntity<Application> submitApplication(
             @RequestBody ApplicationRequest request
-    ){
+    ) {
         Application application = applicationService.submitApplication(request.getId(),
-                request.getPetId(),request.getFullName(),request.getYob(),
-                request.getGender(),request.getAddress(),request.getCity(),
-                request.getJob(),request.getPhone(),request.getLiveIn(),request.getLiveWith(),
-                request.getFirstPerson(),request.getFirstPhone(),request.getSecondPerson(),
+                request.getPetId(), request.getFullName(), request.getYob(),
+                request.getGender(), request.getAddress(), request.getCity(),
+                request.getJob(), request.getPhone(), request.getLiveIn(), request.getLiveWith(),
+                request.getFirstPerson(), request.getFirstPhone(), request.getSecondPerson(),
                 request.getSecondPhone());
 
         return new ResponseEntity<>(application, HttpStatus.CREATED);
@@ -52,32 +52,47 @@ public class ApplicationController {
         User user = userService.findByToken(jwt);
         return applicationService.updateApplicationStatus(applicationId, request, user);
     }
+
     //Get List Application
     @GetMapping
-    List<Application> getApplications(){
+    List<Application> getApplications() {
         return applicationService.getApplications();
     }
 
+    //Accept Applicaiton
     @GetMapping("status/1")
-    List<Application> getApplicationsWithStatus1(){
+    List<Application> getApplicationsWithStatus1() {
         return applicationService.getApplicationsWithStatus1();
     }
 
+    //Refuse Application
     @GetMapping("status/2")
-    List<Application> getApplicationsWithStatus2(){
+    List<Application> getApplicationsWithStatus2() {
         return applicationService.getApplicationsWithStatus2();
+    }
+
+    //Accept Adoption
+    @GetMapping("status/3")
+    List<Application> getApplicationsWithStatus3() {
+        return applicationService.getApplicationsWithStatus3();
+    }
+
+    //Denied Adoption
+    @GetMapping("status/4")
+    List<Application> getApplicationsWithStatus4() {
+        return applicationService.getApplicationsWithStatus4();
     }
 
     //Get Application By Id
     @GetMapping("/{applicationId}")
-    Optional<Application> getApplication(@PathVariable("applicationId") String applicationId){
-           return applicationService.getApplication(applicationId);
+    Optional<Application> getApplication(@PathVariable("applicationId") String applicationId) {
+        return applicationService.getApplication(applicationId);
     }
 
     //Update Application
     @PutMapping("/{applicationId}")
-    Application updateApplication(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request){
-             return applicationService.updateApplication(applicationId,request);
+    Application updateApplication(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request) {
+        return applicationService.updateApplication(applicationId, request);
     }
 
     @GetMapping("/status/{status}/sorted")
@@ -97,7 +112,7 @@ public class ApplicationController {
 
     //Delete Application
     @DeleteMapping("/{applicationId}")
-    String deleteApplication(@PathVariable("applicationId") String applicationId){
+    String deleteApplication(@PathVariable("applicationId") String applicationId) {
         applicationService.deleteApplication(applicationId);
         return "Application has been deleted";
     }
