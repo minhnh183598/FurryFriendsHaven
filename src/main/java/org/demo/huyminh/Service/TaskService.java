@@ -304,6 +304,24 @@ public class TaskService {
         taskRepository.save(task);
     }
 
+    @Transactional
+    public void attendToTask(int taskId, User user) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
+
+        if (task.getTeam().contains(user)) {
+            throw new AppException(ErrorCode.USER_ALREADY_IN_TASK);
+        }
+
+        if (!roleService.hasRole(user, "VOLUNTEER") && !roleService.hasRole(user, "ADMIN")) {
+            throw new AppException(ErrorCode.USER_NOT_HAVE_PROPER_ROLE);
+        }
+
+        task.getTeam().add(user);
+        task.setStatus(Status.ON_HOLD);
+        taskRepository.save(task);
+    }
+
     public void addUserToTask(int taskId, String userId, User existingUser) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
@@ -442,6 +460,7 @@ public class TaskService {
         return eventData;
     }
 
+    @Transactional
     public String acceptInvitation(int taskId, String username, User user, String choice) {
         User invitedUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));

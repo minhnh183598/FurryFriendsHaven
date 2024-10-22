@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.demo.huyminh.DTO.Reponse.BriefVolunteerResponse;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
 import org.demo.huyminh.DTO.Request.ChangePasswordRequest;
 import org.demo.huyminh.DTO.Request.PasswordCreationRequest;
@@ -21,14 +22,14 @@ import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.RoleRepository;
 import org.demo.huyminh.Repository.UserRepository;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,13 +50,24 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
 
-    //@PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers() {
         log.info("In method get Users");
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse).toList();
     }
 
+    @PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
+    public List<BriefVolunteerResponse> getVolunteers() {
+
+        return userRepository.findUsersByRole(Role.builder().name("VOLUNTEER").build()).stream()
+                .map(user -> BriefVolunteerResponse.builder()
+                        .username(user.getUsername())
+                        .firstname(user.getFirstname())
+                        .lastname(user.getLastname()).build()).toList();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsersByRole(String role, String sort, String sortBy, String keyword) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> cq = cb.createQuery(User.class);

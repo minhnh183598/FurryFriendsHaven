@@ -30,7 +30,7 @@ public class SWP391Application {
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-            if (userRepository.findByUsername("admin").isPresent()) {
+            if (userRepository.findByUsername("admin1").isPresent()) {
                 return;
             }
 
@@ -57,7 +57,7 @@ public class SWP391Application {
 
             User user = User.builder()
                     .username("admin")
-                    .password(passwordEncoder.encode("admin"))
+                    .password(passwordEncoder.encode("123456"))
                     .firstname("Minh")
                     .lastname("Nguyen")
                     .id(UUID.randomUUID().toString())

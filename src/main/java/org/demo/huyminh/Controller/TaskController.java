@@ -13,8 +13,6 @@ import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
 import org.demo.huyminh.Entity.Task;
 import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Event.TaskInvitationEvent;
-import org.demo.huyminh.Exception.AppException;
-import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Service.TaskService;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -204,6 +202,20 @@ public class TaskController {
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Change status successfully")
+                .build();
+    }
+
+    @GetMapping("{taskId}/attend")
+    public ApiResponse<Void> attendToTask(
+            @PathVariable("taskId") int taskId,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
+        taskService.attendToTask(taskId, user);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Attend to task successfully")
                 .build();
     }
 }

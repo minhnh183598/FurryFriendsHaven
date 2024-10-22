@@ -48,7 +48,7 @@ public class TaskInvitationListener implements ApplicationListener<TaskInvitatio
 
         String confirmationLink = "http://localhost:3000/invitation" +
                 "?taskId=" + invitationData.getTaskId() +
-                "&userId=" + invitationData.getUser().getId();
+                "&username=" + invitationData.getUser().getUsername();
 
         Context context = new Context();
         context.setVariable("userName", invitationData.getUser().getUsername());
