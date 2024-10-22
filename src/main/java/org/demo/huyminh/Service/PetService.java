@@ -71,7 +71,10 @@ public class PetService {
     //Get Pet By ID
     public Pet getPet(String petId) {
         return petRepository.findById(petId)
-                .orElseThrow(() -> new RuntimeException("Pet not existed"));
+                .orElseGet(() -> {
+                    System.out.println("Pet not existed");
+                    return null;
+                });
     }
 
     public Pet updatePet(String petId, PetUpdateRequest request) {
