@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.RoleResponse;
 import org.demo.huyminh.DTO.Request.RoleRequest;
 import org.demo.huyminh.Entity.Permission;
+import org.demo.huyminh.Entity.Role;
+import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Mapper.RoleMapper;
 import org.demo.huyminh.Repository.PermissionRepository;
 import org.demo.huyminh.Repository.RoleRepository;
@@ -32,7 +34,7 @@ public class RoleService {
     private final PermissionRepository permissionRepository;
 
     @Transactional
-    public RoleResponse create(RoleRequest roleRequest) {
+    public RoleResponse createRole(RoleRequest roleRequest) {
         var role = roleMapper.toRole(roleRequest);
         List<Permission> permissions = permissionRepository.findAllById(roleRequest.getPermissions());
         role.setPermissions(new HashSet<>(permissions));
@@ -47,8 +49,13 @@ public class RoleService {
     }
 
     @Transactional
-    public void delete(String roleName) {
+    public void deleteRole(String roleName) {
         roleRepository.deleteById(roleName);
     }
 
+    public boolean hasRole(User user, String roleName) {
+        return user.getRoles().stream()
+                .map(Role::getName)
+                .anyMatch(roleName::equals);
+    }
 }

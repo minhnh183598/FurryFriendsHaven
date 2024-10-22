@@ -1,7 +1,6 @@
 package org.demo.huyminh.Util;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
@@ -55,6 +54,7 @@ public class VNPayUtil {
         }
         return sb.toString();
     }
+
     public static String getPaymentURL(Map<String, String> paramsMap, boolean encodeKey) {
         return paramsMap.entrySet().stream()
                 .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
@@ -64,7 +64,7 @@ public class VNPayUtil {
                                 StandardCharsets.US_ASCII)
                                 : entry.getKey()) + "=" +
                                 URLEncoder.encode(entry.getValue()
-                                , StandardCharsets.US_ASCII))
+                                        , StandardCharsets.US_ASCII))
                 .collect(Collectors.joining("&"));
     }
 }

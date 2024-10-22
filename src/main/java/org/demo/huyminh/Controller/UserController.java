@@ -3,6 +3,7 @@ package org.demo.huyminh.Controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
+import org.demo.huyminh.DTO.Reponse.BriefVolunteerResponse;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
 import org.demo.huyminh.DTO.Request.ChangePasswordRequest;
 import org.demo.huyminh.DTO.Request.UserUpdateRequest;
@@ -38,6 +39,29 @@ public class UserController {
                 .code(HttpStatus.OK.value())
                 .message("Get users successfully")
                 .result(userService.getUsers())
+                .build();
+    }
+
+    @GetMapping("/users/volunteers")
+    ApiResponse<List<BriefVolunteerResponse>> getVolunteers() {
+        return ApiResponse.<List<BriefVolunteerResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get volunteers successfully")
+                .result(userService.getVolunteers())
+                .build();
+    }
+
+    @GetMapping("users/search")
+    ApiResponse<List<UserResponse>> getUsersByRole(
+            @RequestParam(value = "role", defaultValue = "ALL") String role,
+            @RequestParam(value = "sort", defaultValue = "ASC") String sort,
+            @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+            @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword
+    ) {
+        return ApiResponse.<List<UserResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get users successfully")
+                .result(userService.getUsersByRole(role, sort, sortBy, keyword))
                 .build();
     }
 

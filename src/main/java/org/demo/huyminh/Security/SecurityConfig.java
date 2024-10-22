@@ -3,6 +3,7 @@ package org.demo.huyminh.Security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,7 +22,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Arrays;
 
-
 /**
  * @author Minh
  * Date: 9/24/2024
@@ -36,6 +36,9 @@ public class SecurityConfig {
     private final String[] SECURED_ENDPOINTS = {};
     private final String[] UNSECURED_ENDPOINTS = new String[]{
             "/api/v1/auth/**",
+            "/api/v1/users",
+            "/api/v1/payment/**",
+            "/api/v1/pets/**",
     };
 
 
@@ -54,15 +57,18 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(UNSECURED_ENDPOINTS).permitAll()
-//                        .requestMatchers(HttpMethod.GET, "/api/v1/users").hasAuthority("ROLE_ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole(Roles.ADMIN.name())
+                        // Quyền cho USER - chỉ có thể xem lịch sử donate của chính họ
+                        .requestMatchers(HttpMethod.GET, "/donations/user/**").hasRole("USER")
+
+                        // Quyền cho ADMIN - có thể xem tất cả donate và tổng donate
+                        .requestMatchers(HttpMethod.GET, "/donations/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
         );
 
         //Provide JWT Authentication Provider a decoder to verify JWT signature
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         //When OAuth2 authentication fails, return 401
                         .authenticationEntryPoint(new JWTAuthenticationEntryPoint())
         );

@@ -8,8 +8,13 @@ import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, String> {
 
+    List<Application> findByUserId(String userId);
+
     Optional<Application> findById(String applicationId);
 
-    List<Application> findAllByOrderByCreateAtAsc();
+    List<Application> findByStatusOrderByCreateAtAsc(int status);
 
+    List<Application> findByStatusOrderByUpdateAtDesc(int status);
+
+    Application getApplicationByTaskId(int taskId);
 }

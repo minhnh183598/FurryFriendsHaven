@@ -8,7 +8,6 @@ import org.demo.huyminh.DTO.Request.RoleRequest;
 import org.demo.huyminh.Service.RoleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 /**
@@ -31,7 +30,7 @@ public class RoleController {
         return ApiResponse.<RoleResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("Roles created successfully")
-                .result(roleService.create(request))
+                .result(roleService.createRole(request))
                 .build();
     }
 
@@ -48,7 +47,7 @@ public class RoleController {
     @DeleteMapping("/{role}")
     ApiResponse<Void> delete(@PathVariable String role) {
 
-        roleService.delete(role);
+        roleService.deleteRole(role);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Permission deleted successfully")

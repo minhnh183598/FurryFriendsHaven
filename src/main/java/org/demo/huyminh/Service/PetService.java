@@ -1,7 +1,6 @@
 package org.demo.huyminh.Service;
 
 
-
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Request.PetCreationRequest;
@@ -10,8 +9,6 @@ import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Repository.PetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -66,7 +63,7 @@ public class PetService {
         return petRepository.findAllByOrderByCreatedPetAtDesc();
     }
 
-    //Get Pet By ID
+    //Get Pet By Id
     public Pet getPet(String petId) {
         return petRepository.findById(petId)
                 .orElseGet(() -> {
@@ -109,10 +106,10 @@ public class PetService {
 
     //Search Pets By Many Fields
     public List<Pet> searchPets(String petType, String petAge, String petGender,
-                                String petColor, String petVaccin,String petStatus, String keyword,
-                                                                      String sortPets) {
+                                String petColor, String petVaccin, String petStatus, String keyword,
+                                String sortPets) {
         List<Pet> pets = petRepository.searchPets(petType, petAge, petGender,
-                petColor, petVaccin,petStatus, keyword);
+                petColor, petVaccin, petStatus, keyword);
         switch (sortPets) {
             case "sortByWeight":
                 pets.sort((p1, p2) -> Float.compare(p1.getPetWeight(), p2.getPetWeight()));
@@ -142,14 +139,14 @@ public class PetService {
     }
 
     //Sort 6 pets available
-    public List<Pet> sort6pets(){
+    public List<Pet> sort6pets() {
 
         List<Pet> pets = petRepository.findByPetStatus("Available");
         Collections.sort(pets, Comparator.comparing(Pet::getPetName));
         List<Pet> PetList;
-        if(pets.size() > 6){
-            PetList = pets.subList(0,6);
-        } else{
+        if (pets.size() > 6) {
+            PetList = pets.subList(0, 6);
+        } else {
             return PetList = pets;
         }
         return PetList;

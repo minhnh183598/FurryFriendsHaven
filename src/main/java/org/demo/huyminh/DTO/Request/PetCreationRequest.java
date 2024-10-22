@@ -2,11 +2,9 @@ package org.demo.huyminh.DTO.Request;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Data
@@ -29,10 +27,12 @@ public class PetCreationRequest {
      String petGender;
      String petVaccin;
      String petStatus;
+     String petImage;
 
      String petImage;
 
      @CreationTimestamp
      @Column(name = "create_pet_at")
      private LocalDateTime createdPetAt;
+
 }

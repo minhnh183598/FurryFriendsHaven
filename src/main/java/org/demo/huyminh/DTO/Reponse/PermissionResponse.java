@@ -20,4 +20,7 @@ import lombok.experimental.FieldDefaults;
 public class PermissionResponse {
     String name;
     String description;;
+
+    public PermissionResponse(String s) {
+    }
 }
