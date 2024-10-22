@@ -9,6 +9,7 @@ import org.demo.huyminh.DTO.Request.PetUpdateRequest;
 import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Repository.PetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -24,9 +25,6 @@ public class PetService {
 
     //CREATE PET
     public Pet createPet(@Valid PetCreationRequest request) {
-
-        log.info("Service : Create Pet");
-
         if (petRepository.existsByPetName(request.getPetName()))
             throw new RuntimeException("PetName has been Used");
         Pet pet = new Pet();
@@ -55,7 +53,10 @@ public class PetService {
     //Get Pet By Id
     public Pet getPet(String petId) {
         return petRepository.findById(petId)
-                .orElseThrow(() -> new RuntimeException("Pet not existed"));
+                .orElseGet(() -> {
+                    System.out.println("Pet not existed");
+                    return null;
+                });
     }
 
     public Pet updatePet(String petId, PetUpdateRequest request) {
