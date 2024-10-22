@@ -35,6 +35,8 @@ public class Pet {
     private String petGender;
     private String petVaccin;
     private String petStatus;
+    private String petImage;
+
 
     @CreationTimestamp
     @Column(name = "create_pet_at")
