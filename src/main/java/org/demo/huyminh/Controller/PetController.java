@@ -42,6 +42,13 @@ public class PetController {
     Pet updatePet(@PathVariable("petId") String petId ,@RequestBody PetUpdateRequest request){
         return petService.updatePet(petId, request);
     }
+
+    //UPDATE PET STATUS
+    @PutMapping("status/{petId}")
+    Pet updatePetStatus(@PathVariable("petId") String petId, @RequestBody PetUpdateRequest request) {
+        return petService.updatePetStatus(petId, request);
+    }
+
     //DELETE PET
     @DeleteMapping("/{petId}")
     String deletePet(@PathVariable("petId") String petId){

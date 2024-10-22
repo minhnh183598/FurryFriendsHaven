@@ -24,9 +24,6 @@ public class PetService {
 
     //CREATE PET
     public Pet createPet(@Valid PetCreationRequest request) {
-
-        log.info("Service : Create Pet");
-
         if (petRepository.existsByPetName(request.getPetName()))
             throw new RuntimeException("PetName has been Used");
         Pet pet = new Pet();
@@ -75,6 +72,15 @@ public class PetService {
                     System.out.println("Pet not existed");
                     return null;
                 });
+    }
+
+    //UPDATE PET STATUS BY ADMIN
+    public Pet updatePetStatus(String petId, PetUpdateRequest request){
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Pet Id not Existed"));
+
+        pet.setPetStatus(request.getPetStatus());
+        return petRepository.save(pet);
     }
 
     public Pet updatePet(String petId, PetUpdateRequest request) {
