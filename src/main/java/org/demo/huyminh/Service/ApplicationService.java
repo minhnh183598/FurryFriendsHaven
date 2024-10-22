@@ -65,7 +65,11 @@ public class ApplicationService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application Id Not Existed"));
 
-        if (application.getStatus() == 0) {
+        application.setStatus(request.getStatus());
+
+        Application savedApplication = applicationRepository.save(application);
+
+        if (savedApplication.getStatus() == 1) {
             Task newTask = Task.builder()
                     .name("Visit the house of " + application.getFullName() + " with applicationId (" + applicationId + ")")
                     .status(Status.NOT_STARTED)
@@ -90,9 +94,7 @@ public class ApplicationService {
             applicationRepository.save(application);
         }
 
-        application.setStatus(request.getStatus());
-
-        return applicationRepository.save(application);
+        return savedApplication;
     }
 
     //GET APPLICATION LIST
