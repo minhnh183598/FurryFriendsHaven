@@ -1,5 +1,6 @@
 package org.demo.huyminh.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,14 +25,14 @@ import java.util.Set;
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    int id;
 
     @Column(nullable = false, unique = true)
-    private String name;
-    private String description;
-    private Status status;
-    private String category;
-    private LocalDateTime dueDate;
+    String name;
+    String description;
+    Status status;
+    String category;
+    LocalDateTime dueDate;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
@@ -39,20 +40,27 @@ public class Task {
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private Set<Tag> tags;
+    Set<Tag> tags;
 
     @ManyToOne
-    private User owner;
+    User owner;
+
+    @ManyToOne
+    @JsonIgnore
+    User adopter;
 
     @OneToMany(fetch = FetchType.LAZY , mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Issue> issues;
+    List<Issue> issues;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         joinColumns = @JoinColumn(name = "task_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> team;
+    List<User> team;
+
+    @OneToMany
+    List<Feedback> feedbacks;
 
     @Override
     public String toString() {

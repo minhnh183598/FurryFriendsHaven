@@ -1,17 +1,17 @@
 package org.demo.huyminh.Vnpay;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
+import org.demo.huyminh.Entity.User;
 
 @Entity
 @Data
 public class Payment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String amount;
     private String bankCode;
     private String bankTranNo;
@@ -22,4 +22,7 @@ public class Payment {
     private String transactionNo;
     private String txnRef;
     private String secureHash;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

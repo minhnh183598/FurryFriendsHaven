@@ -3,8 +3,8 @@ package org.demo.huyminh.Mapper;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
+import org.demo.huyminh.Entity.Tag;
 import org.demo.huyminh.Entity.Task;
-import org.demo.huyminh.Enums.Status;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.mapstruct.Mapper;
@@ -12,6 +12,10 @@ import org.mapstruct.Mapping;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Minh
@@ -22,18 +26,22 @@ import java.time.format.DateTimeParseException;
 @Mapper(componentModel = "Spring")
 public interface TaskMapper {
 
+    @Mapping(target = "feedbacks", ignore = true)
     Task toTask(TaskCreationRequest request);
 
-    @Mapping(target = "tags", ignore = true)
     @Mapping(target = "issues", ignore = true)
     @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "adopter", ignore = true)
     @Mapping(target = "team", ignore = true)
+    @Mapping(target = "feedbacks", ignore = true)
+    @Mapping(target = "tags", ignore = true)
     TaskResponse toTaskResponse(Task task);
 
-    @Mapping(target = "tags", ignore = true)
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "team", ignore = true)
     @Mapping(target = "issues", ignore = true)
+    @Mapping(target = "feedbacks", ignore = true)
+    @Mapping(target = "tags", ignore = true)
     Task updateTask(TaskUpdateRequest request);
 
     default LocalDateTime mapStringToLocalDateTime(String dueDate) {
@@ -48,19 +56,12 @@ public interface TaskMapper {
         }
     }
 
-    default String mapTaskStatusToString(Status status) {
-        return status != null ? status.name() : null;
-    }
-
-    default Status mapStringToTaskStatus(String status) {
+    default List<String> mapTagsToString(Set<Tag> status) {
         if (status == null) {
-            throw new AppException(ErrorCode.STATUS_IS_REQUIRED);
+            return Collections.emptyList();
         }
-
-        try {
-            return Status.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new AppException(ErrorCode.INVALID_STATUS);
-        }
+        return status.stream()
+                .map(Tag::getName)
+                .collect(Collectors.toList());
     }
 }

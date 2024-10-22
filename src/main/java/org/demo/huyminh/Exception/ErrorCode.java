@@ -1,12 +1,15 @@
 package org.demo.huyminh.Exception;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-/** @author Minh
-* Date: 9/24/2024
-* Time: 9:14 AM
-*/ 
+/**
+ * @author Minh
+ * Date: 9/24/2024
+ * Time: 9:14 AM
+ */
 
 @Getter
 @AllArgsConstructor
@@ -74,6 +77,33 @@ public enum ErrorCode {
     OLD_PASSWORD_WRONG(HttpStatus.FORBIDDEN.value(), "Old password is wrong", HttpStatus.FORBIDDEN),
     CONFIRM_PASSWORD_WRONG(HttpStatus.FORBIDDEN.value(), "Confirm password is wrong", HttpStatus.FORBIDDEN),
     USERNAME_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Username not found", HttpStatus.NOT_FOUND),
+    FEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Feedback not found", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_DELETE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this feedback", HttpStatus.FORBIDDEN),
+    FEEDBACK_NOT_BELONG_TO_TASK(HttpStatus.BAD_REQUEST.value(), "Feedback not belong to task", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TO_UPDATE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this feedback", HttpStatus.FORBIDDEN),
+    USER_NOT_IN_ISSUE(HttpStatus.FORBIDDEN.value(), "User not in issue", HttpStatus.FORBIDDEN),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Comment not found", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_UPDATE_COMMENT(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this comment", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED_TO_CHANGE_APPLICATION_STATUS(HttpStatus.FORBIDDEN.value(), "You don't have authority to change application status", HttpStatus.FORBIDDEN),
+    APPLICATION_NOT_EXISTS(HttpStatus.NOT_FOUND.value(), "Application not exists", HttpStatus.NOT_FOUND),
+    CANNOT_REMOVE_LAST_USER(HttpStatus.BAD_REQUEST.value(), "You can not remove last user in task", HttpStatus.BAD_REQUEST),
+    CANNOT_REMOVE_OWNER(HttpStatus.BAD_REQUEST.value(), "You can not remove owner in task", HttpStatus.BAD_REQUEST),
+    PET_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Pet not found", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_GET_THIS_INFORMATION(HttpStatus.FORBIDDEN.value(), "You don't have authority to get this information", HttpStatus.FORBIDDEN),
+    NO_FEEDBACK(HttpStatus.NOT_FOUND.value(), "You need to create feedback before change status to DONE", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_CHANGE_TASK_STATUS(HttpStatus.FORBIDDEN.value(), "You don't have authority to change task status", HttpStatus.FORBIDDEN),
+    CANNOT_CHANGE_STATUS_TO_SAME_STATUS(HttpStatus.BAD_REQUEST.value(), "You can not change status to same status", HttpStatus.BAD_REQUEST),
+    EACH_USER_CAN_POST_ONE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "Each volunteer was allowed to post one feedback per task", HttpStatus.FORBIDDEN),
+    INVALID_SORT_ORDER(HttpStatus.BAD_REQUEST.value(), "Invalid sort order", HttpStatus.BAD_REQUEST),
+    ISSUE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST.value(), "Issue already exists. Please choose another name.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TO_INVITE_USER_TO_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to invite user to this task", HttpStatus.FORBIDDEN),
+    CANNOT_INVITE_YOURSELF(HttpStatus.BAD_REQUEST.value(), "You can not invite yourself", HttpStatus.BAD_REQUEST),
+    USER_NOT_HAVE_PROPER_ROLE(HttpStatus.BAD_REQUEST.value(), "User not have proper role to be invited to task", HttpStatus.BAD_REQUEST),
+    USER_ALREADY_INVITED(HttpStatus.BAD_REQUEST.value(), "User already invited to task", HttpStatus.BAD_REQUEST),
+    INVITATION_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Invitation not found", HttpStatus.NOT_FOUND),
+    INVITATION_EXPIRED(HttpStatus.BAD_REQUEST.value(), "Invitation expired", HttpStatus.BAD_REQUEST),
+    INVALID_CHOICE(HttpStatus.BAD_REQUEST.value(), "Invalid choice. Please choose valid choice again.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TO_ATTEND_TO_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to attend to this task", HttpStatus.FORBIDDEN),
     ;
 
     private int code;

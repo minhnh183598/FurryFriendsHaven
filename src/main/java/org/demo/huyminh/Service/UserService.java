@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.demo.huyminh.DTO.Reponse.BriefVolunteerResponse;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
 import org.demo.huyminh.DTO.Request.ChangePasswordRequest;
 import org.demo.huyminh.DTO.Request.PasswordCreationRequest;
@@ -21,14 +22,14 @@ import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.RoleRepository;
 import org.demo.huyminh.Repository.UserRepository;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,13 +50,24 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
 
-    //@PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers() {
         log.info("In method get Users");
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse).toList();
     }
 
+    @PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
+    public List<BriefVolunteerResponse> getVolunteers() {
+
+        return userRepository.findUsersByRole(Role.builder().name("VOLUNTEER").build()).stream()
+                .map(user -> BriefVolunteerResponse.builder()
+                        .username(user.getUsername())
+                        .firstname(user.getFirstname())
+                        .lastname(user.getLastname()).build()).toList();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsersByRole(String role, String sort, String sortBy, String keyword) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> cq = cb.createQuery(User.class);
@@ -103,7 +115,7 @@ public class UserService {
         return users;
     }
 
-//    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
+    //    @PostAuthorize("hasRole('ADMIN') || returnObject.username == authentication.name")
     public UserResponse getUser(String id) {
         log.info("In method get User: {}", id);
         return userMapper.toUserResponse(userRepository.findById(id)
@@ -128,13 +140,13 @@ public class UserService {
     @Transactional
     public void deleteUser(String id) {
 
-        if(!userRepository.existsById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new AppException(ErrorCode.USER_NOT_EXISTS);
         }
 
         userRepository.deleteById(id);
 
-        if(userRepository.existsById(id)) {
+        if (userRepository.existsById(id)) {
             log.error("Failed to delete permission: {}", id);
             throw new AppException(ErrorCode.DELETE_USER_FAILED);
         }
@@ -143,7 +155,7 @@ public class UserService {
     public User findByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
 
-        if(user.isEmpty()) {
+        if (user.isEmpty()) {
             throw new AppException(ErrorCode.USER_NOT_EXISTS);
         }
 
@@ -170,7 +182,7 @@ public class UserService {
 
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        if(StringUtils.hasText(user.getPassword()))
+        if (StringUtils.hasText(user.getPassword()))
             throw new AppException(ErrorCode.PASSWORD_EXISTED);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));

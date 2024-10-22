@@ -2,17 +2,20 @@ package org.demo.huyminh.Service;
 
 import jakarta.validation.constraints.Pattern;
 import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
-import org.demo.huyminh.Entity.Application;
-import org.demo.huyminh.Entity.Pet;
-import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Entity.*;
+import org.demo.huyminh.Enums.Status;
 import org.demo.huyminh.Repository.ApplicationRepository;
 import org.demo.huyminh.Repository.PetRepository;
+import org.demo.huyminh.Repository.TaskRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ApplicationService {
@@ -22,6 +25,8 @@ public class ApplicationService {
     private PetRepository petRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TaskRepository taskRepository;
 
     //CREATE APPLICATION
 
@@ -54,16 +59,40 @@ public class ApplicationService {
 
         return applicationRepository.save(application);
     }
+
     //Update Application Status
-    public Application updateAppilicationStatus(String applicationId, ApplicationUpdateRequest request){
+    public Application updateApplicationStatus(String applicationId, ApplicationUpdateRequest request, User user) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application Id Not Existed"));
 
+        if (application.getStatus() == 0) {
+            Task newTask = Task.builder()
+                    .name("Visit the house of " + application.getFullName() + " with applicationId (" + applicationId + ")")
+                    .status(Status.NOT_STARTED)
+                    .description("Visit the house of " + application.getFullName() + " to check whether it is suitable for adoption")
+                    .category("Adoption")
+                    .owner(user)
+                    .dueDate(LocalDateTime.now().plusDays(7))
+                    .adopter(application.getUser())
+                    .build();
+
+            if (newTask.getTeam() == null) {
+                newTask.setTeam(new ArrayList<>());
+            }
+            newTask.getTeam().add(user);
+
+            Task savedTask = taskRepository.save(newTask);
+
+            user.getTasks().add(savedTask);
+            userRepository.save(user);
+
+            application.setTask(savedTask);
+            applicationRepository.save(application);
+        }
+
         application.setStatus(request.getStatus());
 
-
         return applicationRepository.save(application);
-
     }
 
     //GET APPLICATION LIST
@@ -71,16 +100,28 @@ public class ApplicationService {
         return applicationRepository.findByStatusOrderByCreateAtAsc(0);
     }
 
+    //Accept Applicaiton
     public List<Application> getApplicationsWithStatus1(){
         return applicationRepository.findByStatusOrderByUpdateAtDesc(1);
     }
 
+    //Refuse Application
     public List<Application> getApplicationsWithStatus2(){
         return applicationRepository.findByStatusOrderByUpdateAtDesc(2);
     }
 
+    //Accept Adoption
+    public List<Application> getApplicationsWithStatus3(){
+        return applicationRepository.findByStatusOrderByUpdateAtDesc(3);
+    }
+
+    //Denied Adoption
+    public List<Application> getApplicationsWithStatus4(){
+        return applicationRepository.findByStatusOrderByUpdateAtDesc(4);
+    }
+
     //GET APPLICATION BY ID
-    public Optional<Application> getApplicaiton(String applicationId){
+    public Optional<Application> getApplication(String applicationId){
         return Optional.ofNullable(applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application Id Not Existed")));
     }
@@ -118,6 +159,26 @@ public class ApplicationService {
         return applicationRepository.save(application);
 
     }
+
+    // Phương thức để lấy danh sách đơn ứng dụng đã sắp xếp theo updateAt
+    public List<Application> getApplicationsSortedByUpdateAt(int status) {
+        List<Application> applications = applicationRepository.findAll();
+        // Lọc ra các đơn ứng dụng với status = 1 và sắp xếp
+        return applications.stream()
+                .filter(application -> application.getStatus() == status)
+                .sorted(Comparator.comparing(Application::getUpdateAt).reversed())
+                .collect(Collectors.toList());
+    }
+
+
+    // Lấy danh sách application của user dựa vào userId
+    public List<Application> getApplicationsByUserId(String userId) {
+        return applicationRepository.findAll()
+                .stream()
+                .filter(application -> application.getUser().getId().equals(userId)) // Lọc theo userId
+                .collect(Collectors.toList());
+    }
+
 
     //DELETE APPLICATION
     public void deleteApplication(String applicationId) {

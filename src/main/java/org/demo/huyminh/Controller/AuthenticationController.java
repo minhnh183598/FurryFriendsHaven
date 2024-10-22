@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
-import org.demo.huyminh.DTO.Reponse.LoginResponse;
 import org.demo.huyminh.DTO.Reponse.IntrospectResponse;
+import org.demo.huyminh.DTO.Reponse.LoginResponse;
 import org.demo.huyminh.DTO.Reponse.UserResponse;
 import org.demo.huyminh.DTO.Request.*;
 import org.demo.huyminh.Entity.Otp;
@@ -74,10 +74,10 @@ public class AuthenticationController {
 
 
     @PostMapping("/verifyEmail")
-     ApiResponse<Void> verifyEmail(@RequestBody VerifyEmailRequest request) {
+    ApiResponse<Void> verifyEmail(@RequestBody VerifyEmailRequest request) {
         Otp theOtp = otpRepository.findByCode(request.getOtp(), request.getUserId());
 
-        if(theOtp == null) {
+        if (theOtp == null) {
             throw new AppException(ErrorCode.OTP_NOT_EXISTS);
         }
         if (theOtp.getExpireTime().before(new Date())) {
@@ -87,7 +87,7 @@ public class AuthenticationController {
 
         User user = theOtp.getUser();
         String message = "";
-        if(!user.isEnabled()) {
+        if (!user.isEnabled()) {
             user.setEnabled(true);
             userRepository.save(user);
             message = "Email verified successfully. Please, login your account!";
@@ -108,18 +108,18 @@ public class AuthenticationController {
         User user = userRepository.findByEmail(forgotPasswordRequest.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
-        if(!user.isEnabled()) {
+        if (!user.isEnabled()) {
             throw new AppException(ErrorCode.USER_IS_DISABLED);
         }
 
         Otp existingOtp = otpRepository.findByUserId(user.getId());
-        if(existingOtp != null) {
+        if (existingOtp != null) {
             //Check if otp is locked out
-            if(existingOtp.isLockedOut()) {
+            if (existingOtp.isLockedOut()) {
                 throw new AppException(ErrorCode.OTP_LOCKED_OUT);
             }
             //Check if otp was refreshed too many times
-            if(existingOtp.getRefreshCount() >= Otp.MAX_REFRESH_COUNT) {
+            if (existingOtp.getRefreshCount() >= Otp.MAX_REFRESH_COUNT) {
                 existingOtp.lockOut();
                 existingOtp.setLockoutTime(existingOtp.getLockoutTime());
                 otpRepository.save(existingOtp);
@@ -140,7 +140,7 @@ public class AuthenticationController {
     ApiResponse<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
         Otp theOtp = otpRepository.findByUserId(request.getUserId());
 
-        if(theOtp != null) {
+        if (theOtp != null) {
             throw new AppException(ErrorCode.OTP_IS_NOT_USED);
         }
         authenticationService.resetPassword(request);
@@ -151,29 +151,28 @@ public class AuthenticationController {
                 .build();
     }
 
-    @PostMapping ("/resendVerifyEmail")
+    @PostMapping("/resendVerifyEmail")
     ApiResponse<Void> resendResetEmail(@RequestBody ResendEmailRequest request,
-                                       @RequestParam(required = false, defaultValue = "false") boolean checkEnabled)
-    {
+                                       @RequestParam(required = false, defaultValue = "false") boolean checkEnabled) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
 
-        if(checkEnabled && user.isEnabled()) {
+        if (checkEnabled && user.isEnabled()) {
             throw new AppException(ErrorCode.USER_IS_DISABLED);
         } else if (!checkEnabled && !user.isEnabled()) {
             throw new AppException(ErrorCode.USER_IS_DISABLED);
         }
 
         Otp existingOtp = otpRepository.findByUserId(request.getUserId());
-        if( existingOtp == null && !checkEnabled) {
+        if (existingOtp == null && !checkEnabled) {
             throw new AppException(ErrorCode.FORGOT_PASSWORD_REQUIRED_BEFORE_RESEND);
         }
         //Check if otp is locked out
-        if(existingOtp.isLockedOut()) {
+        if (existingOtp.isLockedOut()) {
             throw new AppException(ErrorCode.OTP_LOCKED_OUT);
         }
         //Check if otp was refreshed too many times
-        if(existingOtp.getRefreshCount() >= Otp.MAX_REFRESH_COUNT) {
+        if (existingOtp.getRefreshCount() >= Otp.MAX_REFRESH_COUNT) {
             existingOtp.lockOut();
             existingOtp.setLockoutTime(existingOtp.getLockoutTime());
             otpRepository.save(existingOtp);

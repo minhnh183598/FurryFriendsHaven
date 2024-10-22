@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -84,7 +83,6 @@ public class User {
                 ", isPasswordChangeable=" + isPasswordChangeable +
                 ", createdAt=" + createdAt +
                 ", applicationQuantity=" + applicationQuantity +
-                ", applications=" + applications +
                 ", roles=" + roles.stream().map(Role::getName).toList() +
                 '}';
     }

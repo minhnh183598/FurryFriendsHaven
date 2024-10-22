@@ -29,21 +29,32 @@ public class IssueController {
     final UserService userService;
     final TaskController taskController;
 
-    @GetMapping("{issueId}")
-    public ApiResponse<Issue> getIssueById(@PathVariable int issueId) {
+    @GetMapping("{issueId}/task/{taskId}")
+    public ApiResponse<Issue> getIssueById(
+            @PathVariable("issueId") int issueId,
+            @PathVariable("taskId") int taskId,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
         return ApiResponse.<Issue>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find issue successfully")
-                .result(issueService.getIssueById(issueId))
+                .result(issueService.getIssueById(issueId, taskId, user))
                 .build();
     }
 
-    @GetMapping("tasks/{taskId}")
-    public ApiResponse<List<Issue>> getIssuesByTaskId(@PathVariable int taskId) {
-        return ApiResponse.<List<Issue>>builder()
+
+    @GetMapping("tasks/{taskId}/detail")
+    public ApiResponse<List<IssueResponse>> getIssuesByTaskId(
+            @PathVariable int taskId,
+            @RequestParam(value = "status", defaultValue = "ALL") String status,
+            @RequestParam(value = "sort", defaultValue = "ASC") String sort
+    ) {
+        return ApiResponse.<List<IssueResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find issues successfully")
-                .result(issueService.getIssuesByTasId(taskId))
+                .result(issueService.getIssuesByTasId(taskId, status, sort))
                 .build();
     }
 
@@ -70,7 +81,7 @@ public class IssueController {
     ) {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
-        issueService.deleteIssue(issueId, taskId,user);
+        issueService.deleteIssue(issueId, taskId, user);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Delete issue successfully")
@@ -87,7 +98,7 @@ public class IssueController {
     ) {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
-        if(userId == null && username == null) {
+        if (userId == null && username == null) {
             throw new AppException(ErrorCode.PARAMETER_INVALID);
         }
 

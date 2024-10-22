@@ -1,5 +1,6 @@
 package org.demo.huyminh.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -45,10 +46,8 @@ public class Application {
     String secondPhone;
 
     //status = 0 = pending
-    //status = 1 = accept
-    //status = 2 = refuse
-    //status = 3 = adopted
-    //status = 4 = Reject
+    //status = 1 = adopted
+    //status = 2 = Reject
     int status;
 
     //Thoi gian update Status
@@ -57,14 +56,29 @@ public class Application {
     private LocalDateTime updateAt;
 
     @CreationTimestamp
-    @Column(name = "create_at")
+    @Column(name = "create_at", updatable = false)
     private LocalDateTime createAt;
 
     @ManyToOne
     @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JsonIgnore
     User user;
 
     @ManyToOne
     @JoinColumn(name = "petId", referencedColumnName = "petId", insertable = false, updatable = false)
     Pet pet;
+
+    @OneToOne(cascade = CascadeType.ALL, optional = true)
+    Task task;
+
+    @Override
+    public String toString() {
+        return "Application{" +
+                "applicationId='" + applicationId + '\'' +
+                ", petId='" + petId + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", status=" + status +
+                ", userId=" + (user != null ? user.getId() : "null") +
+                '}';
+    }
 }

@@ -28,7 +28,7 @@ public class Comment {
     private int id;
 
     @NotBlank(message = "Comment content cannot be blank")
-    @Size(max = 1000, message = "Comment cannot exceed 1000 characters")
+    @Size(max = 10000, message = "Comment cannot exceed 10000 characters")
     private String content;
 
     @Column(nullable = false, updatable = false)
