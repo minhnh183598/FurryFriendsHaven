@@ -25,12 +25,12 @@ public class PetService {
             throw new RuntimeException("PetName has been Used");
         Pet pet = new Pet();
 
-        pet.setPetName(request.getPetName());
+        pet.setPetName(capitalizeFirstLetter(request.getPetName()));
         pet.setPetAge(request.getPetAge());
         pet.setPetType(request.getPetType());
-        pet.setPetBreed(request.getPetBreed());
+        pet.setPetBreed(capitalizeFirstLetter(request.getPetBreed()));
         pet.setPetColor(request.getPetColor());
-        pet.setPetDescription(request.getPetDescription());
+        pet.setPetDescription(capitalizeFirstLetter(request.getPetDescription()));
         pet.setPetSize(request.getPetSize());
         pet.setPetWeight(request.getPetWeight());
         pet.setPetGender(request.getPetGender());
@@ -40,10 +40,27 @@ public class PetService {
 
         return petRepository.save(pet);
     }
+    //In Hoa chu cai dau
+    private String capitalizeFirstLetter(String letter){
+        if(letter.isEmpty()){
+            return letter;
+        }
+        String[] words = letter.toLowerCase().split(" ");
+        StringBuilder capitalized = new StringBuilder();
+
+        for(String word : words){
+            if(word.length() > 0 ){
+                capitalized.append(Character.toUpperCase(word.charAt(0)))
+                        .append(word.substring(1))
+                        .append(" ");
+            }
+        }
+        return capitalized.toString().trim();
+    }
 
     //Get Pets
     public List<Pet> getPets() {
-        return petRepository.findAll();
+        return petRepository.findAllByOrderByCreatedPetAtDesc();
     }
 
     //Get Pet By Id
@@ -55,15 +72,24 @@ public class PetService {
                 });
     }
 
+    //UPDATE PET STATUS BY ADMIN
+    public Pet updatePetStatus(String petId, PetUpdateRequest request){
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new RuntimeException("Pet Id not Existed"));
+
+        pet.setPetStatus(request.getPetStatus());
+        return petRepository.save(pet);
+    }
+
     public Pet updatePet(String petId, PetUpdateRequest request) {
         Pet pet = getPet(petId);
 
-        pet.setPetName(request.getPetName());
+        pet.setPetName(capitalizeFirstLetter(request.getPetName()));
         pet.setPetAge(request.getPetAge());
         pet.setPetType(request.getPetType());
-        pet.setPetBreed(request.getPetBreed());
+        pet.setPetBreed(capitalizeFirstLetter(request.getPetBreed()));
         pet.setPetColor(request.getPetColor());
-        pet.setPetDescription(request.getPetDescription());
+        pet.setPetDescription(capitalizeFirstLetter(request.getPetDescription()));
         pet.setPetSize(request.getPetSize());
         pet.setPetWeight(request.getPetWeight());
         pet.setPetVaccin(request.getPetVaccin());
@@ -90,6 +116,9 @@ public class PetService {
                 break;
             case "sortByName":
                 pets.sort((p1, p2) -> p1.getPetName().compareTo(p2.getPetName()));
+                break;
+            case "sortByDate":
+                pets.sort((p1, p2) -> p2.getCreatedPetAt().compareTo(p1.getCreatedPetAt()));
                 break;
             case "sortByAge":
                 pets.sort(Comparator.comparingInt(pet -> {

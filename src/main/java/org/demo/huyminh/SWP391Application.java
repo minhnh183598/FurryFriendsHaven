@@ -56,7 +56,7 @@ public class SWP391Application {
 
 
             User user = User.builder()
-                    .username("admin")
+                    .username("admin1")
                     .password(passwordEncoder.encode("123456"))
                     .firstname("Minh")
                     .lastname("Nguyen")

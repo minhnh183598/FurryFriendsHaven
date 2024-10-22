@@ -12,8 +12,8 @@ spring:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+    ddl-auto: create
+    show-sql: false
   main:
     banner-mode: off
   mail:
@@ -32,7 +32,6 @@ spring:
     encoding: UTF-8
     content-type: text/html
     cache: false
-
 
 outbound:
   identity:

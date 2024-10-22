@@ -12,6 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 //Ngân hàng:         NCB
 //Số thẻ:              9704198526191432198
@@ -22,7 +25,6 @@ import java.io.IOException;
 @RestController
 @RequestMapping("${spring.application.api-prefix}/payment")
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:3000")
 public class PaymentController {
 
     @Autowired
