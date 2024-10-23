@@ -40,6 +40,10 @@ public class ApplicationController {
     List<Application> getApplications(){
         return applicationService.getApplications();
     }
+    @GetMapping("status/all")
+    List<Application> getAllApplication(){
+        return applicationService.getAllApplications();
+    }
     //Accept Applicaiton
     @GetMapping("status/1")
     List<Application> getApplicationsWithStatus1(){
