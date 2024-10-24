@@ -72,11 +72,11 @@ public class ApplicationService {
         if (savedApplication.getStatus() == 1) {
             Task newTask = Task.builder()
                     .name("Visit the house of " + application.getFullName() + " with applicationId (" + applicationId + ")")
-                    .status(Status.NOT_STARTED)
                     .description("Visit the house of " + application.getFullName() + " to check whether it is suitable for adoption")
+                    .status(Status.NOT_STARTED)
                     .category("Adoption")
-                    .owner(user)
                     .dueDate(LocalDateTime.now().plusDays(7))
+                    .owner(user)
                     .adopter(application.getUser())
                     .build();
 
@@ -102,6 +102,10 @@ public class ApplicationService {
         return applicationRepository.findByStatusOrderByCreateAtAsc(0);
     }
 
+    //Get All Application
+    public List<Application> getAllApplications(){
+        return applicationRepository.findAll();
+    }
     //Accept Applicaiton
     public List<Application> getApplicationsWithStatus1(){
         return applicationRepository.findByStatusOrderByUpdateAtDesc(1);

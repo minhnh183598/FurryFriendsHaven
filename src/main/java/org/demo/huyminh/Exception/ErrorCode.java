@@ -103,7 +103,8 @@ public enum ErrorCode {
     INVITATION_EXPIRED(HttpStatus.BAD_REQUEST.value(), "Invitation expired", HttpStatus.BAD_REQUEST),
     INVALID_CHOICE(HttpStatus.BAD_REQUEST.value(), "Invalid choice. Please choose valid choice again.", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED_TO_ATTEND_TO_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to attend to this task", HttpStatus.FORBIDDEN),
-    ;
+    CHECKLIST_TEMPLATE_NOT_EXISTS(HttpStatus.NOT_FOUND.value(), "Checklist template not exists", HttpStatus.NOT_FOUND),
+    CHECKLIST_TEMPLATE_EXISTS(HttpStatus.BAD_REQUEST.value(), "Checklist template already exists. Please choose another name.", HttpStatus.BAD_REQUEST);
 
     private int code;
     private String message;

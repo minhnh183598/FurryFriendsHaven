@@ -62,6 +62,9 @@ public class Task {
     @OneToMany
     List<Feedback> feedbacks;
 
+    @OneToOne
+    Checklist checklist;
+
     @Override
     public String toString() {
         return "Task{" +

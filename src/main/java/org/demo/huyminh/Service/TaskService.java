@@ -184,6 +184,7 @@ public class TaskService {
         taskResponse.setTeam(optionalTask.get().getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
         taskResponse.setTags(optionalTask.get().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
         taskResponse.setAdopter(optionalTask.get().getAdopter() != null ? userMapper.toUserResponseForTask(optionalTask.get().getAdopter()) : null);
+        taskResponse.setFeedbacks(optionalTask.get().getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
 
         return taskResponse;
     }
