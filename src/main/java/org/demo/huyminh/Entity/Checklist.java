@@ -32,6 +32,14 @@ public class Checklist {
     @JsonIgnore
     Task task;
 
-    @OneToMany
+    @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL)
     List<ChecklistItem> checklistItems;
+
+    @Override
+    public String toString() {
+        return "Checklist{" +
+                "id=" + id +
+                ", checklistItems=" + checklistItems.toString() +
+                '}';
+    }
 }

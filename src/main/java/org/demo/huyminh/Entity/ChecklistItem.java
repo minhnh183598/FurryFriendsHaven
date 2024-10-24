@@ -1,5 +1,6 @@
 package org.demo.huyminh.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +32,17 @@ public class ChecklistItem {
     @Column(nullable = false)
     boolean completed;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "checklist_id", nullable = false)
+    @JsonIgnore
     Checklist checklist;
+
+    @Override
+    public String toString() {
+        return "ChecklistItem{" +
+                "id=" + id +
+                ", entry='" + entry + '\'' +
+                ", completed=" + completed +
+                '}';
+    }
 }

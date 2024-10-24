@@ -1,13 +1,13 @@
 package org.demo.huyminh.Service;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Pattern;
 import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
 import org.demo.huyminh.Entity.*;
 import org.demo.huyminh.Enums.Status;
-import org.demo.huyminh.Repository.ApplicationRepository;
-import org.demo.huyminh.Repository.PetRepository;
-import org.demo.huyminh.Repository.TaskRepository;
-import org.demo.huyminh.Repository.UserRepository;
+import org.demo.huyminh.Exception.AppException;
+import org.demo.huyminh.Exception.ErrorCode;
+import org.demo.huyminh.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -27,6 +27,10 @@ public class ApplicationService {
     private UserRepository userRepository;
     @Autowired
     private TaskRepository taskRepository;
+    @Autowired
+    private ChecklistTemplateRepository checklistTemplateRepository;
+    @Autowired
+    private ChecklistRepository checklistRepository;
 
     //CREATE APPLICATION
 
@@ -61,6 +65,7 @@ public class ApplicationService {
     }
 
     //Update Application Status
+    @Transactional
     public Application updateApplicationStatus(String applicationId, ApplicationUpdateRequest request, User user) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application Id Not Existed"));
@@ -84,8 +89,31 @@ public class ApplicationService {
                 newTask.setTeam(new ArrayList<>());
             }
             newTask.getTeam().add(user);
-
             Task savedTask = taskRepository.save(newTask);
+
+            ChecklistTemplate template = checklistTemplateRepository.findByName("Adoption")
+                    .orElseThrow(() -> new AppException(ErrorCode.CHECKLIST_TEMPLATE_NOT_EXISTS));
+            Checklist checklist = Checklist.builder()
+                    .task(savedTask)
+                    .checklistItems(new ArrayList<>())
+                    .build();
+
+            Checklist savedChecklist = checklistRepository.save(checklist);
+
+            List<ChecklistItem> checklistItems = new ArrayList<>();
+            for (ChecklistItemTemplate itemTemplate : template.getItems()) {
+                ChecklistItem item = ChecklistItem.builder()
+                        .entry(itemTemplate.getEntry())
+                        .completed(false)
+                        .checklist(savedChecklist)
+                        .build();
+                checklistItems.add(item);
+            }
+            savedChecklist.setChecklistItems(checklistItems);
+            checklistRepository.save(savedChecklist);
+
+            savedTask.setChecklist(savedChecklist);
+            savedTask = taskRepository.save(savedTask);
 
             user.getTasks().add(savedTask);
             userRepository.save(user);
