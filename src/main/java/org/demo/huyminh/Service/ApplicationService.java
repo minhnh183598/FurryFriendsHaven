@@ -9,6 +9,7 @@ import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,7 +34,6 @@ public class ApplicationService {
     private ChecklistRepository checklistRepository;
 
     //CREATE APPLICATION
-
     public Application submitApplication(String userId ,String petId, String fullName, int yob, String gender, String address, String city, String job, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone, String liveIn, String liveWith, String firstPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String firstPhone, String secondPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String secondPhone) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Pet not found"));
@@ -65,6 +65,7 @@ public class ApplicationService {
     }
 
     //Update Application Status
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Transactional
     public Application updateApplicationStatus(String applicationId, ApplicationUpdateRequest request, User user) {
         Application application = applicationRepository.findById(applicationId)

@@ -5,10 +5,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.BriefIssueResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
-import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
-import org.demo.huyminh.DTO.Request.InvitationEventData;
-import org.demo.huyminh.DTO.Request.TaskCreationRequest;
-import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
+import org.demo.huyminh.DTO.Reponse.UserResponse;
+import org.demo.huyminh.DTO.Request.*;
 import org.demo.huyminh.Entity.*;
 import org.demo.huyminh.Enums.InvitationStatus;
 import org.demo.huyminh.Enums.Roles;
@@ -37,6 +35,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
+@PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
 public class TaskService {
 
     TaskRepository taskRepository;
@@ -124,6 +123,7 @@ public class TaskService {
                             .dueDate(issue.getDueDate()).build())
                     .collect(Collectors.toList()));
             taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
+            taskResponse.setChecklist(currentTask.getChecklist());
 
             if (currentTask.getCategory().equalsIgnoreCase("Adoption") && currentTask.getAdopter() != null) {
                 taskResponse.setAdopter(userMapper.toUserResponseForTask(currentTask.getAdopter()));
@@ -164,6 +164,7 @@ public class TaskService {
                         .dueDate(issue.getDueDate()).build())
                 .collect(Collectors.toList()));
         taskResponse.setFeedbacks(task.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
+        taskResponse.setChecklist(task.getChecklist());
         return taskResponse;
     }
 
@@ -185,6 +186,7 @@ public class TaskService {
         taskResponse.setTags(optionalTask.get().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
         taskResponse.setAdopter(optionalTask.get().getAdopter() != null ? userMapper.toUserResponseForTask(optionalTask.get().getAdopter()) : null);
         taskResponse.setFeedbacks(optionalTask.get().getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
+        taskResponse.setChecklist(optionalTask.get().getChecklist());
 
         return taskResponse;
     }
@@ -250,6 +252,11 @@ public class TaskService {
     }
 
     @Transactional
+    public void updateAdoptionTask(int taskId, User adopter) {
+
+    }
+
+    @Transactional
     public void changeStatus(int taskId, String status, FeedbackCreationRequest feedback, User user) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
@@ -297,6 +304,7 @@ public class TaskService {
 
             newFeedback.setImages(images);
             task.getFeedbacks().add(newFeedback);
+            task.setFinishedAt(LocalDateTime.now());
 
             feedbackRepository.save(newFeedback);
         }
@@ -315,12 +323,17 @@ public class TaskService {
             throw new AppException(ErrorCode.USER_ALREADY_IN_TASK);
         }
 
+        if(!task.getStatus().equals(Status.NOT_STARTED)) {
+            throw new AppException(ErrorCode.CANNOT_ATTEND_TO_TASK);
+        }
+
         if (!roleService.hasRole(user, "VOLUNTEER") && !roleService.hasRole(user, "ADMIN")) {
             throw new AppException(ErrorCode.USER_NOT_HAVE_PROPER_ROLE);
         }
 
         task.getTeam().add(user);
-        task.setStatus(Status.ON_HOLD);
+        task.getChecklist().setAssignee(user);
+        task.setStatus(Status.IN_PROGRESS);
         taskRepository.save(task);
     }
 
@@ -402,6 +415,7 @@ public class TaskService {
                             .dueDate(issue.getDueDate()).build())
                     .collect(Collectors.toList()));
             taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
+            taskResponse.setChecklist(currentTask.getChecklist());
 
             if ("Adoption".equalsIgnoreCase(currentTask.getCategory())) {
                 taskResponse.setAdopter(userMapper.toUserResponseForTask(currentTask.getAdopter()));

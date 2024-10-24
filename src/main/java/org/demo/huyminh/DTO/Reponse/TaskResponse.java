@@ -1,10 +1,13 @@
 package org.demo.huyminh.DTO.Reponse;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.demo.huyminh.Entity.Checklist;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskResponse {
 
     int id;
@@ -26,6 +30,8 @@ public class TaskResponse {
     String description;
     String status;
     String category;
+    LocalDateTime createdAt;
+    LocalDateTime finishedAt;
     LocalDateTime dueDate;
     List<String> tags;
     List<BriefIssueResponse> issues;
@@ -33,4 +39,5 @@ public class TaskResponse {
     UserResponse adopter;
     List<UserResponse> team;
     List<FeedbackResponse> feedbacks;
+    Checklist checklist;
 }

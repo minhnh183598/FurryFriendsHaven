@@ -35,6 +35,9 @@ public class Checklist {
     @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL)
     List<ChecklistItem> checklistItems;
 
+    @OneToOne
+    User assignee;
+
     @Override
     public String toString() {
         return "Checklist{" +
