@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class ApplicationController {
     ApplicationService applicationService;
     PetRepository petRepository;
+    UserService userService;
 
     //Create Application
     @PostMapping
@@ -42,8 +43,14 @@ public class ApplicationController {
 
     //Update Application Status
     @PutMapping("status/{applicationId}")
-    Application updateApplicationStatus(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request) {
-        return applicationService.updateApplicationStatus(applicationId, request);
+    Application updateApplicationStatus(
+            @PathVariable("applicationId") String applicationId,
+            @RequestBody ApplicationUpdateRequest request,
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.substring(7);
+        User user = userService.findByToken(jwt);
+        return applicationService.updateApplicationStatus(applicationId, request, user);
     }
 
     //Get List Application

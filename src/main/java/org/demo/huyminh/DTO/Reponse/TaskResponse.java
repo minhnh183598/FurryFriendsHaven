@@ -30,6 +30,7 @@ public class TaskResponse {
     String description;
     String status;
     String category;
+    String petName;
     LocalDateTime createdAt;
     LocalDateTime finishedAt;
     LocalDateTime dueDate;

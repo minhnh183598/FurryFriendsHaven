@@ -65,7 +65,7 @@ public class ApplicationService {
     }
 
     //Update Application Status
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public Application updateApplicationStatus(String applicationId, ApplicationUpdateRequest request, User user) {
         Application application = applicationRepository.findById(applicationId)
@@ -125,6 +125,8 @@ public class ApplicationService {
 
         return savedApplication;
     }
+
+
     //Get All Application
     public List<Application> getAllApplications(){
         return applicationRepository.findAllByOrderByCreateAtDesc();
@@ -160,6 +162,7 @@ public class ApplicationService {
         return Optional.ofNullable(applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application Id Not Existed")));
     }
+
     //UPDATE APPLICATION
     public Application updateApplication(String applicationId, ApplicationUpdateRequest request){
         Application application = applicationRepository.findById(applicationId)
@@ -184,15 +187,6 @@ public class ApplicationService {
         else{
             throw new RuntimeException("Can Not Update Application Form");
         }
-    }
-    //UPDATE APPLICATION STATUS BY ADMIN
-    public Application updateApplicationStatus(String applicationId,ApplicationUpdateRequest request){
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application Id not Existed"));
-
-        application.setStatus(request.getStatus());
-        return applicationRepository.save(application);
-
     }
 
     // Phương thức để lấy danh sách đơn ứng dụng đã sắp xếp theo updateAt
@@ -221,18 +215,3 @@ public class ApplicationService {
     }
 
 }
-
-//Mapper
-//    //CREATE APPLICATION
-////    public Application createApplication(ApplicationCreationRequest request){
-////        Application application = applicationMapper.toApplication(request);
-////        return applicationRepository.save(application);
-////    }
-//GET APPLICATION BY ID
-//        return applicationMapper.toApplicationResponse(applicationRepository.findById(applicationId)
-//                .orElseThrow(() -> new RuntimeException("Application not found")));
-//UPDATE APPLICATION
-//        Application application = applicationRepository.findById(applicationId)
-//                .orElseThrow(() -> new RuntimeException("Application Id not existed"));
-//                applicationMapper.updateApplication(application,request);
-//                return applicationMapper.toApplicationResponse(applicationRepository.save(application));

@@ -23,6 +23,7 @@ import org.demo.huyminh.Repository.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -120,22 +121,22 @@ public class TaskService {
         log.info(taskResponses.toString());
 
         if (taskResponses.isEmpty()) {
-            throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
+            throw new AppException(ErrorCode.LIST_TASK_IS_EMPTY);
         }
 
         return taskResponses;
     }
 
-    public List<BriefTaskResponse> searchAndSortTasks(String category, Status status, LocalDateTime dueDate, String order) {
+    public List<BriefTaskResponse> searchAndSortTasks(String category, Status status, LocalDateTime dueDate, String order, String keyword) {
         if (category == null && status == null && dueDate == null && order == null) {
             getAllTasks();
         }
 
         List<Task> tasks = new ArrayList<>();
-        if(order.equalsIgnoreCase("ASC")) {
-            tasks = taskRepository.findByFiltersAscOrder(category, status, dueDate);
-        } else if(order.equalsIgnoreCase("DESC")) {
-            tasks = taskRepository.findByFiltersDescOrder(category, status, dueDate);
+        if (order.equalsIgnoreCase("ASC")) {
+            tasks = taskRepository.findByFiltersAscOrder(category, status, dueDate, keyword);
+        } else if (order.equalsIgnoreCase("DESC")) {
+            tasks = taskRepository.findByFiltersDescOrder(category, status, dueDate, keyword);
         } else {
             throw new AppException(ErrorCode.INVALID_ORDER);
         }
@@ -150,7 +151,7 @@ public class TaskService {
                 .collect(Collectors.toList());
 
         if (taskResponses.isEmpty()) {
-            throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
+            throw new AppException(ErrorCode.LIST_TASK_IS_EMPTY);
         }
 
         return taskResponses;
@@ -206,6 +207,10 @@ public class TaskService {
         taskResponse.getAdopter().setAddress(application.getAddress() + ", " + application.getCity());
         taskResponse.getAdopter().setPhone(application.getPhone());
         taskResponse.getAdopter().setGender(application.getGender());
+
+        if (optionalTask.get().getCategory().equalsIgnoreCase("Adoption")) {
+            taskResponse.setPetName(optionalTask.get().getAdopter().getApplications().getFirst().getPet().getPetName());
+        }
 
         taskResponse.setFeedbacks(optionalTask.get().getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
         taskResponse.setChecklist(optionalTask.get().getChecklist());
@@ -414,7 +419,7 @@ public class TaskService {
                 .collect(Collectors.toList());
 
         if (taskResponses.isEmpty()) {
-            throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
+            throw new AppException(ErrorCode.LIST_TASK_IS_EMPTY);
         }
 
         return taskResponses;
@@ -434,7 +439,7 @@ public class TaskService {
                 .collect(Collectors.toList());
 
         if (taskResponses.isEmpty()) {
-            throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
+            throw new AppException(ErrorCode.LIST_TASK_IS_EMPTY);
         }
 
         return taskResponses;

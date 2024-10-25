@@ -113,7 +113,8 @@ public enum ErrorCode {
     TASK_WAS_DONE(HttpStatus.BAD_REQUEST.value(), "Task was done so you can not update checklist", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED_TO_DELETE_CHECKLIST_ITEM(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this checklist item", HttpStatus.FORBIDDEN),
     INVALID_ORDER(HttpStatus.BAD_REQUEST.value(), "Invalid order. Please choose valid order again.", HttpStatus.BAD_REQUEST),
-    CANNOT_CREATE_FEEDBACK(HttpStatus.BAD_REQUEST.value(), "You can not create feedback. Because task was not started.", HttpStatus.BAD_REQUEST),;
+    CANNOT_CREATE_FEEDBACK(HttpStatus.BAD_REQUEST.value(), "You can not create feedback. Because task was not started.", HttpStatus.BAD_REQUEST),
+    LIST_TASK_IS_EMPTY(HttpStatus.BAD_REQUEST.value(), "List task is empty", HttpStatus.BAD_REQUEST),;
 
     private int code;
     private String message;

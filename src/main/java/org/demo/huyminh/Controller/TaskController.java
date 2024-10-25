@@ -76,6 +76,7 @@ public class TaskController {
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "status", required = false, defaultValue = "ALL") String status,
             @RequestParam(value = "dueDate", required = false) LocalDateTime dueDate,
+            @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "sort", defaultValue = "ASC") String sort
     ) {
         Status taskStatus;
@@ -85,7 +86,7 @@ public class TaskController {
             taskStatus = Status.fromString(status);
         }
 
-        List<BriefTaskResponse> tasks = taskService.searchAndSortTasks(category, taskStatus, dueDate, sort);
+        List<BriefTaskResponse> tasks = taskService.searchAndSortTasks(category, taskStatus, dueDate, sort, keyword);
 
         return ApiResponse.<List<BriefTaskResponse>>builder()
                 .code(HttpStatus.OK.value())
