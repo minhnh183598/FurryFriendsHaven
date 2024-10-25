@@ -20,10 +20,7 @@ import org.demo.huyminh.Repository.TagRepository;
 import org.demo.huyminh.Repository.TaskRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.springframework.stereotype.Service;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Minh
@@ -44,38 +41,42 @@ public class IssueService {
     TagRepository tagRepository;
     private final UserMapper userMapper;
 
-    public Issue getIssueById(int issueId) {
-        Optional<Issue> issue = issueRepository.findById(issueId);
-
-        if(!issue.isPresent()) {
-            throw new AppException(ErrorCode.ISSUE_NOT_FOUND);
+    public List<IssueResponse> getIssuesByTasId(int taskId, String status, String sort) {
+        List<Issue> issues;
+        if (status.equalsIgnoreCase("ALL")) {
+            issues = issueRepository.findByTaskId(taskId);
+        } else {
+            if (sort.equalsIgnoreCase("ASC")) {
+                issues = issueRepository.findByTaskIdAndStatusAscOrder(taskId, Status.fromString(status));
+            } else if (sort.equalsIgnoreCase("DESC")) {
+                issues = issueRepository.findByTaskIdAndStatusDescOrder(taskId, Status.fromString(status));
+            } else {
+                throw new AppException(ErrorCode.INVALID_SORT_ORDER);
+            }
         }
 
-        return issue.get();
-    }
-
-    public List<Issue> getIssuesByTasId(int taskId) {
-        List<Issue> issues = issueRepository.findByTaskId(taskId);
-        if(taskRepository.findById(taskId).isEmpty()) {
+        if (taskRepository.findById(taskId).isEmpty()) {
             throw new AppException(ErrorCode.TASK_NOT_EXISTS);
         }
 
-        if(issues.isEmpty()) {
+        if (issues.isEmpty()) {
             throw new AppException(ErrorCode.TASK_HAS_NO_ISSUES);
         }
 
-        return issues;
+        log.info("Issue Service: getIssuesByTasId: {}", issues);
+        List<IssueResponse> result = issues.stream().map(issueMapper::toIssueResponse).toList();
+        return result;
     }
 
     public IssueResponse createIssue(IssueRequest request, User user, int taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
-        if(!task.getTeam().contains(user)) {
+        if (!task.getTeam().contains(user)) {
             throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
         }
 
-        if(request.getDueDate().isAfter(task.getDueDate().toLocalDate())) {
+        if (request.getDueDate().isAfter(task.getDueDate().toLocalDate())) {
             throw new AppException(ErrorCode.DUE_DATE_IS_BEFORE_TASK_DUE_DATE);
         }
 
@@ -92,11 +93,16 @@ public class IssueService {
                 .build();
         saveIssueWithTags(issue);
 
-        issueRepository.save(issue);
+        try {
+            issueRepository.save(issue);
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.ISSUE_ALREADY_EXISTS);
+        }
         task.getIssues().add(issue);
         taskRepository.save(task);
 
         IssueResponse result = issueMapper.toIssueResponse(issue);
+        result.setTaskID(taskId);
         result.setTags(issue.getTags().stream().map(Tag::getName).toList());
         result.setReporter(userMapper.toUserResponse(user));
 
@@ -110,19 +116,19 @@ public class IssueService {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new AppException(ErrorCode.ISSUE_NOT_FOUND));
 
-        if(!task.getTeam().contains(user)) {
+        if (!task.getTeam().contains(user)) {
             throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
         }
 
-        if(!task.getIssues().contains(issue)) {
+        if (!task.getIssues().contains(issue)) {
             throw new AppException(ErrorCode.ISSUE_NOT_IN_TASK);
         }
 
-        if(!issue.getReporter().equals(user)) {
+        if (!issue.getReporter().equals(user)) {
             throw new AppException(ErrorCode.UNAUTHORIZED_TO_UPDATE_ISSUE);
         }
 
-        if(request.getDueDate().isAfter(task.getDueDate().toLocalDate())) {
+        if (request.getDueDate().isAfter(task.getDueDate().toLocalDate())) {
             throw new AppException(ErrorCode.DUE_DATE_IS_BEFORE_TASK_DUE_DATE);
         }
 
@@ -139,7 +145,7 @@ public class IssueService {
             for (Tag updatedTag : request.getTags()) {
                 Optional<Tag> existingTag = tagRepository.findById(updatedTag.getName());
 
-                if(!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.ISSUE_LABEL)) {
+                if (!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.ISSUE_LABEL)) {
                     existingTags.add(existingTag.get());
                 }
             }
@@ -159,12 +165,12 @@ public class IssueService {
         for (Tag tag : issue.getTags()) {
             Optional<Tag> existingTag = tagRepository.findById(tag.getName());
 
-            if(existingTag.isPresent() && existingTag.get().getType().equals(Tag.TagType.ISSUE_LABEL)) {
+            if (existingTag.isPresent() && existingTag.get().getType().equals(Tag.TagType.ISSUE_LABEL)) {
                 existingTags.add(existingTag.get());
             }
         }
 
-        if(existingTags.isEmpty()) {
+        if (existingTags.isEmpty()) {
             throw new AppException(ErrorCode.TAGS_NOT_EXISTS);
         }
 
@@ -178,15 +184,31 @@ public class IssueService {
         Issue issue = issueRepository.findById(issuedId)
                 .orElseThrow(() -> new AppException(ErrorCode.ISSUE_NOT_FOUND));
 
-        if(!task.getIssues().contains(issue)) {
+        if (!task.getIssues().contains(issue)) {
             throw new AppException(ErrorCode.ISSUE_NOT_IN_TASK);
         }
 
-        if(!(issue.getReporter().equals(user))) {
+        if (!(issue.getReporter().equals(user))) {
             throw new AppException(ErrorCode.UNAUTHORIZED_TO_DELETE_ISSUE);
         }
 
         issueRepository.delete(issue);
+    }
+
+    public Issue getIssueById(int issueId, int taskId, User user) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
+        Issue issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new AppException(ErrorCode.ISSUE_NOT_FOUND));
+
+        if (!task.getTeam().contains(user)) {
+            throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
+        }
+
+        if (!task.getIssues().contains(issue)) {
+            throw new AppException(ErrorCode.ISSUE_NOT_IN_TASK);
+        }
+        return issue;
     }
 
     public void addUserToIssue(int issueId, int taskId, User user, String userId, String username) {
@@ -207,7 +229,7 @@ public class IssueService {
             throw new AppException(ErrorCode.PARAMETER_INVALID);
         }
 
-        if(!task.getIssues().contains(issue)) {
+        if (!task.getIssues().contains(issue)) {
             throw new AppException(ErrorCode.ISSUE_NOT_IN_TASK);
         }
 
@@ -215,7 +237,7 @@ public class IssueService {
             throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
         }
 
-        if(!(issue.getReporter().equals(user) || issue.getAssignees().contains(user))) {
+        if (!(issue.getReporter().equals(user) || issue.getAssignees().contains(user))) {
             throw new AppException(ErrorCode.UNAUTHORIZED_TO_ADD_USER_TO_ISSUE);
         }
 
@@ -229,11 +251,11 @@ public class IssueService {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new AppException(ErrorCode.ISSUE_NOT_FOUND));
 
-        if(!task.getIssues().contains(issue)) {
+        if (!task.getIssues().contains(issue)) {
             throw new AppException(ErrorCode.ISSUE_NOT_IN_TASK);
         }
 
-        if(!(issue.getReporter().equals(user) || issue.getAssignees().contains(user))) {
+        if (!(issue.getReporter().equals(user) || issue.getAssignees().contains(user))) {
             throw new AppException(ErrorCode.UNAUTHORIZED_TO_UPDATE_STATUS);
         }
 

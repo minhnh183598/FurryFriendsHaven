@@ -31,7 +31,7 @@ import java.util.Random;
 @Slf4j
 @EnableAsync
 @Component
-@FieldDefaults(level = lombok. AccessLevel.PRIVATE)
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @RequiredArgsConstructor
 public class VerificationEmailListener implements ApplicationListener<VerificationEmailEvent> {
 
@@ -46,7 +46,7 @@ public class VerificationEmailListener implements ApplicationListener<Verificati
 
         String otp = generateOtp();
         Otp existingOtp = otpRepository.findByUserId(user.getId());
-        if(existingOtp != null) {
+        if (existingOtp != null) {
 
             otpRepository.save(Otp.builder()
                     .id(existingOtp.getId())

@@ -1,5 +1,7 @@
 package org.demo.huyminh.DTO.Request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +21,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class CommentRequest {
 
-    int issueId;
+    @NotBlank(message = "Comment content cannot be blank")
+    @Size(max = 10000, message = "Comment cannot exceed 10000 characters")
     String content;
 }

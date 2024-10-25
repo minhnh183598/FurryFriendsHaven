@@ -1,14 +1,12 @@
 package org.demo.huyminh.Vnpay;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Data
 public class Payment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,4 +20,11 @@ public class Payment {
     private String transactionNo;
     private String txnRef;
     private String secureHash;
+    private String userId;
+
+    public void setAmount(String amount) {
+        double amountValue = Double.parseDouble(amount);
+        amountValue /= 100;
+        this.amount = Double.toString(amountValue);
+    }
 }

@@ -1,13 +1,10 @@
 package org.demo.huyminh.Repository;
 
-
-
 import org.demo.huyminh.Entity.Pet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository
@@ -19,6 +16,7 @@ public interface PetRepository extends JpaRepository<Pet, String> {
     boolean existsByPetName(String petName);
     // Find pet_status
     List<Pet> findByPetStatus(String status);
+
     //Find pets by many fields
     @Query("SELECT p FROM Pet p WHERE " +
             "(:petType = 'All' OR p.petType = :petType) AND " +
@@ -35,6 +33,8 @@ public interface PetRepository extends JpaRepository<Pet, String> {
                          @Param("petVaccin") String petVaccin,
                          @Param("petStatus") String petStatus,
                          @Param("keyword") String keyword);
+    
+    List<Pet> findAllByOrderByCreatedPetAtDesc();
 }
 
 

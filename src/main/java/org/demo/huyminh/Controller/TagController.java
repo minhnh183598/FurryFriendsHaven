@@ -60,7 +60,7 @@ public class TagController {
     public ApiResponse<List<TagResponse>> getTagByType(@PathVariable("typeTag") String type) {
         List<TagResponse> tags;
 
-        if(type.equals("ISSUE_LABEL")) {
+        if (type.equals("ISSUE_LABEL")) {
             tags = tagService.getIssueTags(type.toUpperCase());
         } else if (type.equals("TASK_LABEL")) {
             tags = tagService.getTaskTags(type.toUpperCase());

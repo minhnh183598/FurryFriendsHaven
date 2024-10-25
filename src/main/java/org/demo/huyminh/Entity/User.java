@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +28,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     String username;
+    @JsonIgnore
     String password;
     String firstname;
     String lastname;
@@ -55,6 +55,7 @@ public class User {
     private List<Task> tasks;
 
     @ManyToMany
+    @JsonIgnore
     Set<Role> roles;
 
     @Column
@@ -84,7 +85,6 @@ public class User {
                 ", isPasswordChangeable=" + isPasswordChangeable +
                 ", createdAt=" + createdAt +
                 ", applicationQuantity=" + applicationQuantity +
-                ", applications=" + applications +
                 ", roles=" + roles.stream().map(Role::getName).toList() +
                 '}';
     }

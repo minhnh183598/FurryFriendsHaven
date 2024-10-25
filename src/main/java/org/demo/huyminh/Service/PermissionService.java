@@ -12,7 +12,6 @@ import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.PermissionMapper;
 import org.demo.huyminh.Repository.PermissionRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 /**
@@ -44,7 +43,7 @@ public class PermissionService {
 
     @Transactional
     public void delete(String permissionName) {
-        if(!permissionRepository.existsByName(permissionName)) {
+        if (!permissionRepository.existsByName(permissionName)) {
             throw new AppException(ErrorCode.PERMISSION_NOT_EXISTS);
         }
 
