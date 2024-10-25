@@ -67,7 +67,7 @@ public class ApplicationService {
     }
     //Get All Application
     public List<Application> getAllApplications(){
-        return applicationRepository.findAll();
+        return applicationRepository.findAllByOrderByCreateAtDesc();
     }
 
     //GET APPLICATION LIST

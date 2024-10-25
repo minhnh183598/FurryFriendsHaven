@@ -14,4 +14,7 @@ public interface ApplicationRepository extends JpaRepository<Application, String
 
     List<Application> findByStatusOrderByUpdateAtDesc(int status);
 
+    List<Application> findAllByOrderByCreateAtDesc();
+    
+
 }
