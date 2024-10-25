@@ -74,14 +74,23 @@ public class TaskController {
     @GetMapping("/sort")
     public ApiResponse<List<BriefTaskResponse>> getTaskBySort(
             @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "status", required = false, defaultValue = "ALL") String status,
             @RequestParam(value = "dueDate", required = false) LocalDateTime dueDate,
             @RequestParam(value = "sort", defaultValue = "ASC") String sort
     ) {
+        Status taskStatus;
+        if (status == null || status.isEmpty() || "ALL".equalsIgnoreCase(status)) {
+            taskStatus = null;
+        } else {
+            taskStatus = Status.fromString(status);
+        }
+
+        List<BriefTaskResponse> tasks = taskService.searchAndSortTasks(category, taskStatus, dueDate, sort);
+
         return ApiResponse.<List<BriefTaskResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find tasks successfully")
-                .result(taskService.searchAndSortTasks(category, Status.fromString(status), dueDate, sort))
+                .result(tasks)
                 .build();
     }
 
