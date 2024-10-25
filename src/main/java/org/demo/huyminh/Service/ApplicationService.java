@@ -125,16 +125,16 @@ public class ApplicationService {
 
         return savedApplication;
     }
+    //Get All Application
+    public List<Application> getAllApplications(){
+        return applicationRepository.findAllByOrderByCreateAtDesc();
+    }
 
     //GET APPLICATION LIST
     public List<Application> getApplications(){
         return applicationRepository.findByStatusOrderByCreateAtAsc(0);
     }
 
-    //Get All Application
-    public List<Application> getAllApplications(){
-        return applicationRepository.findAll();
-    }
     //Accept Applicaiton
     public List<Application> getApplicationsWithStatus1(){
         return applicationRepository.findByStatusOrderByUpdateAtDesc(1);
