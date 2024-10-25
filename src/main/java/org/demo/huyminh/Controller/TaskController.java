@@ -5,19 +5,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
+import org.demo.huyminh.DTO.Reponse.BriefTaskResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.DTO.Request.InvitationEventData;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
-import org.demo.huyminh.Entity.Task;
 import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Enums.Status;
 import org.demo.huyminh.Event.TaskInvitationEvent;
 import org.demo.huyminh.Service.TaskService;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -38,13 +40,13 @@ public class TaskController {
     ApplicationEventPublisher eventPublisher;
 
     @GetMapping("/team")
-    public ApiResponse<List<TaskResponse>> getTaskByTeam(
+    public ApiResponse<List<BriefTaskResponse>> getTaskByTeam(
             @RequestHeader("Authorization") String jwt
     ) {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
-        List<TaskResponse> tasks = taskService.getTaskByTeam(user);
-        return ApiResponse.<List<TaskResponse>>builder()
+        List<BriefTaskResponse> tasks = taskService.getTaskByTeam(user);
+        return ApiResponse.<List<BriefTaskResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find tasks successfully")
                 .result(tasks)
@@ -52,8 +54,8 @@ public class TaskController {
     }
 
     @GetMapping
-    public ApiResponse<List<TaskResponse>> getAllTasks() {
-        return ApiResponse.<List<TaskResponse>>builder()
+    public ApiResponse<List<BriefTaskResponse>> getAllTasks() {
+        return ApiResponse.<List<BriefTaskResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find tasks successfully")
                 .result(taskService.getAllTasks())
@@ -66,6 +68,20 @@ public class TaskController {
                 .code(HttpStatus.OK.value())
                 .message("Find task successfully")
                 .result(taskService.getTaskById(taskId))
+                .build();
+    }
+
+    @GetMapping("/sort")
+    public ApiResponse<List<BriefTaskResponse>> getTaskBySort(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "dueDate", required = false) LocalDateTime dueDate,
+            @RequestParam(value = "sort", defaultValue = "ASC") String sort
+    ) {
+        return ApiResponse.<List<BriefTaskResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Find tasks successfully")
+                .result(taskService.searchAndSortTasks(category, Status.fromString(status), dueDate, sort))
                 .build();
     }
 
@@ -113,9 +129,9 @@ public class TaskController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<Task>> searchTaskByPartialName(@RequestParam String keyword) {
-        List<Task> tasks = taskService.searchTask(keyword);
-        return ApiResponse.<List<Task>>builder()
+    public ApiResponse<List<BriefTaskResponse>> searchTaskByPartialName(@RequestParam String keyword) {
+        List<BriefTaskResponse> tasks = taskService.searchTask(keyword);
+        return ApiResponse.<List<BriefTaskResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Find tasks successfully")
                 .result(tasks)

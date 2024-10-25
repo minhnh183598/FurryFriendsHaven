@@ -2,10 +2,13 @@ package org.demo.huyminh.Repository;
 
 import org.demo.huyminh.Entity.Task;
 import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Enums.Status;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -24,4 +27,25 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
 
     @Query(value = "SELECT * FROM task", nativeQuery = true)
     List<Task> findAllTasks();
+
+    @Query("SELECT t FROM Task t WHERE (:category IS NULL OR t.category = :category) " +
+            "AND (:status IS NULL OR t.status = :status) " +
+            "AND (:dueDate IS NULL OR t.dueDate = :dueDate) " +
+            "ORDER BY t.dueDate ASC")
+    List<Task> findByFiltersAscOrder(
+            @Param("category") String category,
+            @Param("status") Status status,
+            @Param("dueDate") LocalDateTime dueDate
+    );
+
+
+    @Query("SELECT t FROM Task t WHERE (:category IS NULL OR t.category = :category) " +
+            "AND (:status IS NULL OR t.status = :status) " +
+            "AND (:dueDate IS NULL OR t.dueDate = :dueDate) " +
+            "ORDER BY t.dueDate DESC")
+    List<Task> findByFiltersDescOrder(
+            @Param("category") String category,
+            @Param("status") Status status,
+            @Param("dueDate") LocalDateTime dueDate
+    );
 }

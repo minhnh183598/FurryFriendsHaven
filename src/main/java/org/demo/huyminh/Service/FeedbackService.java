@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.FeedbackResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.Entity.*;
+import org.demo.huyminh.Enums.Status;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.FeedbackMapper;
@@ -43,6 +44,10 @@ public class FeedbackService {
 
         if (!task.getTeam().contains(reporter)) {
             throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
+        }
+
+        if(task.getStatus().equals(Status.NOT_STARTED)) {
+            throw new AppException(ErrorCode.CANNOT_CREATE_FEEDBACK);
         }
 
         log.info("Request: {}", request);

@@ -110,7 +110,10 @@ public enum ErrorCode {
     CHECKLIST_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Checklist entry not found", HttpStatus.NOT_FOUND),
     CHECKLIST_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Checklist not found", HttpStatus.NOT_FOUND),
     ENTRY_NOT_IN_CHECKLIST(HttpStatus.BAD_REQUEST.value(), "Entry not in checklist", HttpStatus.BAD_REQUEST),
-    ;
+    TASK_WAS_DONE(HttpStatus.BAD_REQUEST.value(), "Task was done so you can not update checklist", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TO_DELETE_CHECKLIST_ITEM(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this checklist item", HttpStatus.FORBIDDEN),
+    INVALID_ORDER(HttpStatus.BAD_REQUEST.value(), "Invalid order. Please choose valid order again.", HttpStatus.BAD_REQUEST),
+    CANNOT_CREATE_FEEDBACK(HttpStatus.BAD_REQUEST.value(), "You can not create feedback. Because task was not started.", HttpStatus.BAD_REQUEST),;
 
     private int code;
     private String message;

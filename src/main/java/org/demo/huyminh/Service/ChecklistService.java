@@ -5,11 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.demo.huyminh.Entity.Checklist;
 import org.demo.huyminh.Entity.ChecklistItem;
+import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Enums.Status;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Repository.ChecklistItemRepository;
 import org.demo.huyminh.Repository.ChecklistRepository;
-import org.hibernate.annotations.DialectOverride;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
 public class ChecklistService {
 
     ChecklistItemRepository checklistItemRepository;
@@ -38,10 +41,35 @@ public class ChecklistService {
             throw new AppException(ErrorCode.ENTRY_NOT_IN_CHECKLIST);
         }
 
+        if(checklist.getTask().getStatus().equals(Status.DONE)) {
+            throw new AppException(ErrorCode.TASK_WAS_DONE);
+        }
+
         ChecklistItem item = checklistItemRepository.findById(checklistItemId)
                 .orElseThrow(() -> new AppException(ErrorCode.CHECKLIST_ITEM_NOT_FOUND));
 
         item.setCompleted(completed);
         checklistItemRepository.save(item);
+    }
+
+    @Transactional
+    public void deleteChecklistItem(int checklistItemId, int checklistId, User user) {
+        Checklist checklist = checklistRepository.findById(checklistId)
+                .orElseThrow(() -> new AppException(ErrorCode.CHECKLIST_NOT_FOUND));
+
+        ChecklistItem entry = checklistItemRepository.findById(checklistItemId)
+                .orElseThrow(() -> new AppException(ErrorCode.CHECKLIST_ITEM_NOT_FOUND));
+
+        if(!checklist.getChecklistItems().contains(entry)) {
+            throw new AppException(ErrorCode.ENTRY_NOT_IN_CHECKLIST);
+        }
+
+        if(!checklist.getTask().getTeam().contains(user)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_TO_DELETE_CHECKLIST_ITEM);
+        }
+
+        checklist.getChecklistItems().remove(entry);
+        checklistRepository.save(checklist);
+        checklistItemRepository.delete(entry);
     }
 }

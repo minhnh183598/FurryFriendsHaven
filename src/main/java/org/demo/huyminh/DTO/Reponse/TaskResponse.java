@@ -36,7 +36,7 @@ public class TaskResponse {
     List<String> tags;
     List<BriefIssueResponse> issues;
     UserResponse owner;
-    UserResponse adopter;
+    AdopterResponse adopter;
     List<UserResponse> team;
     List<FeedbackResponse> feedbacks;
     Checklist checklist;
