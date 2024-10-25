@@ -4,17 +4,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.demo.huyminh.Core.response.ResponseObject;
-import org.demo.huyminh.Entity.User;
-import org.demo.huyminh.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 //Ngân hàng:         NCB
 //Số thẻ:              9704198526191432198
@@ -31,29 +25,20 @@ public class PaymentController {
     private PaymentService paymentService;
     @Autowired
     private PaymentRepository paymentRepository;
-    @Autowired
-    private UserService userService;
 
     @GetMapping("/vn-pay")
     public ResponseObject<PaymentDTO.VNPayResponse> pay(HttpServletRequest request) {
-        // Lấy thông tin người dùng từ SecurityContextHolder
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userService.findByUsername(username);
         return new ResponseObject<>(HttpStatus.OK, "Success", paymentService.createVnPayPayment(request));
     }
 
+
     @GetMapping("/vn-pay-callback")
     public void payCallbackHandler(
-            @RequestParam String vnp_Amount, @RequestParam String vnp_BankCode, @RequestParam String vnp_BankTranNo,
-            @RequestParam String vnp_CardType, @RequestParam String vnp_ResponseCode, @RequestParam String vnp_OrderInfo,
-            @RequestParam String vnp_PayDate, @RequestParam String vnp_TxnRef, @RequestParam String vnp_TransactionNo,
-            @RequestParam String vnp_SecureHash, HttpServletRequest request, HttpServletResponse response
-    ) throws IOException {
-        // Lấy thông tin người dùng từ SecurityContextHolder
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userService.findByUsername(username);
+            @RequestParam String vnp_Amount,     @RequestParam String vnp_BankCode,
+            @RequestParam String vnp_BankTranNo,    @RequestParam String vnp_CardType,   @RequestParam String vnp_ResponseCode,
+            @RequestParam String vnp_OrderInfo,     @RequestParam String vnp_PayDate,    @RequestParam String vnp_TxnRef,
+            @RequestParam String vnp_TransactionNo, @RequestParam String vnp_SecureHash, HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
 
         String status = request.getParameter("vnp_ResponseCode");
         if ("00".equals(status)) {
@@ -68,12 +53,34 @@ public class PaymentController {
             payment.setTransactionNo(request.getParameter("vnp_TransactionNo"));
             payment.setTxnRef(request.getParameter("vnp_TxnRef"));
             payment.setSecureHash(request.getParameter("vnp_SecureHash"));
+            String orderInfo = request.getParameter("vnp_OrderInfo");
+            String userId = extractUserIdFromOrderInfo(orderInfo);
+            payment.setUserId(userId);
 
-            paymentService.savePayment(payment, user);
+            paymentService.savePayment(payment);
             response.sendRedirect("http://localhost:3000/thanks");
 
         } else {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Failed");
         }
     }
+
+    private String extractUserIdFromOrderInfo(String orderInfo) {
+        if (orderInfo != null && orderInfo.contains("User Id:")) {
+            return orderInfo.substring(orderInfo.indexOf("User Id:") + 9).trim();
+        }
+        return null;
+    }
+
+    @GetMapping("/{userId}")
+    public DonationResponse getDonationsByUserId(@PathVariable String userId) {
+        List<Payment> donations = paymentRepository.findByUserId(userId);
+        double totalAmount = 0.0;
+        for (Payment donation : donations) {
+            double amount = Double.parseDouble(donation.getAmount());
+            totalAmount += amount;
+        }
+        return new DonationResponse(userId, donations, totalAmount);
+    }
+
 }

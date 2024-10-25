@@ -28,6 +28,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     String username;
+    @JsonIgnore
     String password;
     String firstname;
     String lastname;
@@ -54,6 +55,7 @@ public class User {
     private List<Task> tasks;
 
     @ManyToMany
+    @JsonIgnore
     Set<Role> roles;
 
     @Column

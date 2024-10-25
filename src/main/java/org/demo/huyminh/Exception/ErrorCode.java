@@ -103,7 +103,17 @@ public enum ErrorCode {
     INVITATION_EXPIRED(HttpStatus.BAD_REQUEST.value(), "Invitation expired", HttpStatus.BAD_REQUEST),
     INVALID_CHOICE(HttpStatus.BAD_REQUEST.value(), "Invalid choice. Please choose valid choice again.", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED_TO_ATTEND_TO_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to attend to this task", HttpStatus.FORBIDDEN),
-    ;
+    CHECKLIST_TEMPLATE_NOT_EXISTS(HttpStatus.NOT_FOUND.value(), "Checklist template not exists", HttpStatus.NOT_FOUND),
+    CHECKLIST_TEMPLATE_EXISTS(HttpStatus.BAD_REQUEST.value(), "Checklist template already exists. Please choose another name.", HttpStatus.BAD_REQUEST),
+    CANNOT_ATTEND_TO_TASK(HttpStatus.FORBIDDEN.value(), "You can not attend to this task. There are a volunteer already in this task.", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED_TO_UPDATE_CHECKLIST(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this checklist", HttpStatus.FORBIDDEN),
+    CHECKLIST_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Checklist entry not found", HttpStatus.NOT_FOUND),
+    CHECKLIST_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Checklist not found", HttpStatus.NOT_FOUND),
+    ENTRY_NOT_IN_CHECKLIST(HttpStatus.BAD_REQUEST.value(), "Entry not in checklist", HttpStatus.BAD_REQUEST),
+    TASK_WAS_DONE(HttpStatus.BAD_REQUEST.value(), "Task was done so you can not update checklist", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TO_DELETE_CHECKLIST_ITEM(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this checklist item", HttpStatus.FORBIDDEN),
+    INVALID_ORDER(HttpStatus.BAD_REQUEST.value(), "Invalid order. Please choose valid order again.", HttpStatus.BAD_REQUEST),
+    CANNOT_CREATE_FEEDBACK(HttpStatus.BAD_REQUEST.value(), "You can not create feedback. Because task was not started.", HttpStatus.BAD_REQUEST),;
 
     private int code;
     private String message;

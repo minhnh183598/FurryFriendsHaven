@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.demo.huyminh.Enums.Status;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +35,10 @@ public class Task {
     Status status;
     String category;
     LocalDateTime dueDate;
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    LocalDateTime createdAt;
+    LocalDateTime finishedAt;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
@@ -61,6 +67,9 @@ public class Task {
 
     @OneToMany
     List<Feedback> feedbacks;
+
+    @OneToOne
+    Checklist checklist;
 
     @Override
     public String toString() {

@@ -3,9 +3,10 @@ package org.demo.huyminh.Vnpay;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.demo.huyminh.Core.config.payment.VNPAYConfig;
-import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Entity.Pet;
+import org.demo.huyminh.Repository.UserRepository;
 import org.demo.huyminh.Service.PetService;
+import org.demo.huyminh.Service.UserService;
 import org.demo.huyminh.Util.VNPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,10 @@ public class PaymentService {
     private PaymentRepository paymentRepository;
     @Autowired
     private PetService petService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
 
     public PaymentDTO.VNPayResponse createVnPayPayment(HttpServletRequest request) {
@@ -26,8 +31,9 @@ public class PaymentService {
         String bankCode = request.getParameter("bankCode");
         String petId = request.getParameter("petId");
         Pet pet = petService.getPet(petId);
+        String userId = request.getParameter("userId");
 
-        Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig(pet);
+        Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig(pet,userId);
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
         if (bankCode != null && !bankCode.isEmpty()) {
             vnpParamsMap.put("vnp_BankCode", bankCode);
@@ -46,8 +52,7 @@ public class PaymentService {
                 .paymentUrl(paymentUrl).build();
     }
 
-    public void savePayment(Payment payment, User user) {
-        payment.setUser(user); // Gán user vào payment
+    public void savePayment(Payment payment) {
         paymentRepository.save(payment);
     }
 }

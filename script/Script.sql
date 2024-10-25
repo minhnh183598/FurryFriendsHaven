@@ -1,30 +1,28 @@
-Create
-database FURRYFRIENDSHAVEN
-USE FURRYFRIENDSHAVEN
-
-CREATE SEQUENCE task_seq START WITH 1 INCREMENT BY 50
-    GO
+-- Create database FurryFriendsHaven
+Use FurryFriendsHaven
 
 CREATE TABLE application
 (
-    application_id varchar(255) NOT NULL,
-    pet_id         varchar(255),
-    id             varchar(255),
-    full_name      varchar(255),
-    yob            int          NOT NULL,
-    gender         varchar(255),
-    address        varchar(255),
-    city           varchar(255),
-    job            varchar(255),
-    phone          varchar(255),
-    live_in        varchar(255),
-    live_with      varchar(255),
-    first_person   varchar(255),
-    first_phone    varchar(255),
-    second_person  varchar(255),
-    second_phone   varchar(255),
-    status         int          NOT NULL,
-    create_at      datetime,
+    application_id   varchar(255) NOT NULL,
+    pet_id           varchar(255),
+    id               varchar(255),
+    full_name        varchar(255),
+    yob              int          NOT NULL,
+    gender           varchar(255),
+    address          varchar(255),
+    city             varchar(255),
+    job              varchar(255),
+    phone            varchar(255),
+    live_in          varchar(255),
+    live_with        varchar(255),
+    first_person     varchar(255),
+    first_phone      varchar(255),
+    second_person    varchar(255),
+    second_phone     varchar(255),
+    status           int          NOT NULL,
+    update_status_at datetime,
+    create_at        datetime,
+    task_id          int,
     CONSTRAINT pk_application PRIMARY KEY (application_id)
 )
     GO
@@ -32,12 +30,99 @@ CREATE TABLE application
 CREATE TABLE comment
 (
     id                int IDENTITY (1, 1) NOT NULL,
-    content           varchar(1000),
-    created_date_time datetime NOT NULL,
+    content           varchar(MAX),
+    created_date_time datetime            NOT NULL,
     updated_at        datetime,
     user_id           varchar(255),
     issue_id          int,
     CONSTRAINT pk_comment PRIMARY KEY (id)
+)
+    GO
+
+CREATE TABLE comment_blog
+(
+    id        bigint IDENTITY (1, 1) NOT NULL,
+    content   varchar(255),
+    create_at datetime,
+    posted_by varchar(255),
+    post_id   bigint                 NOT NULL,
+    CONSTRAINT pk_commentblog PRIMARY KEY (id)
+)
+    GO
+
+CREATE TABLE donation
+(
+    id             bigint IDENTITY (1, 1) NOT NULL,
+    amount         varchar(255),
+    bank_code      varchar(255),
+    transaction_no varchar(255),
+    pay_date       varchar(255),
+    user_id        varchar(255),
+    CONSTRAINT pk_donation PRIMARY KEY (id)
+)
+    GO
+
+CREATE TABLE event
+(
+    id         bigint IDENTITY (1, 1) NOT NULL,
+    name       varchar(255),
+    content    varchar(MAX),
+    posted_by  varchar(255),
+    category   varchar(255),
+    location   varchar(255),
+    date       date,
+    like_count int                    NOT NULL,
+    view_count int                    NOT NULL,
+    CONSTRAINT pk_event PRIMARY KEY (id)
+)
+    GO
+
+CREATE TABLE event_imgs
+(
+    event_id bigint NOT NULL,
+    imgs     varchar(255)
+)
+    GO
+
+CREATE TABLE event_liked_by_users
+(
+    event_id       bigint NOT NULL,
+    liked_by_users varchar(255)
+)
+    GO
+
+CREATE TABLE event_tags
+(
+    event_id bigint NOT NULL,
+    tags     varchar(255)
+)
+    GO
+
+CREATE TABLE feedback
+(
+    id         int IDENTITY (1, 1) NOT NULL,
+    content    varchar(MAX)        NOT NULL,
+    created_at datetime            NOT NULL,
+    edited_at  datetime            NOT NULL,
+    task_id    int                 NOT NULL,
+    user_id    varchar(255)        NOT NULL,
+    CONSTRAINT pk_feedback PRIMARY KEY (id)
+)
+    GO
+
+CREATE TABLE feedback_images
+(
+    feedback_id int          NOT NULL,
+    images_id   varchar(255) NOT NULL
+)
+    GO
+
+CREATE TABLE image
+(
+    id          varchar(255) NOT NULL,
+    image_url   varchar(255) NOT NULL,
+    feedback_id int          NOT NULL,
+    CONSTRAINT pk_image PRIMARY KEY (id)
 )
     GO
 
@@ -49,13 +134,25 @@ CREATE TABLE invalidated_token
 )
     GO
 
+CREATE TABLE invitation
+(
+    id         int IDENTITY (1, 1) NOT NULL,
+    user_id    varchar(255),
+    task_id    int                 NOT NULL,
+    status     varchar(255),
+    created_at datetime,
+    expired_at datetime,
+    CONSTRAINT pk_invitation PRIMARY KEY (id)
+)
+    GO
+
 CREATE TABLE issue
 (
     id          int IDENTITY (1, 1) NOT NULL,
-    title       varchar(255),
+    title       varchar(255)        NOT NULL,
     description varchar(255),
-    status      varchar(255),
-    taskid      int NOT NULL,
+    status      smallint,
+    taskid      int                 NOT NULL,
     priority    varchar(255),
     due_date    date,
     reporter_id varchar(255),
@@ -84,7 +181,7 @@ CREATE TABLE otp
     id            int IDENTITY (1, 1) NOT NULL,
     code          varchar(255),
     expire_time   datetime,
-    refresh_count int NOT NULL,
+    refresh_count int                 NOT NULL,
     lockout_time  datetime,
     user_id       varchar(255),
     CONSTRAINT pk_otp PRIMARY KEY (id)
@@ -104,6 +201,7 @@ CREATE TABLE payment
     transaction_no varchar(255),
     txn_ref        varchar(255),
     secure_hash    varchar(255),
+    user_id        varchar(255),
     CONSTRAINT pk_payment PRIMARY KEY (id)
 )
     GO
@@ -130,7 +228,47 @@ CREATE TABLE pet
     pet_gender      varchar(255),
     pet_vaccin      varchar(255),
     pet_status      varchar(255),
+    pet_image       varchar(255),
+    created_pet_at  datetime,
     CONSTRAINT pk_pet PRIMARY KEY (pet_id)
+)
+    GO
+
+CREATE TABLE post
+(
+    id         bigint IDENTITY (1, 1) NOT NULL,
+    name       varchar(255),
+    content    varchar(MAX),
+    posted_by  varchar(255),
+    category   varchar(255),
+    imgs       varchar(MAX),
+    date       date,
+    like_count int                    NOT NULL,
+    view_count int                    NOT NULL,
+    tags       varchar(MAX),
+    CONSTRAINT pk_post PRIMARY KEY (id)
+)
+    GO
+
+CREATE TABLE post_liked_by_users
+(
+    post_id        bigint NOT NULL,
+    liked_by_users varchar(255)
+)
+    GO
+
+CREATE TABLE rating
+(
+    id                         int IDENTITY (1, 1) NOT NULL,
+    feedback_id                int                 NOT NULL,
+    application_application_id varchar(255),
+    living_space               int                 NOT NULL,
+    family_income              int                 NOT NULL,
+    pet_experience             int                 NOT NULL,
+    family_stability           int                 NOT NULL,
+    time_commitment            int                 NOT NULL,
+    average_rating             float(53)           NOT NULL,
+    CONSTRAINT pk_rating PRIMARY KEY (id)
 )
     GO
 
@@ -181,21 +319,30 @@ CREATE TABLE tag_tasks
 
 CREATE TABLE task
 (
-    id          int          NOT NULL,
-    name        varchar(255) NOT NULL,
+    id          int IDENTITY (1, 1) NOT NULL,
+    name        varchar(255)        NOT NULL,
     description varchar(255),
+    status      smallint,
     category    varchar(255),
     due_date    datetime,
     owner_id    varchar(255),
+    adopter_id  varchar(255),
     CONSTRAINT pk_task PRIMARY KEY (id)
+)
+    GO
+
+CREATE TABLE task_feedbacks
+(
+    task_id      int NOT NULL,
+    feedbacks_id int NOT NULL
 )
     GO
 
 CREATE TABLE task_tags
 (
-    task_id   int          NOT NULL,
-    tags_name varchar(255) NOT NULL,
-    CONSTRAINT pk_task_tags PRIMARY KEY (task_id, tags_name)
+    tag_id  varchar(255) NOT NULL,
+    task_id int          NOT NULL,
+    CONSTRAINT pk_task_tags PRIMARY KEY (tag_id, task_id)
 )
     GO
 
@@ -237,28 +384,45 @@ CREATE TABLE users_tasks
 )
     GO
 
-ALTER TABLE application
-    ADD CONSTRAINT uc_application_firstphone UNIQUE (first_phone)
+CREATE TABLE volunteer_application
+(
+    volunteer_appli_id varchar(255) NOT NULL,
+    id                 varchar(255),
+    full_name          varchar(255),
+    yob                int          NOT NULL,
+    gender             varchar(255),
+    address            varchar(255),
+    phone              varchar(255),
+    adoption_exp       varchar(255),
+    days_of_week       varchar(255),
+    morning            varchar(255),
+    afternoon          varchar(255),
+    reason             varchar(255),
+    status             int          NOT NULL,
+    update_status_at   datetime,
+    create_appli_at    datetime,
+    CONSTRAINT pk_volunteerapplication PRIMARY KEY (volunteer_appli_id)
+)
     GO
 
-ALTER TABLE application
-    ADD CONSTRAINT uc_application_phone UNIQUE (phone)
-    GO
-
-ALTER TABLE application
-    ADD CONSTRAINT uc_application_secondphone UNIQUE (second_phone)
+ALTER TABLE feedback_images
+    ADD CONSTRAINT uc_feedback_images_images UNIQUE (images_id)
     GO
 
 ALTER TABLE issue_assignees
     ADD CONSTRAINT uc_issue_assignees_assignees UNIQUE (assignees_id)
     GO
 
-ALTER TABLE issue_tags
-    ADD CONSTRAINT uc_issue_tags_tags_name UNIQUE (tags_name)
+ALTER TABLE issue
+    ADD CONSTRAINT uc_issue_title UNIQUE (title)
     GO
 
 ALTER TABLE otp
     ADD CONSTRAINT uc_otp_user UNIQUE (user_id)
+    GO
+
+ALTER TABLE rating
+    ADD CONSTRAINT uc_rating_feedback UNIQUE (feedback_id)
     GO
 
 ALTER TABLE refresh_token
@@ -269,16 +433,12 @@ ALTER TABLE refresh_token
     ADD CONSTRAINT uc_refreshtoken_user UNIQUE (user_id)
     GO
 
-ALTER TABLE tag_tasks
-    ADD CONSTRAINT uc_tag_tasks_tanataid UNIQUE (tag_name, tasks_id)
+ALTER TABLE task_feedbacks
+    ADD CONSTRAINT uc_task_feedbacks_feedbacks UNIQUE (feedbacks_id)
     GO
 
 ALTER TABLE task
     ADD CONSTRAINT uc_task_name UNIQUE (name)
-    GO
-
-ALTER TABLE task_tags
-    ADD CONSTRAINT uc_task_tags_tags_name UNIQUE (tags_name)
     GO
 
 ALTER TABLE users
@@ -293,12 +453,36 @@ ALTER TABLE application
     ADD CONSTRAINT FK_APPLICATION_ON_PETID FOREIGN KEY (pet_id) REFERENCES pet (pet_id)
     GO
 
+ALTER TABLE application
+    ADD CONSTRAINT FK_APPLICATION_ON_TASK FOREIGN KEY (task_id) REFERENCES task (id)
+    GO
+
+ALTER TABLE comment_blog
+    ADD CONSTRAINT FK_COMMENTBLOG_ON_POST FOREIGN KEY (post_id) REFERENCES post (id)
+    GO
+
 ALTER TABLE comment
     ADD CONSTRAINT FK_COMMENT_ON_ISSUE FOREIGN KEY (issue_id) REFERENCES issue (id)
     GO
 
 ALTER TABLE comment
     ADD CONSTRAINT FK_COMMENT_ON_USER FOREIGN KEY (user_id) REFERENCES users (id)
+    GO
+
+ALTER TABLE donation
+    ADD CONSTRAINT FK_DONATION_ON_USER FOREIGN KEY (user_id) REFERENCES users (id)
+    GO
+
+ALTER TABLE feedback
+    ADD CONSTRAINT FK_FEEDBACK_ON_TASK FOREIGN KEY (task_id) REFERENCES task (id)
+    GO
+
+ALTER TABLE feedback
+    ADD CONSTRAINT FK_FEEDBACK_ON_USER FOREIGN KEY (user_id) REFERENCES users (id)
+    GO
+
+ALTER TABLE image
+    ADD CONSTRAINT FK_IMAGE_ON_FEEDBACK FOREIGN KEY (feedback_id) REFERENCES feedback (id)
     GO
 
 ALTER TABLE issue
@@ -313,12 +497,52 @@ ALTER TABLE otp
     ADD CONSTRAINT FK_OTP_ON_USER FOREIGN KEY (user_id) REFERENCES users (id)
     GO
 
+ALTER TABLE payment
+    ADD CONSTRAINT FK_PAYMENT_ON_USER FOREIGN KEY (user_id) REFERENCES users (id)
+    GO
+
+ALTER TABLE rating
+    ADD CONSTRAINT FK_RATING_ON_APPLICATION_APPLICATIONID FOREIGN KEY (application_application_id) REFERENCES application (application_id)
+    GO
+
+ALTER TABLE rating
+    ADD CONSTRAINT FK_RATING_ON_FEEDBACK FOREIGN KEY (feedback_id) REFERENCES feedback (id)
+    GO
+
 ALTER TABLE refresh_token
     ADD CONSTRAINT FK_REFRESHTOKEN_ON_USER FOREIGN KEY (user_id) REFERENCES users (id)
     GO
 
 ALTER TABLE task
+    ADD CONSTRAINT FK_TASK_ON_ADOPTER FOREIGN KEY (adopter_id) REFERENCES users (id)
+    GO
+
+ALTER TABLE task
     ADD CONSTRAINT FK_TASK_ON_OWNER FOREIGN KEY (owner_id) REFERENCES users (id)
+    GO
+
+ALTER TABLE volunteer_application
+    ADD CONSTRAINT FK_VOLUNTEERAPPLICATION_ON_ID FOREIGN KEY (id) REFERENCES users (id)
+    GO
+
+ALTER TABLE event_imgs
+    ADD CONSTRAINT fk_event_imgs_on_event FOREIGN KEY (event_id) REFERENCES event (id)
+    GO
+
+ALTER TABLE event_liked_by_users
+    ADD CONSTRAINT fk_event_likedbyusers_on_event FOREIGN KEY (event_id) REFERENCES event (id)
+    GO
+
+ALTER TABLE event_tags
+    ADD CONSTRAINT fk_event_tags_on_event FOREIGN KEY (event_id) REFERENCES event (id)
+    GO
+
+ALTER TABLE feedback_images
+    ADD CONSTRAINT fk_feeima_on_feedback FOREIGN KEY (feedback_id) REFERENCES feedback (id)
+    GO
+
+ALTER TABLE feedback_images
+    ADD CONSTRAINT fk_feeima_on_image FOREIGN KEY (images_id) REFERENCES image (id)
     GO
 
 ALTER TABLE issue_assignees
@@ -337,6 +561,10 @@ ALTER TABLE issue_tags
     ADD CONSTRAINT fk_isstag_on_tag FOREIGN KEY (tags_name) REFERENCES tag (name)
     GO
 
+ALTER TABLE post_liked_by_users
+    ADD CONSTRAINT fk_post_likedbyusers_on_post FOREIGN KEY (post_id) REFERENCES post (id)
+    GO
+
 ALTER TABLE role_permissions
     ADD CONSTRAINT fk_rolper_on_permission FOREIGN KEY (permissions_name) REFERENCES permission (name)
     GO
@@ -353,8 +581,16 @@ ALTER TABLE tag_tasks
     ADD CONSTRAINT fk_tag_tasks_on_task FOREIGN KEY (tasks_id) REFERENCES task (id)
     GO
 
+ALTER TABLE task_feedbacks
+    ADD CONSTRAINT fk_tasfee_on_feedback FOREIGN KEY (feedbacks_id) REFERENCES feedback (id)
+    GO
+
+ALTER TABLE task_feedbacks
+    ADD CONSTRAINT fk_tasfee_on_task FOREIGN KEY (task_id) REFERENCES task (id)
+    GO
+
 ALTER TABLE task_tags
-    ADD CONSTRAINT fk_task_tags_on_tag FOREIGN KEY (tags_name) REFERENCES tag (name)
+    ADD CONSTRAINT fk_task_tags_on_tag FOREIGN KEY (tag_id) REFERENCES tag (name)
     GO
 
 ALTER TABLE task_tags
@@ -382,7 +618,9 @@ ALTER TABLE users_tasks
     GO
 
 ALTER TABLE users_tasks
-    ADD CONSTRAINT fk_usetas_on_user FOREIGN KEY (user_id) REFERENCES users (id) GO
+    ADD CONSTRAINT fk_usetas_on_user FOREIGN KEY (user_id) REFERENCES users (id)
+    GO
+
 
 -- Insert role sample data
 INSERT INTO role (name, description) VALUES
@@ -404,10 +642,10 @@ VALUES
 INSERT INTO users_roles (user_id, roles_name)
 VALUES ('c2c85bd1-9fae-4bdb-86c4-09b67118f02e', 'USER'), -- John
        ('d2d8bde1-c9be-4a15-aa9d-4ae0f7352c2e', 'USER'), -- Jane
-       ('a28b11ad-b50a-4781-9b14-1caf1e83cffe', 'USER'), -- Alice
+       ('a28b11ad-b50a-4781-9b14-1caf1e83cffe', 'VOLUNTEER'), -- Alice
        ('d951cbcb-9a55-4c1b-85f7-f0d4e82b6cf0', 'USER'), -- Bob
        ('f89cca68-fe1c-4b9a-b2ca-2f65548b78f3', 'USER'), -- Charlie
-       ('aa07395f-889c-47c8-a465-f9b70b06a0f6', 'USER'), -- David
+       ('aa07395f-889c-47c8-a465-f9b70b06a0f6', 'VOLUNTEER'), -- David
        ('b0269cbc-e7ef-4f47-988b-4e9064d5f776', 'USER'), -- Eya
        ('cfb01b74-84b0-48b3-b394-f3f2109aaa6e', 'USER'), -- Fay
        ('96397221-e542-4e38-b932-7154d805b33a', 'USER'), -- George
@@ -427,7 +665,6 @@ VALUES ('DONE', 'Task has been completed', 'TASK_LABEL'),
        ('EXPIRED', 'Task has expired', 'TASK_LABEL'),
        ('WAITING', 'Task is waiting for some action', 'TASK_LABEL'),
        ('FAILED', 'Task failed to complete successfully', 'TASK_LABEL'),
-
        ('FEEDING', 'Feeding related task', 'ISSUE_LABEL'),
        ('WALKING', 'Walking related task', 'ISSUE_LABEL'),
        ('NEEDS_FEEDBACK', 'Task needs feedback from others', 'ISSUE_LABEL'),
@@ -446,18 +683,17 @@ VALUES ('DONE', 'Task has been completed', 'TASK_LABEL'),
        ('URGENT', 'Urgent tasks', 'ISSUE_LABEL'),
        ('ROUTINE', 'Routine tasks', 'ISSUE_LABEL');
 
-INSERT
-[dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'22898c90-5cc0-48a6-8e0e-bda9ac29b72c', N'Old', N'Persian', N'White', N'A gentle old cat who loves to lounge in the sun.', N'Female', N'Luna',35, N'Available', N'Cat', N'Yes', 6)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'2a773d0a-3b71-4e8f-a4cf-4c714c5fed01', N'Full Grown', N'Phu Quoc', N'Black', N'Friendly and cute', N'Male', N'Bin',140, N'Available', N'Dog', N'No', 4)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'2b9335f7-6b79-44cf-9028-9d84b0605036', N'Old', N'Beagle', N'Brown', N'A wise old dog who loves to nap.', N'Female', N'Bella', 40, N'Available', N'Dog', N'No', 10)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'59e32047-7ebf-44ed-8d2b-18bd1e165ba7', N'Young', N'Labrador', N'Black', N'A playful puppy who loves to run around.', N'Male', N'Max', 50, N'Available', N'Dog', N'Yes', 25)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'5df9e535-a8ba-4bdd-886e-b42ca6afd768', N'Young', N'England', N'Grey', N'Cute Cat with blue eyes', N'FeMale', N'Binasu', 140, N'Available', N'Cat', N'Yes', 10)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'8d141d1f-8466-4d0c-a6f1-a165e730dcc2', N'Young', N'Maine Coon', N'Gray', N'A curious kitten who loves to explore.', N'Male', N'Shadow', 25, N'Available', N'Cat', N'Yes', 4)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'9d229ff3-770f-4b78-87b6-4fbdce79f425', N'Old', N'Japan', N'White', N'Cute Cat with Red eyes', N'FeMale', N'Miu', 120, N'Available', N'Cat', N'Yes', 6)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'a01812d4-d17e-447a-99ab-6ec398c57f13', N'Young', N'Bengal', N'Spotted', N'An active kitten who loves to climb.', N'Male', N'Simba', 28, N'Available', N'Cat', N'Yes', 3)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'b9811a7f-8428-4c16-b4fb-d91442de8fd4', N'Full Grown', N'Bulldog', N'Brindle', N'A strong and loyal dog who is great with kids.', N'Male', N'Rocky',45, N'Adopted', N'Dog', N'Yes', 28)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'c89de2a1-55d3-40d7-b42c-ac1bc7dffbc6', N'Full Grown', N'Siamese', N'Cream', N'A calm and affectionate cat who enjoys cuddling.', N'Female', N'Whiskers',30, N'Adopted', N'Cat', N'Yes', 5)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'cb34a14e-9951-4da8-b3c8-448bc162e997', N'Full Grown', N'Tabby', N'Brown', N'A playful cat who enjoys chasing toys.', N'Female', N'Mittens', 30, N'Adopted', N'Cat', N'Yes', 4.5)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'f00ffe17-c460-466b-a248-c07eafc240ef', N'Old', N'Cocker Spaniel', N'Golden', N'A sweet old dog who loves to be petted.', N'Female', N'Daisy',38 , N'Available', N'Dog', N'No', 12)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'fb6bf6fb-8dd0-4540-ac38-eaed96f21588', N'Young', N'Poodle', N'Apricot', N'An energetic puppy who loves to play fetch.', N'Male', N'Charlie', 40, N'Available', N'Dog', N'Yes', 8)
-INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight]) VALUES (N'fd12bd6d-ef2f-403b-a893-b4a6ced46c92', N'Old', N'France', N'Gre', N'Cute Cat with Blue eyes', N'FeMale', N'Lucas', 120, N'Available', N'Cat', N'UnKnown', 5)
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'22898c90-5cc0-48a6-8e0e-bda9ac29b72c', N'Old', N'Persian', N'White', N'A gentle old cat who loves to lounge in the sun.', N'Female', N'Luna',35, N'Available', N'Cat', N'Yes', 6, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'2a773d0a-3b71-4e8f-a4cf-4c714c5fed01', N'Full Grown', N'Phu Quoc', N'Black', N'Friendly and cute', N'Male', N'Bin',140, N'Available', N'Dog', N'No', 4, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'2b9335f7-6b79-44cf-9028-9d84b0605036', N'Old', N'Beagle', N'Brown', N'A wise old dog who loves to nap.', N'Female', N'Bella', 40, N'Available', N'Dog', N'No', 10, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'59e32047-7ebf-44ed-8d2b-18bd1e165ba7', N'Young', N'Labrador', N'Black', N'A playful puppy who loves to run around.', N'Male', N'Max', 50, N'Available', N'Dog', N'Yes', 25, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'5df9e535-a8ba-4bdd-886e-b42ca6afd768', N'Young', N'England', N'Grey', N'Cute Cat with blue eyes', N'FeMale', N'Binasu', 140, N'Available', N'Cat', N'Yes', 10, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'8d141d1f-8466-4d0c-a6f1-a165e730dcc2', N'Young', N'Maine Coon', N'Gray', N'A curious kitten who loves to explore.', N'Male', N'Shadow', 25, N'Available', N'Cat', N'Yes', 4, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'9d229ff3-770f-4b78-87b6-4fbdce79f425', N'Old', N'Japan', N'White', N'Cute Cat with Red eyes', N'FeMale', N'Miu', 120, N'Available', N'Cat', N'Yes', 6, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'a01812d4-d17e-447a-99ab-6ec398c57f13', N'Young', N'Bengal', N'Spotted', N'An active kitten who loves to climb.', N'Male', N'Simba', 28, N'Available', N'Cat', N'Yes', 3, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'b9811a7f-8428-4c16-b4fb-d91442de8fd4', N'Full Grown', N'Bulldog', N'Brindle', N'A strong and loyal dog who is great with kids.', N'Male', N'Rocky',45, N'Adopted', N'Dog', N'Yes', 28, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'c89de2a1-55d3-40d7-b42c-ac1bc7dffbc6', N'Full Grown', N'Siamese', N'Cream', N'A calm and affectionate cat who enjoys cuddling.', N'Female', N'Whiskers',30, N'Adopted', N'Cat', N'Yes', 5, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'cb34a14e-9951-4da8-b3c8-448bc162e997', N'Full Grown', N'Tabby', N'Brown', N'A playful cat who enjoys chasing toys.', N'Female', N'Mittens', 30, N'Adopted', N'Cat', N'Yes', 4.5, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'f00ffe17-c460-466b-a248-c07eafc240ef', N'Old', N'Cocker Spaniel', N'Golden', N'A sweet old dog who loves to be petted.', N'Female', N'Daisy',38 , N'Available', N'Dog', N'No', 12, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'fb6bf6fb-8dd0-4540-ac38-eaed96f21588', N'Young', N'Poodle', N'Apricot', N'An energetic puppy who loves to play fetch.', N'Male', N'Charlie', 40, N'Available', N'Dog', N'Yes', 8, GETDATE())
+INSERT [dbo].[pet] ([pet_id], [pet_age], [pet_breed], [pet_color], [pet_description], [pet_gender], [pet_name], [pet_size], [pet_status], [pet_type], [pet_vaccin], [pet_weight], [created_pet_at]) VALUES (N'fd12bd6d-ef2f-403b-a893-b4a6ced46c92', N'Old', N'France', N'Gre', N'Cute Cat with Blue eyes', N'FeMale', N'Lucas', 120, N'Available', N'Cat', N'UnKnown', 5, GETDATE())

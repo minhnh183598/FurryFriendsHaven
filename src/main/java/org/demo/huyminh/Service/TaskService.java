@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.BriefIssueResponse;
+import org.demo.huyminh.DTO.Reponse.BriefTaskResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.DTO.Request.InvitationEventData;
@@ -22,7 +23,6 @@ import org.demo.huyminh.Repository.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
+@PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
 public class TaskService {
 
     TaskRepository taskRepository;
@@ -50,7 +51,6 @@ public class TaskService {
     FeedbackRepository feedbackRepository;
     InvitationRepository invitationRepository;
     RoleService roleService;
-
 
     @PreAuthorize("hasRole('ADMIN')")
     public TaskResponse createTask(TaskCreationRequest task, User user) {
@@ -99,7 +99,7 @@ public class TaskService {
         task.setTags(existingTags);
     }
 
-    public List<TaskResponse> getTaskByTeam(User user) {
+    public List<BriefTaskResponse> getTaskByTeam(User user) {
 
         if (user == null) {
             throw new AppException(ErrorCode.USER_NOT_EXISTS);
@@ -108,29 +108,46 @@ public class TaskService {
         List<Task> tasks = taskRepository.findByTeamContainingOrOwner(user, user);
         log.info(tasks.toString());
 
-        List<TaskResponse> taskResponses = tasks.stream().map(taskMapper::toTaskResponse).collect(Collectors.toList());
-
-        for (int i = 0; i < taskResponses.size(); i++) {
-            Task currentTask = tasks.get(i);
-            TaskResponse taskResponse = taskResponses.get(i);
-
-            taskResponse.setOwner(userMapper.toUserResponseForTask(currentTask.getOwner()));
-            taskResponse.setTeam(currentTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
-            taskResponse.setTags(currentTask.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-            taskResponse.setIssues(currentTask.getIssues().stream().map(issue -> BriefIssueResponse.builder()
-                            .title(issue.getTitle())
-                            .description(issue.getDescription())
-                            .status(issue.getStatus().toString())
-                            .dueDate(issue.getDueDate()).build())
-                    .collect(Collectors.toList()));
-            taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
-
-            if (currentTask.getCategory().equalsIgnoreCase("Adoption") && currentTask.getAdopter() != null) {
-                taskResponse.setAdopter(userMapper.toUserResponseForTask(currentTask.getAdopter()));
-            }
-        }
+        List<BriefTaskResponse> taskResponses = tasks.stream()
+                .map(task -> BriefTaskResponse.builder()
+                        .id(task.getId())
+                        .dueDate(task.getDueDate())
+                        .name(task.getName())
+                        .status(task.getStatus().toString())
+                        .build())
+                .collect(Collectors.toList());
 
         log.info(taskResponses.toString());
+
+        if (taskResponses.isEmpty()) {
+            throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
+        }
+
+        return taskResponses;
+    }
+
+    public List<BriefTaskResponse> searchAndSortTasks(String category, Status status, LocalDateTime dueDate, String order) {
+        if (category == null && status == null && dueDate == null && order == null) {
+            getAllTasks();
+        }
+
+        List<Task> tasks = new ArrayList<>();
+        if(order.equalsIgnoreCase("ASC")) {
+            tasks = taskRepository.findByFiltersAscOrder(category, status, dueDate);
+        } else if(order.equalsIgnoreCase("DESC")) {
+            tasks = taskRepository.findByFiltersDescOrder(category, status, dueDate);
+        } else {
+            throw new AppException(ErrorCode.INVALID_ORDER);
+        }
+
+        List<BriefTaskResponse> taskResponses = tasks.stream()
+                .map(task -> BriefTaskResponse.builder()
+                        .id(task.getId())
+                        .dueDate(task.getDueDate())
+                        .name(task.getName())
+                        .status(task.getStatus().toString())
+                        .build())
+                .collect(Collectors.toList());
 
         if (taskResponses.isEmpty()) {
             throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
@@ -164,6 +181,7 @@ public class TaskService {
                         .dueDate(issue.getDueDate()).build())
                 .collect(Collectors.toList()));
         taskResponse.setFeedbacks(task.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
+        taskResponse.setChecklist(task.getChecklist());
         return taskResponse;
     }
 
@@ -183,7 +201,14 @@ public class TaskService {
                 .build()).collect(Collectors.toList()));
         taskResponse.setTeam(optionalTask.get().getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
         taskResponse.setTags(optionalTask.get().getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-        taskResponse.setAdopter(optionalTask.get().getAdopter() != null ? userMapper.toUserResponseForTask(optionalTask.get().getAdopter()) : null);
+        taskResponse.setAdopter(optionalTask.get().getAdopter() != null ? userMapper.toAdopterResponseForTask(optionalTask.get().getAdopter()) : null);
+        Application application = optionalTask.get().getAdopter().getApplications().getFirst();
+        taskResponse.getAdopter().setAddress(application.getAddress() + ", " + application.getCity());
+        taskResponse.getAdopter().setPhone(application.getPhone());
+        taskResponse.getAdopter().setGender(application.getGender());
+
+        taskResponse.setFeedbacks(optionalTask.get().getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).toList());
+        taskResponse.setChecklist(optionalTask.get().getChecklist());
 
         return taskResponse;
     }
@@ -296,6 +321,7 @@ public class TaskService {
 
             newFeedback.setImages(images);
             task.getFeedbacks().add(newFeedback);
+            task.setFinishedAt(LocalDateTime.now());
 
             feedbackRepository.save(newFeedback);
         }
@@ -314,15 +340,21 @@ public class TaskService {
             throw new AppException(ErrorCode.USER_ALREADY_IN_TASK);
         }
 
+        if (!task.getStatus().equals(Status.NOT_STARTED)) {
+            throw new AppException(ErrorCode.CANNOT_ATTEND_TO_TASK);
+        }
+
         if (!roleService.hasRole(user, "VOLUNTEER") && !roleService.hasRole(user, "ADMIN")) {
             throw new AppException(ErrorCode.USER_NOT_HAVE_PROPER_ROLE);
         }
 
         task.getTeam().add(user);
-        task.setStatus(Status.ON_HOLD);
+        task.getChecklist().setAssignee(user);
+        task.setStatus(Status.IN_PROGRESS);
         taskRepository.save(task);
     }
 
+    @Transactional
     public void addUserToTask(int taskId, String userId, User existingUser) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
@@ -368,43 +400,41 @@ public class TaskService {
         taskRepository.save(task);
     }
 
-    public List<Task> searchTask(String keyword) {
+    public List<BriefTaskResponse> searchTask(String keyword) {
         String partialName = "%" + keyword + "%";
-        log.info("Task Service: search Task");
-        log.info("PartialName: " + keyword);
-        var result = taskRepository.findByPartialName(partialName);
+        var tasks = taskRepository.findByPartialName(partialName);
 
-        if (result.isEmpty()) {
-            throw new AppException(ErrorCode.TASK_NOT_FOUND);
+        List<BriefTaskResponse> taskResponses = tasks.stream()
+                .map(task -> BriefTaskResponse.builder()
+                        .id(task.getId())
+                        .dueDate(task.getDueDate())
+                        .name(task.getName())
+                        .status(task.getStatus().toString())
+                        .build())
+                .collect(Collectors.toList());
+
+        if (taskResponses.isEmpty()) {
+            throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
         }
-        return result;
+
+        return taskResponses;
     }
 
     @PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
-    public List<TaskResponse> getAllTasks() {
+    public List<BriefTaskResponse> getAllTasks() {
         List<Task> tasks = taskRepository.findAll();
 
-        List<TaskResponse> taskResponses = tasks.stream().map(taskMapper::toTaskResponse).collect(Collectors.toList());
+        List<BriefTaskResponse> taskResponses = tasks.stream()
+                .map(task -> BriefTaskResponse.builder()
+                        .id(task.getId())
+                        .dueDate(task.getDueDate())
+                        .name(task.getName())
+                        .status(task.getStatus().toString())
+                        .build())
+                .collect(Collectors.toList());
 
-        for (int i = 0; i < taskResponses.size(); i++) {
-            Task currentTask = tasks.get(i);
-            TaskResponse taskResponse = taskResponses.get(i);
-
-            // Gán thông tin cho taskResponse từ currentTask
-            taskResponse.setOwner(userMapper.toUserResponseForTask(currentTask.getOwner()));
-            taskResponse.setTeam(currentTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
-            taskResponse.setTags(currentTask.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-            taskResponse.setIssues(currentTask.getIssues().stream().map(issue -> BriefIssueResponse.builder()
-                            .title(issue.getTitle())
-                            .description(issue.getDescription())
-                            .status(issue.getStatus().toString())
-                            .dueDate(issue.getDueDate()).build())
-                    .collect(Collectors.toList()));
-            taskResponse.setFeedbacks(currentTask.getFeedbacks().stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toList()));
-
-            if ("Adoption".equalsIgnoreCase(currentTask.getCategory())) {
-                taskResponse.setAdopter(userMapper.toUserResponseForTask(currentTask.getAdopter()));
-            }
+        if (taskResponses.isEmpty()) {
+            throw new AppException(ErrorCode.LIST_TAG_IS_EMPTY);
         }
 
         return taskResponses;
