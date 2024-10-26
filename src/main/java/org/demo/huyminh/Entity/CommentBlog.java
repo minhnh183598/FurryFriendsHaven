@@ -2,7 +2,6 @@ package org.demo.huyminh.Entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.Date;
 
 @Entity

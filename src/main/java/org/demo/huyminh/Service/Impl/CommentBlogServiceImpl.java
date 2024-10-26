@@ -1,10 +1,11 @@
-package org.demo.huyminh.Service;
+package org.demo.huyminh.Service.Impl;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.demo.huyminh.Entity.CommentBlog;
 import org.demo.huyminh.Entity.Post;
 import org.demo.huyminh.Repository.CommentBlogRepository;
 import org.demo.huyminh.Repository.PostRepository;
+import org.demo.huyminh.Service.CommentBlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

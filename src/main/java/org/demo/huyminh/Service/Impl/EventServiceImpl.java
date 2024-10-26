@@ -1,8 +1,9 @@
-package org.demo.huyminh.Service;
+package org.demo.huyminh.Service.Impl;
 
 import org.demo.huyminh.Entity.Event;
 import org.demo.huyminh.Repository.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.demo.huyminh.Service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

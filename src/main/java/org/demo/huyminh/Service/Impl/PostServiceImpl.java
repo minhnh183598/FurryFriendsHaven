@@ -1,10 +1,10 @@
-package org.demo.huyminh.Service;
+package org.demo.huyminh.Service.Impl;
 
 
 import jakarta.persistence.EntityNotFoundException;
-import org.demo.huyminh.Entity.Event;
 import org.demo.huyminh.Entity.Post;
 import org.demo.huyminh.Repository.PostRepository;
+import org.demo.huyminh.Service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Service
-public class PostServiceImpl implements PostService{
+public class PostServiceImpl implements PostService {
 
     @Autowired
     private PostRepository postRepository;

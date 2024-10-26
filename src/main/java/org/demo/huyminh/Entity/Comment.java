@@ -1,12 +1,13 @@
 package org.demo.huyminh.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 
 /**
@@ -21,26 +22,27 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    int id;
 
     @NotBlank(message = "Comment content cannot be blank")
     @Size(max = 10000, message = "Comment cannot exceed 10000 characters")
-    private String content;
+    String content;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
-    private LocalDateTime createdDateTime;
+    LocalDateTime createdAt;
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    LocalDateTime updatedAt;
+
+    String username;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Issue issue;
+    @JsonIgnore
+    Issue issue;
 }
