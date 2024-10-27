@@ -1,45 +1,77 @@
 package org.demo.huyminh.Entity;
 
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
+@Builder
 @Data
-@Table(name = "post") // Tên bảng trong SQL Server
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "post")
 public class Post {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    int id;
 
-    private String name;
+    String title;
 
-    @Column(length = 5000000)
-    private String content;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    String content;
 
-    private String postedBy;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    String description;
 
-    private String category;
+    String username;
 
-    private List<String> imgs;
+    String nickname;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate date;
+    String category;
 
-    private int likeCount;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    List<Image> images;
 
-    @ElementCollection // Để lưu danh sách người dùng
-    private List<String> likedByUsers = new ArrayList<>();
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    LocalDateTime createAt;
 
-    private int viewCount;
+    @UpdateTimestamp
+    LocalDateTime editedAt;
 
-    private List<String> tags;
+    int likeCount;
+
+    @ElementCollection
+    List<String> likedByUsers = new ArrayList<>();
+
+    int viewCount;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    List<Tag> tags;
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", description='" + description + '\'' +
+                ", username='" + username + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", category='" + category + '\'' +
+                ", createAt=" + createAt +
+                ", editedAt=" + editedAt +
+                ", likeCount=" + likeCount +
+                ", likedByUsers=" + likedByUsers +
+                ", viewCount=" + viewCount +
+                '}';
+    }
 }

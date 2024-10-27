@@ -33,11 +33,12 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagResponse createTag(TagRequest request) {
-        if (tagRepository.existsById(request.getName())) {
+        if (tagRepository.existsById(request.getName()) && tagRepository.existsByTagType(Tag.TagType.valueOf(request.getType().toUpperCase()))) {
             throw new AppException(ErrorCode.TAG_ALREADY_EXISTS);
         }
         Tag tag = tagMapper.toTag(request);
-        if (!(tag.getType() == Tag.TagType.TASK_LABEL || tag.getType() == Tag.TagType.ISSUE_LABEL)) {
+        if (!(tag.getType() == Tag.TagType.TASK_LABEL || tag.getType() == Tag.TagType.ISSUE_LABEL
+                || tag.getType() == Tag.TagType.POST_LABEL || tag.getType() == Tag.TagType.EVENT_LABEL)) {
             throw new AppException(ErrorCode.INVALID_TAG_TYPE);
         }
 

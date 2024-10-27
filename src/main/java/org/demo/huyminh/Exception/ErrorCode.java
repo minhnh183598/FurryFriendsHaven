@@ -114,7 +114,15 @@ public enum ErrorCode {
     UNAUTHORIZED_TO_DELETE_CHECKLIST_ITEM(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this checklist item", HttpStatus.FORBIDDEN),
     INVALID_ORDER(HttpStatus.BAD_REQUEST.value(), "Invalid order. Please choose valid order again.", HttpStatus.BAD_REQUEST),
     CANNOT_CREATE_FEEDBACK(HttpStatus.BAD_REQUEST.value(), "You can not create feedback. Because task was not started.", HttpStatus.BAD_REQUEST),
-    LIST_TASK_IS_EMPTY(HttpStatus.BAD_REQUEST.value(), "List task is empty", HttpStatus.BAD_REQUEST),;
+    LIST_TASK_IS_EMPTY(HttpStatus.BAD_REQUEST.value(), "List task is empty", HttpStatus.BAD_REQUEST),
+    INVALID_CATEGORY(HttpStatus.BAD_REQUEST.value(), "Invalid category", HttpStatus.BAD_REQUEST),
+    POST_HAS_NO_TAGS(HttpStatus.BAD_REQUEST.value(), "Post has no tags", HttpStatus.BAD_REQUEST),
+    NICKNAME_WAS_ALREADY_TAKEN(HttpStatus.BAD_REQUEST.value(), "Nickname was already taken. Please choose another nickname", HttpStatus.BAD_REQUEST),
+    INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST.value(), "Invalid date range", HttpStatus.BAD_REQUEST),
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Post not found", HttpStatus.NOT_FOUND),
+    USER_HAD_LIKED_POST(HttpStatus.BAD_REQUEST.value(), "User had liked post", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TO_DELETE_POST(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this post", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED_TO_UPDATE_POST(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this post", HttpStatus.FORBIDDEN),;
 
     private int code;
     private String message;

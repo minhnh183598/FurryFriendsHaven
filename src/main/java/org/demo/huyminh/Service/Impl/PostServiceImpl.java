@@ -1,31 +1,39 @@
 package org.demo.huyminh.Service.Impl;
 
-
-import jakarta.persistence.EntityNotFoundException;
-import org.demo.huyminh.Entity.Post;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.demo.huyminh.DTO.Reponse.BriefPostResponse;
+import org.demo.huyminh.DTO.Reponse.PostResponse;
+import org.demo.huyminh.DTO.Request.PostCreationRequest;
+import org.demo.huyminh.DTO.Request.PostUpdateRequest;
+import org.demo.huyminh.Entity.*;
+import org.demo.huyminh.Enums.Roles;
+import org.demo.huyminh.Exception.AppException;
+import org.demo.huyminh.Exception.ErrorCode;
+import org.demo.huyminh.Mapper.PostMapper;
 import org.demo.huyminh.Repository.PostRepository;
+import org.demo.huyminh.Repository.TagRepository;
 import org.demo.huyminh.Service.PostService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@Slf4j
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
-    @Autowired
-    private PostRepository postRepository;
+    PostRepository postRepository;
+    PostMapper postMapper;
+    TagRepository tagRepository;
+    EntityManager entityManager;
 
-    private static final Set<String> VALID_TAGS = new HashSet<>(Arrays.asList(
-            "Animal Rescue",
-            "Pet Adoption",
-            "Veterinary Care",
-            "Animal Welfare",
-            "Success Stories",
-            "Volunteer Work",
-            "Pet Care Tips"
-    ));
     private static final List<String> VALID_CATEGORIES = Arrays.asList(
             "ANIMAL_RESCUE",
             "ADOPTION",
@@ -34,103 +42,205 @@ public class PostServiceImpl implements PostService {
     );
 
     @Override
-    public Post savePost(Post post, String username) {
-        // Gán tên người dùng vào bài viết
-        post.setPostedBy(username);
-
-        // Kiểm tra category hợp lệ
-        if (!VALID_CATEGORIES.contains(post.getCategory())) {
-            throw new IllegalArgumentException("Category '" + post.getCategory() + "' is not valid.");
+    public PostResponse createPost(PostCreationRequest request, User user) {
+        if(postRepository.existsByNicknameAndDifferentUsername(request.getNickname(), user.getUsername())) {
+            throw new AppException(ErrorCode.NICKNAME_WAS_ALREADY_TAKEN);
         }
 
-        if (post.getTags() != null) {
-            for (String tagName : post.getTags()) {
-                if (!VALID_TAGS.contains(tagName)) {
-                    throw new IllegalArgumentException("Tag '" + tagName + "' is not valid."); // Ném lỗi nếu tag không hợp lệ
-                }
+        if (!VALID_CATEGORIES.contains(request.getCategory().toUpperCase())) {
+            throw new AppException(ErrorCode.INVALID_CATEGORY);
+        }
+
+        Post newPost = postMapper.toPost(request);
+        newPost.setUsername(user.getUsername());
+
+
+        List<Image> images = request.getImages().stream()
+                .map(imageUrl -> Image.builder()
+                        .post(newPost)
+                        .imageUrl(imageUrl)
+                        .build())
+                .toList();
+        newPost.setImages(images);
+        savePostWithTags(newPost);
+
+        Post savedPost = postRepository.save(newPost);
+
+        return postMapper.toPostResponse(savedPost);
+    }
+
+    public void savePostWithTags(Post post) {
+        if (post.getTags() == null || post.getTags().isEmpty()) {
+            throw new AppException(ErrorCode.POST_HAS_NO_TAGS);
+        }
+
+        List<Tag> existingTags = new ArrayList<>();
+
+        for (Tag tag : post.getTags()) {
+            Optional<Tag> existingTag = tagRepository.findById(tag.getName());
+
+            if (existingTag.isPresent() && existingTag.get().getType().equals(Tag.TagType.POST_LABEL)) {
+                existingTags.add(existingTag.get());
             }
         }
-        // Khởi tạo các giá trị mặc định
-        post.setLikeCount(0);
-        post.setViewCount(0);
-        post.setDate(LocalDate.now());
 
-        // Lưu bài viết vào cơ sở dữ liệu
-        return postRepository.save(post);
+        if (existingTags.isEmpty()) {
+            throw new AppException(ErrorCode.POST_HAS_NO_TAGS);
+        }
+
+        post.setTags(existingTags);
     }
 
-    public List<Post> getPostsByCategory(String category) {
-        return postRepository.findByCategory(category);
+    @Override
+    public List<BriefPostResponse> findTopLikedPosts(LocalDate dateFrom, LocalDate dateTo, int limit) {
+        if (dateFrom != null && dateTo != null && dateFrom.isAfter(dateTo)) {
+            throw new AppException(ErrorCode.INVALID_DATE_RANGE);
+        }
+
+        LocalDateTime dateFromDateTime = dateFrom != null ? dateFrom.atStartOfDay() : null;
+        LocalDateTime dateToDateTime = dateTo != null ? dateTo.atTime(23, 59, 59) : null;
+
+        String jpql = "SELECT p FROM Post p " +
+                "WHERE (:dateFrom IS NULL OR p.createAt >= :dateFrom) " +
+                "AND (:dateTo IS NULL OR p.createAt <= :dateTo) " +
+                "ORDER BY p.likeCount DESC";
+
+        TypedQuery<Post> query = entityManager.createQuery(jpql, Post.class);
+
+        if (dateFromDateTime != null) {
+            query.setParameter("dateFrom", dateFromDateTime);
+        }
+
+        if (dateToDateTime != null) {
+            query.setParameter("dateTo", dateToDateTime);
+        }
+
+        query.setMaxResults(limit);
+        List<BriefPostResponse> posts = query.getResultList().stream().map(postMapper::toBriefPostResponse).toList();
+        if(posts.isEmpty()) {
+            throw new AppException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        return posts;
     }
 
-    public List<Post> getAllPost() {
-        return postRepository.findAll();
+    @Override
+    public List<BriefPostResponse> getPostsByCriteria(
+            String title, String username, LocalDate dateFrom,
+            LocalDate dateTo, List<String> tags, String category
+    ) {
+        if (!VALID_CATEGORIES.contains(category.toUpperCase())) {
+            throw new AppException(ErrorCode.INVALID_CATEGORY);
+        }
+
+        if (dateFrom != null && dateTo != null && dateFrom.isAfter(dateTo)) {
+            throw new AppException(ErrorCode.INVALID_DATE_RANGE);
+        }
+
+        LocalDateTime dateFromDateTime = dateFrom != null ? dateFrom.atStartOfDay() : null;
+        LocalDateTime dateToDateTime = dateTo != null ? dateTo.atStartOfDay() : null;
+
+        List<Post> posts = postRepository.findPostsByCriteriaAndUsername(title, username, dateFromDateTime, dateToDateTime, tags, category);
+        if(posts.isEmpty()) {
+            posts = postRepository.findPostsByCriteriaAndNickname(title, username, dateFromDateTime, dateToDateTime, tags, category);
+        }
+
+        if(posts.isEmpty()) {
+            throw new AppException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        return posts.stream().map(postMapper::toBriefPostResponse).toList();
     }
 
-    public Post getPostById(Long postId) {
-        Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            post.setViewCount(post.getViewCount() + 1);
-            return postRepository.save(post);
+    @Override
+    public List<BriefPostResponse> getAllPost() {
+        List<Post> posts = postRepository.findAll();
+        if(posts.isEmpty()) {
+            throw new AppException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        return posts.stream().map(postMapper::toBriefPostResponse).toList();
+    }
+
+    @Override
+    public Post getPostById(int postId) {
+         return postRepository.findById(postId)
+                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+    }
+
+    @Override
+    public String likePost(int postId, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+
+        if (!post.getLikedByUsers().contains(user.getUsername())) {
+            post.setLikeCount(post.getLikeCount() + 1);
+            post.getLikedByUsers().add(user.getUsername());
+            postRepository.save(post);
+            return "Like post successfully";
         } else {
-            throw new EntityNotFoundException("Post not found");
+            post.setLikeCount(post.getLikeCount() - 1);
+            post.getLikedByUsers().remove(user.getUsername());
+            postRepository.save(post);
+            return "Unlike post successfully";
         }
     }
 
-    public void likePost(Long postId, String username) {
-        Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
+    @Override
+    public void updatePost(int postId, PostUpdateRequest request, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
-            // Kiểm tra xem người dùng đã thích bài viết chưa (nếu bạn đang lưu danh sách người thích)
-            if (!post.getLikedByUsers().contains(username)) {
-                post.setLikeCount(post.getLikeCount() + 1); // Tăng số lượng likes
-                post.getLikedByUsers().add(username); // Thêm người dùng vào danh sách đã thích
-                postRepository.save(post); // Lưu bài viết
-            } else {
-                // Có thể xử lý nếu người dùng đã thích bài viết trước đó
-                throw new IllegalArgumentException("User has already liked this post.");
+        if(!post.getUsername().equalsIgnoreCase(user.getUsername()) && !user.getRoles().contains(Roles.ADMIN)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_TO_UPDATE_POST);
+        }
+
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+        post.setDescription(request.getDescription());
+        post.setNickname(request.getNickname());
+        post.setCategory(request.getCategory());
+
+        if(request.getImages() != null) {
+            post.getImages().clear();
+
+            if(!request.getImages().isEmpty()) {
+                List<Image> newImages = request.getImages().stream()
+                        .map(imageUrl -> Image.builder()
+                                .imageUrl(imageUrl)
+                                .post(post)
+                                .build())
+                        .toList();
+                post.getImages().addAll(newImages);
             }
-        } else {
-            throw new EntityNotFoundException("Post not found with id: " + postId);
         }
-    }
 
-    public List<Post> searchPost(String name, String postedBy, LocalDate date, List<String> tags) {
-        // Logic tìm kiếm để lọc các bài viết theo tiêu chí
-        // Giả định bạn có một repository tương ứng để truy vấn cơ sở dữ liệu
-        // Sử dụng phương thức tìm kiếm dựa trên tiêu chí đã cho
-        return postRepository.findPostsByCriteria(name, postedBy, date, tags);
-    }
+        if(request.getTags() != null) {
+            post.getTags().clear();
 
-    public List<Post> searchByLikeCount(int minLikes, int maxLikes) {
-        return postRepository.findByLikeCountBetween(minLikes, maxLikes);
-    }
-
-    public Post updatePost(Long postId, Post post, String username) {
-        Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isPresent()) {
-            Post existingPost = optionalPost.get();
-            // Cập nhật các trường cần thiết
-            existingPost.setName(post.getName());
-            existingPost.setContent(post.getContent());
-            existingPost.setPostedBy(username); // Cập nhật người đăng nếu cần
-            return postRepository.save(existingPost);
-        } else {
-            throw new EntityNotFoundException("Post not found with id: " + postId);
+            if(!request.getTags().isEmpty()) {
+                List<Tag> newTags = request.getTags().stream()
+                        .map(updatedTag -> tagRepository.findById(updatedTag.getName())
+                                .filter(tag -> tag.getType().equals(Tag.TagType.POST_LABEL))
+                                .orElse(null))
+                        .filter(Objects::nonNull)
+                        .toList();
+                post.getTags().addAll(newTags);
+            }
         }
+
+        postRepository.save(post);
     }
 
+    @Override
+    public void deletePost(int postId, User user) {
+        Post existingPost = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
-    public void deletePost(Long postId) {
-        Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isPresent()) {
-            postRepository.deleteById(postId);
-        } else {
-            throw new EntityNotFoundException("Post not found with id: " + postId);
+        if(!existingPost.getUsername().equalsIgnoreCase(user.getUsername()) && user.getRoles().contains(Roles.ADMIN)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_TO_DELETE_POST);
         }
+
+        postRepository.deleteById(postId);
     }
-
-
 }

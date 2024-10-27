@@ -18,8 +18,8 @@ import java.util.List;
 @Mapper(componentModel = "Spring")
 public interface FeedbackMapper {
 
-    @Mapping(target = "images", expression = "java(mapStringsToImages(feedbackResponse.getImages(), null))")
-    Feedback toFeedback(FeedbackCreationRequest feedbackResponse);
+    @Mapping(target = "images", expression = "java(mapStringsToImages(feedbackRequest.getImages(), null))")
+    Feedback toFeedback(FeedbackCreationRequest feedbackRequest);
 
     @Mapping(target = "images", expression = "java(mapImagesToStrings(feedback.getImages()))")
     FeedbackResponse toFeedbackResponse(Feedback feedback);

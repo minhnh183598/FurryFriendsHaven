@@ -1,29 +1,31 @@
 package org.demo.huyminh.Service;
 
+import org.demo.huyminh.DTO.Reponse.BriefPostResponse;
+import org.demo.huyminh.DTO.Reponse.PostResponse;
+import org.demo.huyminh.DTO.Request.PostCreationRequest;
+import org.demo.huyminh.DTO.Request.PostUpdateRequest;
 import org.demo.huyminh.Entity.Post;
-
+import org.demo.huyminh.Entity.User;
 import java.time.LocalDate;
 import java.util.List;
 
 public interface PostService {
+    PostResponse createPost(PostCreationRequest request, User user);
 
-    Post savePost(Post post, String username);
+    List<BriefPostResponse> findTopLikedPosts(LocalDate dateFrom, LocalDate dateTo, int limit);
 
-    List<Post> getPostsByCategory(String category);
+    List<BriefPostResponse> getPostsByCriteria(
+            String title, String username, LocalDate dateFrom,
+            LocalDate dateTo, List<String> tags, String category
+    );
 
-    List<Post> getAllPost();
+    List<BriefPostResponse> getAllPost();
 
-    Post getPostById(Long postId);
+    Post getPostById(int postId);
 
-    void likePost(Long postId, String username);
+    String likePost(int postId, User user);
 
-    List<Post> searchPost(String name, String postedBy, LocalDate date, List<String> tags);
+    void updatePost(int postId, PostUpdateRequest request, User user);
 
-    List<Post> searchByLikeCount(int minLikes, int maxLikes);
-
-    Post updatePost(Long postId, Post post, String username);
-
-    void deletePost(Long postId);
-
-
+    void deletePost(int postId, User user);
 }
