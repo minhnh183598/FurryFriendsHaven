@@ -135,6 +135,10 @@ public class CommentServiceImpl implements CommentService {
         }
         List<Comment> comments = commentRepository.findCommentByIssueId(issueId);
 
+        if(comments.isEmpty()) {
+            throw new AppException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+
         return comments.stream()
                 .map(comment -> CommentResponse.builder()
                         .id(comment.getId())

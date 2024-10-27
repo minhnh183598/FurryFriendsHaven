@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
@@ -51,4 +52,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "FROM Post p WHERE p.nickname = :nickname AND p.username != :username")
     boolean existsByNicknameAndDifferentUsername(@Param("nickname") String nickname,
                                                  @Param("username") String username);
+
+    @Query("SELECT p FROM Post p WHERE p.id = ?1")
+    Optional<Post> findPostById(int postId);
 }

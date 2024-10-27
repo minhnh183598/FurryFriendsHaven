@@ -1,5 +1,7 @@
 package org.demo.huyminh.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -56,6 +58,10 @@ public class Post {
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     List<Tag> tags;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<Comment> comments;
 
     @Override
     public String toString() {

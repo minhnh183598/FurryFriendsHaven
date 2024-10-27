@@ -120,9 +120,10 @@ public enum ErrorCode {
     NICKNAME_WAS_ALREADY_TAKEN(HttpStatus.BAD_REQUEST.value(), "Nickname was already taken. Please choose another nickname", HttpStatus.BAD_REQUEST),
     INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST.value(), "Invalid date range", HttpStatus.BAD_REQUEST),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "Post not found", HttpStatus.NOT_FOUND),
-    USER_HAD_LIKED_POST(HttpStatus.BAD_REQUEST.value(), "User had liked post", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED_TO_DELETE_POST(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this post", HttpStatus.FORBIDDEN),
-    UNAUTHORIZED_TO_UPDATE_POST(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this post", HttpStatus.FORBIDDEN),;
+    UNAUTHORIZED_TO_UPDATE_POST(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this post", HttpStatus.FORBIDDEN),
+    COMMENT_NOT_IN_POST(HttpStatus.BAD_REQUEST.value(), "Comment not in post", HttpStatus.BAD_REQUEST),
+    ;
 
     private int code;
     private String message;
