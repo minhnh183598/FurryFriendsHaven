@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,7 +33,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     //CREATE APPLICATION
     @Override
-    public Application submitApplication(String userId ,String petId, String fullName, int yob, String gender, String address, String city, String job, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone, String liveIn, String liveWith, String firstPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String firstPhone, String secondPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String secondPhone) {
+    public Application submitApplication(String userId , String petId, String fullName, int yob, String gender, String address, String city, String job, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone, String liveIn, String liveWith, String firstPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String firstPhone, String secondPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String secondPhone, Date dateIn, String timeIn, String timeOut) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Pet not found"));
         User user = userRepository.findById(userId)
@@ -62,6 +59,9 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setFirstPhone(firstPhone);
         application.setSecondPerson(secondPerson);
         application.setSecondPhone(secondPhone);
+        application.setDateIn(dateIn);
+        application.setTimeIn(timeIn);
+        application.setTimeOut(timeOut);
 
         return applicationRepository.save(application);
     }
@@ -193,6 +193,10 @@ public class ApplicationServiceImpl implements ApplicationService {
             application.setFirstPhone(request.getFirstPhone());
             application.setSecondPerson(request.getSecondPerson());
             application.setSecondPhone(request.getSecondPhone());
+            application.setDateIn(request.getDateIn());
+            application.setTimeIn(request.getTimeIn());
+            application.setTimeOut(request.getTimeOut());
+
             return applicationRepository.save(application);
         }
         else{

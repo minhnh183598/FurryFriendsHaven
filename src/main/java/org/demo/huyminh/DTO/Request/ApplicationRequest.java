@@ -13,6 +13,9 @@ import lombok.experimental.FieldDefaults;
 import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Entity.User;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Data
 @Builder
@@ -45,6 +48,11 @@ public class ApplicationRequest {
     @Column(unique = true)
     String secondPhone;
     int status = 0;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    Date dateIn;
+    String timeIn;
+    String timeOut;
 
     @ManyToOne
     @JoinColumn(name = "petId", referencedColumnName = "petId", insertable = false, updatable = false)

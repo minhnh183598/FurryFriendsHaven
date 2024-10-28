@@ -36,7 +36,7 @@ public class ApplicationController {
                 request.getGender(),request.getAddress(),request.getCity(),
                 request.getJob(),request.getPhone(),request.getLiveIn(),request.getLiveWith(),
                 request.getFirstPerson(),request.getFirstPhone(),request.getSecondPerson(),
-                request.getSecondPhone());
+                request.getSecondPhone(),request.getDateIn(), request.getTimeIn(),request.getTimeOut());
 
         return new ResponseEntity<>(application, HttpStatus.CREATED);
     }
