@@ -2,10 +2,7 @@ package org.demo.huyminh.Service;
 
 import org.demo.huyminh.DTO.Reponse.BriefTaskResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
-import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
-import org.demo.huyminh.DTO.Request.InvitationEventData;
-import org.demo.huyminh.DTO.Request.TaskCreationRequest;
-import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
+import org.demo.huyminh.DTO.Request.*;
 import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Enums.Status;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +31,8 @@ public interface TaskService {
     void deleteTask(int taskId, User user);
 
     TaskResponse updateTask(TaskUpdateRequest updatedTask, User user);
+
+    TaskResponse updateSimpleTask(BriefUpdateTaskRequest updatedTask, int taskId, User user);
 
     void changeStatus(int taskId, String status, User user);
 

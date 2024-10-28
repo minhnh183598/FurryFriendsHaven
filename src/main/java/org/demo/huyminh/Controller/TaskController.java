@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
 import org.demo.huyminh.DTO.Reponse.BriefTaskResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
+import org.demo.huyminh.DTO.Request.BriefUpdateTaskRequest;
 import org.demo.huyminh.DTO.Request.InvitationEventData;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
@@ -120,6 +121,22 @@ public class TaskController {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
         TaskResponse updatedProject = taskService.updateTask(task, user);
+        return ApiResponse.<TaskResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update task successfully")
+                .result(updatedProject)
+                .build();
+    }
+
+    @PutMapping("{taskId}")
+    public ApiResponse<TaskResponse> updateSimpleTask(
+            @PathVariable int taskId,
+            @RequestBody BriefUpdateTaskRequest task,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
+        TaskResponse updatedProject = taskService.updateSimpleTask(task, taskId, user);
         return ApiResponse.<TaskResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("Update task successfully")

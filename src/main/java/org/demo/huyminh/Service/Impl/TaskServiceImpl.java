@@ -6,10 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.BriefIssueResponse;
 import org.demo.huyminh.DTO.Reponse.BriefTaskResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
-import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
-import org.demo.huyminh.DTO.Request.InvitationEventData;
-import org.demo.huyminh.DTO.Request.TaskCreationRequest;
-import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
+import org.demo.huyminh.DTO.Request.*;
 import org.demo.huyminh.Entity.*;
 import org.demo.huyminh.Enums.InvitationStatus;
 import org.demo.huyminh.Enums.Roles;
@@ -20,7 +17,6 @@ import org.demo.huyminh.Mapper.FeedbackMapper;
 import org.demo.huyminh.Mapper.TaskMapper;
 import org.demo.huyminh.Mapper.UserMapper;
 import org.demo.huyminh.Repository.*;
-import org.demo.huyminh.Service.FeedbackService;
 import org.demo.huyminh.Service.RoleService;
 import org.demo.huyminh.Service.TaskService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,8 +46,6 @@ public class TaskServiceImpl implements TaskService {
     TagRepository tagRepository;
     UserMapper userMapper;
     FeedbackMapper feedbackMapper;
-    FeedbackService feedbackService;
-    FeedbackRepository feedbackRepository;
     InvitationRepository invitationRepository;
     RoleService roleService;
 
@@ -91,7 +85,7 @@ public class TaskServiceImpl implements TaskService {
         for (Tag tag : task.getTags()) {
             Optional<Tag> existingTag = tagRepository.findById(tag.getName());
 
-            if (!existingTag.isEmpty() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
+            if (existingTag.isPresent() && existingTag.get().getType().equals(Tag.TagType.TASK_LABEL)) {
                 existingTags.add(existingTag.get());
             }
         }
@@ -254,14 +248,13 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
 
         if (!(task.getOwner().equals(existingUser))) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+            throw new AppException(ErrorCode.UNAUTHORIZED_TO_UPDATE_TASK);
         }
 
         Task updateTask = taskMapper.updateTask(updatedTask);
         if (updateTask.getDueDate().isBefore(LocalDateTime.now())) {
             throw new AppException(ErrorCode.INVALID_DUE_DATE);
         }
-        log.info("Update Task: " + updateTask);
         updateTask.setTeam(task.getTeam());
         updateTask.setIssues(task.getIssues());
         updateTask.setOwner(task.getOwner());
@@ -281,11 +274,30 @@ public class TaskServiceImpl implements TaskService {
         }
         Task savedTask = taskRepository.save(updateTask);
 
-        TaskResponse taskResponse = taskMapper.toTaskResponse(savedTask);
-        taskResponse.setOwner(userMapper.toUserResponseForTask(savedTask.getOwner()));
-        taskResponse.setTeam(savedTask.getTeam().stream().map(userMapper::toUserResponseForTask).collect(Collectors.toList()));
-        taskResponse.setTags(taskMapper.mapTagsToString(savedTask.getTags()));
+        return toTaskResponse(savedTask);
+    }
 
+    @Transactional
+    @Override
+    public TaskResponse updateSimpleTask(BriefUpdateTaskRequest updateTask, int taskId, User user) {
+        Task existingtask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_EXISTS));
+
+        if (!existingtask.getOwner().equals(user)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_TO_UPDATE_TASK);
+        }
+
+        existingtask.setDescription(updateTask.getDescription());
+        Task savedTask = taskRepository.save(existingtask);
+
+        return toTaskResponse(savedTask);
+    }
+
+    private TaskResponse toTaskResponse(Task task) {
+        TaskResponse taskResponse = taskMapper.toTaskResponse(task);
+        taskResponse.setOwner(userMapper.toUserResponseForTask(task.getOwner()));
+        taskResponse.setTeam(task.getTeam().stream().map(userMapper::toUserResponseForTask).toList());
+        taskResponse.setTags(taskMapper.mapTagsToString(task.getTags()));
         return taskResponse;
     }
 
@@ -402,7 +414,6 @@ public class TaskServiceImpl implements TaskService {
         return taskResponses;
     }
 
-    @PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
     @Override
     public List<BriefTaskResponse> getAllTasks() {
         List<Task> tasks = taskRepository.findAll();
@@ -423,7 +434,6 @@ public class TaskServiceImpl implements TaskService {
         return taskResponses;
     }
 
-    @PreAuthorize("hasRole('ADMIN') || hasRole('VOLUNTEER')")
     @Override
     public InvitationEventData inviteUserToTask(int taskId, String username, User user) {
         Task task = taskRepository.findById(taskId)

@@ -123,7 +123,7 @@ public enum ErrorCode {
     UNAUTHORIZED_TO_DELETE_POST(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this post", HttpStatus.FORBIDDEN),
     UNAUTHORIZED_TO_UPDATE_POST(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this post", HttpStatus.FORBIDDEN),
     COMMENT_NOT_IN_POST(HttpStatus.BAD_REQUEST.value(), "Comment not in post", HttpStatus.BAD_REQUEST),
-    ;
+    UNAUTHORIZED_TO_UPDATE_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this task", HttpStatus.FORBIDDEN),;
 
     private int code;
     private String message;
