@@ -88,19 +88,20 @@ public class FeedbackController {
                 .build();
     }
 
-    @GetMapping("/pet/{petId}")
+    @GetMapping("/search")
     public ApiResponse<List<FeedbackResponse>> getAllFeedbackByPetId(
-            @PathVariable String petId,
+            @RequestParam(value = "petName", required = false) String petName,
+            @RequestParam(value = "sortBy", defaultValue = "RATING") String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "DESC") String sortDir,
             @RequestHeader("Authorization") String token
     ) {
         String jwt = token.substring(7);
         User user = userService.findByToken(jwt);
-        log.info("Hello, I'm here 🐳");
 
         return ApiResponse.<List<FeedbackResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Get feedbacks successfully")
-                .result(feedbackService.getHighRatingApplication(petId, user))
+                .result(feedbackService.getHighRatingApplication(petName, sortBy, sortDir, user))
                 .build();
     }
 }

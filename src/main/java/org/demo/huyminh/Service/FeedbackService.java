@@ -19,7 +19,7 @@ public interface FeedbackService {
 
     List<FeedbackResponse> getPotentialAdopters(double minRating);
 
-    List<FeedbackResponse> getHighRatingApplication(String petId, User user);
+    List<FeedbackResponse> getHighRatingApplication(String petId, String sortBy, String sortDir, User user);
 
     List<FeedbackResponse> getFeedbacksByTaskId(int taskId);
 

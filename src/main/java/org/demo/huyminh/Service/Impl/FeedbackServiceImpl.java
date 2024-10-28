@@ -16,6 +16,7 @@ import org.demo.huyminh.Repository.*;
 import org.demo.huyminh.Service.FeedbackService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class FeedbackServiceImpl implements FeedbackService {
             throw new AppException(ErrorCode.USER_NOT_IN_TEAM);
         }
 
-        if(task.getStatus().equals(Status.NOT_STARTED)) {
+        if (task.getStatus().equals(Status.NOT_STARTED)) {
             throw new AppException(ErrorCode.CANNOT_CREATE_FEEDBACK);
         }
 
@@ -102,16 +103,29 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public List<FeedbackResponse> getHighRatingApplication(String petId, User user) {
-        petRepository.findById(petId)
-                .orElseThrow(() -> new AppException(ErrorCode.PET_NOT_FOUND));
+    public List<FeedbackResponse> getHighRatingApplication(String petName, String sortBy, String sortDir, User user) {
+        if (sortBy == null || !sortBy.equalsIgnoreCase("rating")) {
+            sortBy = "RATING";
+        }
 
-        List<FeedbackResponse> feedbacks = ratingRepository.findTopRatings(petId)
-                .stream()
-                .map(newRating -> feedbackMapper.toFeedbackResponse(newRating.getFeedback()))
-                .toList();
+        if (sortDir == null || (!sortDir.equalsIgnoreCase("asc") && !sortDir.equalsIgnoreCase("desc"))) {
+            sortDir = "DESC";
+        }
 
-        return feedbacks;
+        if (petName == null || petName.isEmpty()) {
+            return ratingRepository.findTopRatings(null, sortBy.toUpperCase(), sortDir.toUpperCase())
+                    .stream()
+                    .map(newRating -> feedbackMapper.toFeedbackResponse(newRating.getFeedback()))
+                    .toList();
+        } else {
+            Pet existingPet = petRepository.findByPetName(petName)
+                    .orElseThrow(() -> new AppException(ErrorCode.PET_NOT_FOUND));
+
+            return ratingRepository.findTopRatings(existingPet.getPetId(), sortBy.toUpperCase(), sortDir.toUpperCase())
+                    .stream()
+                    .map(newRating -> feedbackMapper.toFeedbackResponse(newRating.getFeedback()))
+                    .toList();
+        }
     }
 
     @Override
