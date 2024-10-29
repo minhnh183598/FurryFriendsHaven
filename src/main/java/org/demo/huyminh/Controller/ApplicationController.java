@@ -22,10 +22,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/applications")
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-@Slf4j
 public class ApplicationController {
     ApplicationService applicationService;
-    PetRepository petRepository;
     UserService userService;
 
     //Create Application
