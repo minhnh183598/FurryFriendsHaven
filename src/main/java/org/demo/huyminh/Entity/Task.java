@@ -6,7 +6,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.demo.huyminh.Enums.Status;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -65,7 +64,8 @@ public class Task {
     )
     List<User> team;
 
-    @OneToMany
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    @JsonIgnore
     List<Feedback> feedbacks;
 
     @OneToOne

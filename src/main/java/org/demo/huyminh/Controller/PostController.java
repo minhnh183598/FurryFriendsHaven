@@ -1,170 +1,143 @@
 package org.demo.huyminh.Controller;
 
-import jakarta.persistence.EntityNotFoundException;
-import org.demo.huyminh.Entity.Event;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.demo.huyminh.DTO.Reponse.ApiResponse;
+import org.demo.huyminh.DTO.Reponse.BriefPostResponse;
+import org.demo.huyminh.DTO.Reponse.PostResponse;
+import org.demo.huyminh.DTO.Request.PostCreationRequest;
+import org.demo.huyminh.DTO.Request.PostUpdateRequest;
 import org.demo.huyminh.Entity.Post;
+import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Service.PostService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
 
+/** @author Minh
+* Date: 10/27/2024
+* Time: 1:56 AM
+*/
+
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/posts")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PostController {
 
-    @Autowired
-    private PostService postService;
+    UserService userService;;
+    PostService postService;
 
     @PostMapping
-    public ResponseEntity<?> createPost(@RequestBody Post post) {
-        try {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();  // Lấy tên người dùng hiện tại
+    public ApiResponse<PostResponse> createPost(
+            @RequestBody PostCreationRequest request ,
+            @RequestHeader("Authorization") String token
+    ) {
+       String jwt = token.substring(7);
+       User user = userService.findByToken(jwt);
 
-            post.setPostedBy(username);
-            Post createdPost = postService.savePost(post,username);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // Trả về lỗi 400 nếu tag không hợp lệ
-        } catch (Exception e){
-            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping("/category/{category}")
-    public ResponseEntity<?> getPostByCategory(@PathVariable String category) {
-        try {
-            // Lấy tên người dùng hiện tại
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-
-            List<Post> posts = postService.getPostsByCategory(category);
-            if (posts.isEmpty()) {
-                // Nếu không có bài viết nào, trả về 200 OK với thông điệp
-                return ResponseEntity.status(HttpStatus.OK).body("No posts found for the given category.");
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(posts);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Post>> getAllPost() {
-        try {
-            // Lấy tên người dùng hiện tại
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName(); // Nếu cần sử dụng tên người dùng
-
-            return ResponseEntity.status(HttpStatus.OK).body(postService.getAllPost());
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+       return ApiResponse.<PostResponse>builder()
+               .code(HttpStatus.CREATED.value())
+               .message("Create post successfully")
+               .result(postService.createPost(request, user))
+               .build();
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPostById(@PathVariable Long postId) {
-        try {
-            // Lấy tên người dùng hiện tại
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName(); // Nếu cần sử dụng tên người dùng
-
-            Post post = postService.getPostById(postId);
-            return ResponseEntity.ok(post);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ApiResponse<Post> getPostById(@PathVariable int postId) {
+        return ApiResponse.<Post>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get posts successfully")
+                .result(postService.getPostById(postId))
+                .build();
     }
 
-    @PutMapping("/{postId}/like")
-    public ResponseEntity<?> likePost(@PathVariable Long postId) {
-        try {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();  // Lấy tên người dùng hiện tại
+    @GetMapping
+    public ApiResponse<List<BriefPostResponse>> getAllPosts() {
+        return ApiResponse.<List<BriefPostResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get posts successfully")
+                .result(postService.getAllPost())
+                .build();
+    }
 
-
-            postService.likePost(postId, username);  // Truyền tên người dùng vào method likePost
-            return ResponseEntity.ok(new String[]{"Post liked successfully."});
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    @GetMapping("/topLikedPosts")
+    public ApiResponse<List<BriefPostResponse>> getTopLikedPosts(
+            @RequestParam(value = "dateFrom", required = false) LocalDate dateFrom,
+            @RequestParam(value = "dateTo", required = false) LocalDate dateTo,
+            @RequestParam(value = "limit", defaultValue = "10") int limit
+    ) {
+        return ApiResponse.<List<BriefPostResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get top liked posts successfully")
+                .result(postService.findTopLikedPosts(dateFrom, dateTo, limit))
+                .build();
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Post>> searchPost(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String postedBy,
-            @RequestParam(required = false) LocalDate date,
-            @RequestParam(required = false) List<String> tags) {
-        try {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();  // Lấy tên người dùng hiện tại
-
-            List<Post> posts = postService.searchPost(name, postedBy, date, tags);
-            return ResponseEntity.ok(posts);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ApiResponse<List<BriefPostResponse>> getPostsByCriteria(
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "dateFrom", required = false) LocalDate dateFrom,
+            @RequestParam(value = "dateTo", required = false) LocalDate dateTo,
+            @RequestParam(value = "tags", required = false) List<String> tags,
+            @RequestParam(value = "category", required = false) String category
+    ) {
+        return ApiResponse.<List<BriefPostResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get posts successfully")
+                .result(postService.getPostsByCriteria(title, username, dateFrom, dateTo, tags, category))
+                .build();
     }
 
-    @GetMapping("/search-by-likes")
-    public ResponseEntity<List<Post>> searchByLikeCount(@RequestParam int minLikes, @RequestParam int maxLikes) {
-        try {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();  // Lấy tên người dùng hiện tại
+    @PutMapping("/{postId}/liked")
+    public ApiResponse<Void> likePost(
+            @PathVariable int postId,
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.substring(7);
+        User user = userService.findByToken(jwt);
 
-            List<Post> posts = postService.searchByLikeCount(minLikes, maxLikes);
-            return ResponseEntity.ok(posts);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        String message = postService.likePost(postId, user);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message(message)
+                .build();
+    }
+
+    @PutMapping("/{postId}")
+    public ApiResponse<Void> updatePost(
+            @PathVariable int postId,
+            @RequestBody PostUpdateRequest request,
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.substring(7);
+        User user = userService.findByToken(jwt);
+
+        postService.updatePost(postId, request, user);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update post successfully")
+                .build();
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> deletePost(@PathVariable Long postId) {
-        try {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
+    public ApiResponse<Void> deletePost(
+            @PathVariable int postId,
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.substring(7);
+        User user = userService.findByToken(jwt);
 
-            Post post = postService.getPostById(postId);
-
-            // Kiểm tra nếu người dùng hiện tại không phải là người tạo bài viết
-            if (!post.getPostedBy().equals(username)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to delete this post.");
-            }
-            postService.deletePost(postId);
-            return ResponseEntity.status(HttpStatus.OK).body("Post deleted successfully.");
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // Thêm hàm updatePost
-    @PutMapping("/{postId}")
-    public ResponseEntity<?> updatePost(@PathVariable Long postId, @RequestBody Post post) {
-        try {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-
-            Post existingPost = postService.getPostById(postId);
-
-            // Kiểm tra nếu người dùng hiện tại không phải là người tạo bài viết
-            if (!existingPost.getPostedBy().equals(username)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to update this post.");
-            }
-            Post updatedPost = postService.updatePost(postId, post, username);
-            return ResponseEntity.ok(updatedPost);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        postService.deletePost(postId, user);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Delete post successfully")
+                .build();
     }
 }

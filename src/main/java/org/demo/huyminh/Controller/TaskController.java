@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
 import org.demo.huyminh.DTO.Reponse.BriefTaskResponse;
 import org.demo.huyminh.DTO.Reponse.TaskResponse;
-import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
+import org.demo.huyminh.DTO.Request.BriefUpdateTaskRequest;
 import org.demo.huyminh.DTO.Request.InvitationEventData;
 import org.demo.huyminh.DTO.Request.TaskCreationRequest;
 import org.demo.huyminh.DTO.Request.TaskUpdateRequest;
@@ -73,7 +73,7 @@ public class TaskController {
 
     @GetMapping("/sort")
     public ApiResponse<List<BriefTaskResponse>> getTaskBySort(
-            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "category", required = false, defaultValue = "ALL") String category,
             @RequestParam(value = "status", required = false, defaultValue = "ALL") String status,
             @RequestParam(value = "dueDate", required = false) LocalDateTime dueDate,
             @RequestParam(value = "keyword", required = false) String keyword,
@@ -84,6 +84,10 @@ public class TaskController {
             taskStatus = null;
         } else {
             taskStatus = Status.fromString(status);
+        }
+
+        if (category == null || category.isEmpty() || "ALL".equalsIgnoreCase(category)) {
+            category = null;
         }
 
         List<BriefTaskResponse> tasks = taskService.searchAndSortTasks(category, taskStatus, dueDate, sort, keyword);
@@ -117,6 +121,22 @@ public class TaskController {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
         TaskResponse updatedProject = taskService.updateTask(task, user);
+        return ApiResponse.<TaskResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Update task successfully")
+                .result(updatedProject)
+                .build();
+    }
+
+    @PutMapping("{taskId}")
+    public ApiResponse<TaskResponse> updateSimpleTask(
+            @PathVariable int taskId,
+            @RequestBody BriefUpdateTaskRequest task,
+            @RequestHeader("Authorization") String jwt
+    ) {
+        String token = jwt.substring(7);
+        User user = userService.findByToken(token);
+        TaskResponse updatedProject = taskService.updateSimpleTask(task, taskId, user);
         return ApiResponse.<TaskResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("Update task successfully")
@@ -217,12 +237,11 @@ public class TaskController {
     public ApiResponse<Void> changeTaskStatus(
             @PathVariable("taskId") int taskId,
             @PathVariable("status") String status,
-            @RequestBody FeedbackCreationRequest feedback,
             @RequestHeader("Authorization") String jwt
     ) {
         String token = jwt.substring(7);
         User user = userService.findByToken(token);
-        taskService.changeStatus(taskId, status, feedback, user);
+        taskService.changeStatus(taskId, status, user);
         log.info("Change status successfully");
         log.info("User: {}", user);
         return ApiResponse.<Void>builder()

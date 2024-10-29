@@ -27,4 +27,7 @@ public interface TagRepository extends JpaRepository<Tag, String> {
     @Modifying
     @Query(value = "UPDATE tag SET name=:name, description=:description, type=:type WHERE name=:oldName", nativeQuery = true)
     void update(String name, String description, String type, String oldName);
+
+    @Query("SELECT t FROM Tag t WHERE t.type = ?1")
+    boolean existsByTagType(Tag.TagType type);
 }

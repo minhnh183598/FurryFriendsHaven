@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Data
@@ -49,7 +52,11 @@ public class Application {
     //status = 2 = Reject
     int status;
 
-    //Thoi gian update Status
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    Date dateIn;
+    String timeIn;
+    String timeOut;
+
     @UpdateTimestamp
     @Column(name = "update_status_at")
     private LocalDateTime updateAt;

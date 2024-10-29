@@ -7,8 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Builder
 @Data
@@ -38,6 +40,11 @@ public class ApplicationUpdateRequest {
     String secondPhone;
 
     int status;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    Date dateIn;
+    String timeIn;
+    String timeOut;
     
     @Column(name = "update_status_at")
     private LocalDateTime updateAt;

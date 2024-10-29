@@ -1,5 +1,6 @@
 package org.demo.huyminh.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,18 +27,23 @@ public class Image {
     String id;
 
     @Column(nullable = false)
-    private String imageUrl;
+    String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feedback_id", nullable = false)
-    private Feedback feedback;
+    @JoinColumn(name = "feedback_id")
+    @JsonIgnore
+    Feedback feedback;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    @JsonIgnore
+    Post post;
 
     @Override
     public String toString() {
         return "Image{" +
                 "id='" + id + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", feedback=" + feedback.getId() +
                 '}';
     }
 }

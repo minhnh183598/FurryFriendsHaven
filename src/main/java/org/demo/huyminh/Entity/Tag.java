@@ -25,22 +25,29 @@ public class Tag {
 
     @Id
     @Column(nullable = false, unique = true)
-    private String name;
+    String name;
 
     @JsonIgnore
     @Column(length = 255)
-    private String description;
+    String description;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TagType type;
+    TagType type;
 
     @ManyToMany
-    private Set<Task> tasks;
+    @JsonIgnore
+    Set<Task> tasks;
+
+    @ManyToMany
+    @JsonIgnore
+    Set<Post> posts;
 
     public enum TagType {
         TASK_LABEL,
-        ISSUE_LABEL
+        ISSUE_LABEL,
+        POST_LABEL,
+        EVENT_LABEL
     }
 }
 
