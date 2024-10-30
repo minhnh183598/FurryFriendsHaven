@@ -2,13 +2,15 @@ server:
   port: 8080
 
 spring:
+  config:
+    import: env.properties
   application:
     api-prefix: /api/v1
     name: FurryFriendsHaven
   datasource:
-    url: jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true;databaseName=PAWSHOP
-    username: sa
-    password: sa123456
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     hibernate:
@@ -19,8 +21,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: auzemon@gmail.com
-    password: kyklsjvpjjrrckgc
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
@@ -35,20 +37,20 @@ spring:
 
 outbound:
   identity:
-    client-id: "<CLIENT_ID>"
-    client-secret: "<CLIENT_SECRET>"
-    redirect-uri: "http://localhost:3000/login"
+    client-id: "${GOOGLE_CLIENT_ID}"
+    client-secret: "${GOOGLE_CLIENT_SECRET}"
+    redirect-uri: "${GOOGLE_REDIRECT_URL}"
 
 jwt:
-  signerKey: "tAP7OqwVvg3eWAB0/SNQyk/OmS3159XCWNgaLKjBlOKEVYF3pzb6GhbYWEcQnGwp"
+  signerKey: "${SIGNING_KEY}"
   valid-duration: 1
   refreshable-duration: 120
 
 payment:
   vnPay:
     url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-    tmnCode: 8IF4KYN0
-    secretKey: 3HH3SXZTJ0MLEFWM4C2CT4HHBHNLTDO6
+    tmnCode: ${VN_PAY_TMN_CODE}
+    secretKey: ${VN_PAY_SECRET_KEY}
     returnUrl: http://localhost:8080/api/v1/payment/vn-pay-callback
     version: 2.1.0
     command: pay
