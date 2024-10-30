@@ -4,6 +4,7 @@ import org.demo.huyminh.Entity.Rating;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 /**
@@ -29,8 +30,15 @@ public interface RatingRepository extends JpaRepository<Rating, Integer> {
     );
 
     @Query("SELECT r FROM Rating r " +
-            "Where r.application.petId=:petId " +
-            "ORDER BY r.averageRating DESC "
-    )
-    List<Rating> findTopRatings(@Param("petId") String petId);
+            "WHERE (:petId IS NULL OR r.application.petId = :petId) " +
+            "ORDER BY " +
+            "CASE WHEN :sortBy = 'RATING' AND :sortDir = 'DESC' THEN r.averageRating END DESC, " +
+            "CASE WHEN :sortBy = 'RATING' AND :sortDir = 'ASC' THEN r.averageRating END ASC, " +
+            "CASE WHEN :petId IS NULL AND :sortDir = 'DESC' THEN r.feedback.createdAt END DESC, " +
+            "CASE WHEN :petId IS NULL AND :sortDir = 'ASC' THEN r.feedback.createdAt END ASC")
+    List<Rating> findTopRatings(
+            @Param("petId") String petId,
+            @Param("sortBy") String sortBy,
+            @Param("sortDir") String sortDir
+    );
 }

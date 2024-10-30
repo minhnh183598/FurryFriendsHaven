@@ -35,7 +35,8 @@ public class Checklist {
     @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL)
     List<ChecklistItem> checklistItems;
 
-    @OneToOne
+    @ManyToOne
+    @JsonIgnore
     User assignee;
 
     @Override

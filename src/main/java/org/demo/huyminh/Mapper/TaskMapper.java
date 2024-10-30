@@ -35,6 +35,7 @@ public interface TaskMapper {
     @Mapping(target = "team", ignore = true)
     @Mapping(target = "feedbacks", ignore = true)
     @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "petName", ignore = true)
     TaskResponse toTaskResponse(Task task);
 
     @Mapping(target = "owner", ignore = true)

@@ -31,21 +31,24 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
     @Query("SELECT t FROM Task t WHERE (:category IS NULL OR t.category = :category) " +
             "AND (:status IS NULL OR t.status = :status) " +
             "AND (:dueDate IS NULL OR t.dueDate = :dueDate) " +
+            "AND (:keyword IS NULL OR t.name LIKE %:keyword%) " +
             "ORDER BY t.dueDate ASC")
     List<Task> findByFiltersAscOrder(
             @Param("category") String category,
             @Param("status") Status status,
-            @Param("dueDate") LocalDateTime dueDate
+            @Param("dueDate") LocalDateTime dueDate,
+            @Param("keyword") String keyword
     );
-
 
     @Query("SELECT t FROM Task t WHERE (:category IS NULL OR t.category = :category) " +
             "AND (:status IS NULL OR t.status = :status) " +
             "AND (:dueDate IS NULL OR t.dueDate = :dueDate) " +
+            "AND (:keyword IS NULL OR t.name LIKE %:keyword%) " +
             "ORDER BY t.dueDate DESC")
     List<Task> findByFiltersDescOrder(
             @Param("category") String category,
             @Param("status") Status status,
-            @Param("dueDate") LocalDateTime dueDate
+            @Param("dueDate") LocalDateTime dueDate,
+            @Param("keyword") String keyword
     );
 }

@@ -22,10 +22,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/applications")
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-@Slf4j
 public class ApplicationController {
     ApplicationService applicationService;
-    PetRepository petRepository;
+    UserService userService;
 
     //Create Application
     @PostMapping
@@ -35,15 +34,21 @@ public class ApplicationController {
                 request.getGender(),request.getAddress(),request.getCity(),
                 request.getJob(),request.getPhone(),request.getLiveIn(),request.getLiveWith(),
                 request.getFirstPerson(),request.getFirstPhone(),request.getSecondPerson(),
-                request.getSecondPhone());
+                request.getSecondPhone(),request.getDateIn(), request.getTimeIn(),request.getTimeOut());
 
         return new ResponseEntity<>(application, HttpStatus.CREATED);
     }
 
     //Update Application Status
     @PutMapping("status/{applicationId}")
-    Application updateApplicationStatus(@PathVariable("applicationId") String applicationId, @RequestBody ApplicationUpdateRequest request) {
-        return applicationService.updateApplicationStatus(applicationId, request);
+    Application updateApplicationStatus(
+            @PathVariable("applicationId") String applicationId,
+            @RequestBody ApplicationUpdateRequest request,
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.substring(7);
+        User user = userService.findByToken(jwt);
+        return applicationService.updateApplicationStatus(applicationId, request, user);
     }
 
     //Get List Application
