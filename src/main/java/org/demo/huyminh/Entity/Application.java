@@ -13,6 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Entity
@@ -54,8 +55,10 @@ public class Application {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     Date dateIn;
-    String timeIn;
-    String timeOut;
+    @DateTimeFormat(pattern = "HH:mm")
+    LocalTime timeIn;
+    @DateTimeFormat(pattern = "HH:mm")
+    LocalTime timeOut;
 
     @UpdateTimestamp
     @Column(name = "update_status_at")

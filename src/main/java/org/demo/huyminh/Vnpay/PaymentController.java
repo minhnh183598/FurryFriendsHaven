@@ -83,4 +83,15 @@ public class PaymentController {
         return new DonationResponse(userId, donations, totalAmount);
     }
 
+    @GetMapping("/all")
+    public AllDonation getAllDonation(){
+        List<Payment> donations = paymentRepository.findAll();
+        double totalDonation = 0.0;
+        for (Payment donation : donations) {
+            double amount = Double.parseDouble(donation.getAmount());
+            totalDonation += amount;
+        }
+        return new AllDonation(donations,totalDonation);
+    }
+
 }
