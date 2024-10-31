@@ -37,6 +37,7 @@ public class PostServiceImpl implements PostService {
     private static final List<String> VALID_CATEGORIES = Arrays.asList(
             "ANIMAL_RESCUE",
             "ADOPTION",
+            "EVENT",
             "FUNDRAISING",
             "VOLUNTEER"
     );

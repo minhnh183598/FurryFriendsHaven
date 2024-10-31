@@ -89,7 +89,7 @@ public class FeedbackController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<FeedbackResponse>> getAllFeedbackByPetId(
+    public ApiResponse<List<FeedbackResponse>> getAllFeedbackByPetName(
             @RequestParam(value = "petName", required = false) String petName,
             @RequestParam(value = "sortBy", defaultValue = "RATING") String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "DESC") String sortDir,

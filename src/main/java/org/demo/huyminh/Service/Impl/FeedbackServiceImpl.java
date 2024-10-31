@@ -16,8 +16,8 @@ import org.demo.huyminh.Repository.*;
 import org.demo.huyminh.Service.FeedbackService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -107,26 +107,37 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (sortBy == null || !sortBy.equalsIgnoreCase("rating")) {
             sortBy = "RATING";
         }
-
         if (sortDir == null || (!sortDir.equalsIgnoreCase("asc") && !sortDir.equalsIgnoreCase("desc"))) {
             sortDir = "DESC";
         }
 
+        List<FeedbackResponse> responses = new ArrayList<>();
         if (petName == null || petName.isEmpty()) {
-            return ratingRepository.findTopRatings(null, sortBy.toUpperCase(), sortDir.toUpperCase())
-                    .stream()
-                    .map(newRating -> feedbackMapper.toFeedbackResponse(newRating.getFeedback()))
+            List<Rating> ratings = ratingRepository.findTopRatings(null, sortBy.toUpperCase(), sortDir.toUpperCase());
+            responses = ratings.stream()
+                    .map(newRating -> {
+                        FeedbackResponse response = feedbackMapper.toFeedbackResponse(newRating.getFeedback());
+                        response.setTaskId(String.valueOf(newRating.getFeedback().getTask().getId()));
+                        response.setPetName(newRating.getApplication().getPet().getPetName());
+                        return response;
+                    })
                     .toList();
         } else {
             Pet existingPet = petRepository.findByPetName(petName)
                     .orElseThrow(() -> new AppException(ErrorCode.PET_NOT_FOUND));
-
-            return ratingRepository.findTopRatings(existingPet.getPetId(), sortBy.toUpperCase(), sortDir.toUpperCase())
-                    .stream()
-                    .map(newRating -> feedbackMapper.toFeedbackResponse(newRating.getFeedback()))
+            List<Rating> ratings = ratingRepository.findTopRatings(existingPet.getPetId(), sortBy.toUpperCase(), sortDir.toUpperCase());
+            responses = ratings.stream()
+                    .map(newRating -> {
+                        FeedbackResponse response = feedbackMapper.toFeedbackResponse(newRating.getFeedback());
+                        response.setTaskId(String.valueOf(newRating.getFeedback().getTask().getId()));
+                        response.setPetName(existingPet.getPetName());
+                        return response;
+                    })
                     .toList();
         }
+        return responses;
     }
+
 
     @Override
     public List<FeedbackResponse> getFeedbacksByTaskId(int taskId) {

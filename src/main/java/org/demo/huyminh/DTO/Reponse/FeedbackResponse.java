@@ -19,5 +19,7 @@ public class FeedbackResponse {
     LocalDateTime createdAt;
     List<String> images;
     UserResponse reporter;
+    String taskId;
+    String petName;
     Rating rating;
 }
