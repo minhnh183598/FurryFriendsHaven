@@ -22,12 +22,18 @@ public class VolunteerAppliController {
     //Creare Application
     @PostMapping
     public ResponseEntity<VolunteerApplication> createVolunterrAppli(@RequestBody @Valid VolunteerAppliCreationRequest request) {
-        VolunteerApplication application = volunteerService.createVolunteerAppli(request.getId(),
+        VolunteerApplication application = volunteerService.createVolunteerAppli(
+                request.getId(),
                 request.getFullName(), request.getYob(), request.getGender(),
                 request.getAddress(), request.getPhone(), request.getAdoptionExp(),
                 request.getDaysOfWeek(), request.getMorning(), request.getAfternoon(),
                 request.getReason());
         return new ResponseEntity<>(application, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/search")
+    public List<VolunteerApplication> searchByUsername(@RequestParam String fullName) {
+        return volunteerService.searchByFullName(fullName);
     }
 
     //GetAllApplication

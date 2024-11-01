@@ -2,7 +2,9 @@ package org.demo.huyminh.Service.Impl;
 
 import jakarta.validation.constraints.Pattern;
 import org.demo.huyminh.DTO.Request.VolunteerAppliUpdateRequest;
+import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Entity.VolunteerApplication;
+import org.demo.huyminh.Repository.UserRepository;
 import org.demo.huyminh.Repository.VolunteerRepository;
 import org.demo.huyminh.Service.VolunteerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +16,24 @@ public class VolunteerServiceImpl implements VolunteerService {
 
     @Autowired
     private VolunteerRepository volunteerRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     //CreateApplicaiton
     @Override
     public VolunteerApplication createVolunteerAppli(String userId, String fullName
             , int yob, String gender, String address
             , @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone
-            , String adoptionExp, String daysOfWeek, String morning, String afternoon, String reason) {
+            , String adoptionExp, String daysOfWeek, String morning,
+                                                     String afternoon, String reason) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
 
         VolunteerApplication application = new VolunteerApplication();
 
         application.setId(userId);
+        application.setUser(user);
         application.setFullName(fullName);
         application.setYob(yob);
         application.setGender(gender);
@@ -37,6 +46,10 @@ public class VolunteerServiceImpl implements VolunteerService {
         application.setReason(reason);
 
         return volunteerRepository.save(application);
+    }
+
+    public List<VolunteerApplication> searchByFullName(String fullName) {
+        return volunteerRepository.findByFullName(fullName);
     }
 
     //GetApplicationStatus = 0
