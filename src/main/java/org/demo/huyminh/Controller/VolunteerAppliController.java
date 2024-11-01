@@ -54,6 +54,12 @@ public class VolunteerAppliController {
         return volunteerService.getVolunteerApplicationsWithStatus2();
     }
 
+    //GetAllApplication
+    @GetMapping("status/all")
+    List<VolunteerApplication> getAllApplications(){
+        return volunteerService.getAllVolunteerApplications();
+    }
+
     //Update Application Status
     @PutMapping("status/{volunteerAppliId}")
     VolunteerApplication updateApplicationStatus(@PathVariable("volunteerAppliId") String volunteerAppliId, @RequestBody VolunteerAppliUpdateRequest request) {

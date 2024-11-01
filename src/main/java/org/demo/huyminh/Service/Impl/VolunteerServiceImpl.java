@@ -39,7 +39,7 @@ public class VolunteerServiceImpl implements VolunteerService {
         return volunteerRepository.save(application);
     }
 
-    //GetAllApplication
+    //GetApplicationStatus = 0
     @Override
     public List<VolunteerApplication> getVolunteerApplications() {
         return volunteerRepository.findByStatusOrderByCreateAtAsc(0);
@@ -56,6 +56,13 @@ public class VolunteerServiceImpl implements VolunteerService {
     public List<VolunteerApplication> getVolunteerApplicationsWithStatus2() {
         return volunteerRepository.findByStatusOrderByUpdateAtDesc(2);
     }
+
+
+    //Get All Volunteer Application
+    public List<VolunteerApplication> getAllVolunteerApplications(){
+        return volunteerRepository.findAll();
+    }
+
 
     //GetApplicaitonById
     @Override

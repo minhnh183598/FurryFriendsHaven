@@ -24,6 +24,8 @@ public interface VolunteerService {
 
     List<VolunteerApplication> getVolunteerApplicationsWithStatus2();
 
+    List<VolunteerApplication> getAllVolunteerApplications();
+
     VolunteerApplication getVolunteerApplication(String volunteerAppliId);
 
     VolunteerApplication updateVolunApplication(String volunteerAppliId, VolunteerAppliUpdateRequest request);
