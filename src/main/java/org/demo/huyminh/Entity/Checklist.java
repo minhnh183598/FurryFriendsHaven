@@ -36,7 +36,6 @@ public class Checklist {
     List<ChecklistItem> checklistItems;
 
     @ManyToOne
-    @JsonIgnore
     User assignee;
 
     @Override

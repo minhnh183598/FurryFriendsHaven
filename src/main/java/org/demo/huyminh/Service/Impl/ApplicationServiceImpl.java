@@ -12,7 +12,6 @@ import org.demo.huyminh.Service.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,7 +44,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = new Application();
         application.setId(userId);
         application.setUser(user);
-        application.setPetId(petId);
         application.setPet(pet);
         application.setFullName(fullName);
         application.setYob(yob);
@@ -85,7 +83,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .description("Visit the house of " + application.getFullName() + " to check whether it is suitable for adoption")
                     .status(Status.NOT_STARTED)
                     .category("Adoption")
-                    .dueDate(LocalDateTime.now().plusDays(7))
                     .owner(user)
                     .adopter(application.getUser())
                     .dueDate(application.getDateIn().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())

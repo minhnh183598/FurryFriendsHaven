@@ -1,5 +1,6 @@
 package org.demo.huyminh.Repository;
 
+import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Entity.Rating;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -30,7 +31,7 @@ public interface RatingRepository extends JpaRepository<Rating, Integer> {
     );
 
     @Query("SELECT r FROM Rating r " +
-            "WHERE (:petId IS NULL OR r.application.petId = :petId) " +
+            "WHERE (:petId IS NULL OR r.application.pet.petId = :petId) " +
             "ORDER BY " +
             "CASE WHEN :sortBy = 'RATING' AND :sortDir = 'DESC' THEN r.averageRating END DESC, " +
             "CASE WHEN :sortBy = 'RATING' AND :sortDir = 'ASC' THEN r.averageRating END ASC, " +
@@ -41,4 +42,11 @@ public interface RatingRepository extends JpaRepository<Rating, Integer> {
             @Param("sortBy") String sortBy,
             @Param("sortDir") String sortDir
     );
+
+    @Query("SELECT COUNT(r.application.pet.petName) FROM Rating r " +
+            "WHERE (:petName IS NULL OR r.application.pet.petName = :petName)")
+    int countDistinctPetsWithFeedback(@Param("petName") String petName);
+
+    @Query("SELECT DISTINCT r.application.pet FROM Rating r")
+    List<Pet> findAvailablePets();
 }

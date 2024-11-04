@@ -19,21 +19,21 @@ import java.time.LocalDateTime;
 public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String petId;
-    private String petName;
-    private String petType;
-    private String petAge;
-    private String petBreed;
-    private String petColor;
-    private String petDescription;
-    private String petSize;
-    private float petWeight;
-    private String petGender;
-    private String petVaccin;
-    private String petStatus;
-    private String petImage;
+    String petId;
+    String petName;
+    String petType;
+    String petAge;
+    String petBreed;
+    String petColor;
+    String petDescription;
+    String petSize;
+    float petWeight;
+    String petGender;
+    String petVaccin;
+    String petStatus;
+    String petImage;
 
     @CreationTimestamp
     @Column(name = "created_pet_at")
-    private LocalDateTime createdPetAt;
+    LocalDateTime createdPetAt;
 }

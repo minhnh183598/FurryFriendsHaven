@@ -26,8 +26,6 @@ public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String applicationId;
-
-    String petId;
     String id;
 
     String fullName;
@@ -72,6 +70,7 @@ public class Application {
 
     @ManyToOne
     @JoinColumn(name = "petId", referencedColumnName = "petId", insertable = false, updatable = false)
+    @JsonIgnore
     Pet pet;
 
     @OneToOne(cascade = CascadeType.ALL, optional = true)
@@ -81,7 +80,7 @@ public class Application {
     public String toString() {
         return "Application{" +
                 "applicationId='" + applicationId + '\'' +
-                ", petId='" + petId + '\'' +
+                ", petId='" + pet.getPetId() + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", status=" + status +
                 ", userId=" + (user != null ? user.getId() : "null") +

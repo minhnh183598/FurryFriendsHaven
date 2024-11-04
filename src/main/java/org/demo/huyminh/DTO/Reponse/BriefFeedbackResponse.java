@@ -14,14 +14,11 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FeedbackResponse {
-    int id;
-    String content;
-    LocalDateTime editedAt;
-    LocalDateTime createdAt;
-    List<String> images;
-    UserResponse reporter;
-    String taskId;
-    String petName;
-    Rating rating;
+public class BriefFeedbackResponse {
+
+    int taskId;
+    String adopterName;
+    double rating;
+    LocalDateTime feedbackFinishedAt;
+    LocalDateTime taskCreatedAt;
 }

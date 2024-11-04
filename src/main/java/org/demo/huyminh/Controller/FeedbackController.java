@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.ApiResponse;
+import org.demo.huyminh.DTO.Reponse.BriefFeedbackResponse;
 import org.demo.huyminh.DTO.Reponse.FeedbackResponse;
+import org.demo.huyminh.DTO.Reponse.PetFeedbackResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Service.FeedbackService;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 /**
@@ -56,6 +57,15 @@ public class FeedbackController {
                 .build();
     }
 
+    @GetMapping("/getAvailableFeedbacks")
+    public ApiResponse<List<PetFeedbackResponse>> getAvailableFeedbacks() {
+        return ApiResponse.<List<PetFeedbackResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get feedbacks successfully")
+                .result(feedbackService.getAvailablePets())
+                .build();
+    }
+
     @DeleteMapping("/{feedbackId}/task/{taskId}")
     public ApiResponse<Void> deleteFeedback(
             @PathVariable int feedbackId,
@@ -89,7 +99,7 @@ public class FeedbackController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<FeedbackResponse>> getAllFeedbackByPetName(
+    public ApiResponse<List<BriefFeedbackResponse>> getAllFeedbackByPetName(
             @RequestParam(value = "petName", required = false) String petName,
             @RequestParam(value = "sortBy", defaultValue = "RATING") String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "DESC") String sortDir,
@@ -98,7 +108,7 @@ public class FeedbackController {
         String jwt = token.substring(7);
         User user = userService.findByToken(jwt);
 
-        return ApiResponse.<List<FeedbackResponse>>builder()
+        return ApiResponse.<List<BriefFeedbackResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Get feedbacks successfully")
                 .result(feedbackService.getHighRatingApplication(petName, sortBy, sortDir, user))

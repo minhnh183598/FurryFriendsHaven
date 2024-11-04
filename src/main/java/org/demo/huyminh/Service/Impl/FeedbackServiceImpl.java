@@ -4,7 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.demo.huyminh.DTO.Reponse.BriefFeedbackResponse;
 import org.demo.huyminh.DTO.Reponse.FeedbackResponse;
+import org.demo.huyminh.DTO.Reponse.PetFeedbackResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.Entity.*;
 import org.demo.huyminh.Enums.Status;
@@ -92,6 +94,19 @@ public class FeedbackServiceImpl implements FeedbackService {
         return response;
     }
 
+    @Override
+    public List<PetFeedbackResponse> getAvailablePets() {
+        List<Pet> pets = ratingRepository.findAvailablePets();
+        return pets.stream()
+                .map(pet -> PetFeedbackResponse.builder()
+                        .petId(pet.getPetId())
+                        .petName(pet.getPetName())
+                        .petStatus(pet.getPetStatus())
+                        .feedbackCount(ratingRepository.countDistinctPetsWithFeedback(pet.getPetName()))
+                        .build())
+                .toList();
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     public List<FeedbackResponse> getPotentialAdopters(double minRating) {
@@ -103,7 +118,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public List<FeedbackResponse> getHighRatingApplication(String petName, String sortBy, String sortDir, User user) {
+    public List<BriefFeedbackResponse> getHighRatingApplication(String petName, String sortBy, String sortDir, User user) {
         if (sortBy == null || !sortBy.equalsIgnoreCase("rating")) {
             sortBy = "RATING";
         }
@@ -111,15 +126,18 @@ public class FeedbackServiceImpl implements FeedbackService {
             sortDir = "DESC";
         }
 
-        List<FeedbackResponse> responses = new ArrayList<>();
+        List<BriefFeedbackResponse> responses = new ArrayList<>();
         if (petName == null || petName.isEmpty()) {
             List<Rating> ratings = ratingRepository.findTopRatings(null, sortBy.toUpperCase(), sortDir.toUpperCase());
             responses = ratings.stream()
                     .map(newRating -> {
-                        FeedbackResponse response = feedbackMapper.toFeedbackResponse(newRating.getFeedback());
-                        response.setTaskId(String.valueOf(newRating.getFeedback().getTask().getId()));
-                        response.setPetName(newRating.getApplication().getPet().getPetName());
-                        return response;
+                        return BriefFeedbackResponse.builder()
+                            .taskId(newRating.getFeedback().getTask().getId())
+                            .adopterName(newRating.getApplication().getUser().getUsername())
+                            .rating(newRating.getAverageRating())
+                            .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
+                            .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
+                            .build();
                     })
                     .toList();
         } else {
@@ -128,10 +146,13 @@ public class FeedbackServiceImpl implements FeedbackService {
             List<Rating> ratings = ratingRepository.findTopRatings(existingPet.getPetId(), sortBy.toUpperCase(), sortDir.toUpperCase());
             responses = ratings.stream()
                     .map(newRating -> {
-                        FeedbackResponse response = feedbackMapper.toFeedbackResponse(newRating.getFeedback());
-                        response.setTaskId(String.valueOf(newRating.getFeedback().getTask().getId()));
-                        response.setPetName(existingPet.getPetName());
-                        return response;
+                    return BriefFeedbackResponse.builder()
+                        .taskId(newRating.getFeedback().getTask().getId())
+                        .adopterName(newRating.getApplication().getUser().getUsername())
+                        .rating(newRating.getAverageRating())
+                        .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
+                        .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
+                        .build();
                     })
                     .toList();
         }
