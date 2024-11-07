@@ -3,10 +3,7 @@ package org.demo.huyminh.DTO.Reponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.demo.huyminh.Entity.Rating;
-
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,6 +16,7 @@ public class BriefFeedbackResponse {
     int taskId;
     String adopterName;
     double rating;
+    String applicationId;
     LocalDateTime feedbackFinishedAt;
     LocalDateTime taskCreatedAt;
 }

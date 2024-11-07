@@ -18,6 +18,7 @@ import org.demo.huyminh.Repository.*;
 import org.demo.huyminh.Service.FeedbackService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -132,12 +133,13 @@ public class FeedbackServiceImpl implements FeedbackService {
             responses = ratings.stream()
                     .map(newRating -> {
                         return BriefFeedbackResponse.builder()
-                            .taskId(newRating.getFeedback().getTask().getId())
-                            .adopterName(newRating.getApplication().getUser().getUsername())
-                            .rating(newRating.getAverageRating())
-                            .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
-                            .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
-                            .build();
+                                .taskId(newRating.getFeedback().getTask().getId())
+                                .adopterName(newRating.getApplication().getUser().getUsername())
+                                .rating(newRating.getAverageRating())
+                                .applicationId(newRating.getApplication().getId())
+                                .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
+                                .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
+                                .build();
                     })
                     .toList();
         } else {
@@ -146,13 +148,14 @@ public class FeedbackServiceImpl implements FeedbackService {
             List<Rating> ratings = ratingRepository.findTopRatings(existingPet.getPetId(), sortBy.toUpperCase(), sortDir.toUpperCase());
             responses = ratings.stream()
                     .map(newRating -> {
-                    return BriefFeedbackResponse.builder()
-                        .taskId(newRating.getFeedback().getTask().getId())
-                        .adopterName(newRating.getApplication().getUser().getUsername())
-                        .rating(newRating.getAverageRating())
-                        .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
-                        .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
-                        .build();
+                        return BriefFeedbackResponse.builder()
+                                .taskId(newRating.getFeedback().getTask().getId())
+                                .adopterName(newRating.getApplication().getUser().getUsername())
+                                .rating(newRating.getAverageRating())
+                                .applicationId(newRating.getApplication().getId())
+                                .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
+                                .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
+                                .build();
                     })
                     .toList();
         }

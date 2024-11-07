@@ -1,6 +1,7 @@
 package org.demo.huyminh.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -11,7 +12,6 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -22,12 +22,14 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "application")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String applicationId;
     String id;
 
+    String petId;
     String fullName;
     int yob;
     String gender;
@@ -70,7 +72,6 @@ public class Application {
 
     @ManyToOne
     @JoinColumn(name = "petId", referencedColumnName = "petId", insertable = false, updatable = false)
-    @JsonIgnore
     Pet pet;
 
     @OneToOne(cascade = CascadeType.ALL, optional = true)

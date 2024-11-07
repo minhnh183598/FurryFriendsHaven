@@ -27,9 +27,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Autowired
     private TaskRepository taskRepository;
     @Autowired
-    private ChecklistTemplateRepository checklistTemplateRepository;
-    @Autowired
-    private ChecklistRepository checklistRepository;
+    private RatingRepository ratingRepository;
 
     //CREATE APPLICATION
     @Override
@@ -43,6 +41,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         Application application = new Application();
         application.setId(userId);
+        application.setPetId(petId);
         application.setUser(user);
         application.setPet(pet);
         application.setFullName(fullName);
@@ -94,35 +93,19 @@ public class ApplicationServiceImpl implements ApplicationService {
             newTask.getTeam().add(user);
             Task savedTask = taskRepository.save(newTask);
 
-            ChecklistTemplate template = checklistTemplateRepository.findByName("Adoption")
-                    .orElseThrow(() -> new AppException(ErrorCode.CHECKLIST_TEMPLATE_NOT_EXISTS));
-            Checklist checklist = Checklist.builder()
-                    .task(savedTask)
-                    .checklistItems(new ArrayList<>())
-                    .build();
-
-            Checklist savedChecklist = checklistRepository.save(checklist);
-
-            List<ChecklistItem> checklistItems = new ArrayList<>();
-            for (ChecklistItemTemplate itemTemplate : template.getItems()) {
-                ChecklistItem item = ChecklistItem.builder()
-                        .entry(itemTemplate.getEntry())
-                        .completed(false)
-                        .checklist(savedChecklist)
-                        .build();
-                checklistItems.add(item);
-            }
-            savedChecklist.setChecklistItems(checklistItems);
-            checklistRepository.save(savedChecklist);
-
-            savedTask.setChecklist(savedChecklist);
-            savedTask = taskRepository.save(savedTask);
-
             user.getTasks().add(savedTask);
             userRepository.save(user);
 
             application.setTask(savedTask);
             applicationRepository.save(application);
+        } else if (savedApplication.getStatus() == 3) {
+            List<Application> applications = applicationRepository.findApplicationByPetId(application.getPetId());
+            for (Application app : applications) {
+                if (!app.getApplicationId().equalsIgnoreCase(application.getApplicationId())) {
+                    app.setStatus(2);
+                    applicationRepository.save(app);
+                }
+            }
         }
 
         return savedApplication;
