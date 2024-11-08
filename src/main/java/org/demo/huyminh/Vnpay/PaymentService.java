@@ -10,6 +10,8 @@ import org.demo.huyminh.Service.UserService;
 import org.demo.huyminh.Util.VNPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -54,5 +56,8 @@ public class PaymentService {
 
     public void savePayment(Payment payment) {
         paymentRepository.save(payment);
+    }
+    public List<Payment> getAllDonation(){
+        return paymentRepository.findAll();
     }
 }

@@ -4,6 +4,7 @@ import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
 import org.demo.huyminh.Entity.Application;
 import org.demo.huyminh.Entity.User;
 
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,7 @@ public interface ApplicationService {
     Application submitApplication(
             String userId, String petId, String fullName, int yob, String gender, String address,
             String city, String job, String phone, String liveIn, String liveWith, String firstPerson,
-            String firstPhone, String secondPerson, String secondPhone, Date dateIn, String timeIn, String timeOut
+            String firstPhone, String secondPerson, String secondPhone, Date dateIn, LocalTime timeIn, LocalTime timeOut
     );
 
     Application updateApplicationStatus(String applicationId, ApplicationUpdateRequest request, User user);

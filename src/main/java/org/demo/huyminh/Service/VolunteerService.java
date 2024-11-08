@@ -20,9 +20,13 @@ public interface VolunteerService {
 
     List<VolunteerApplication> getVolunteerApplications();
 
+    List<VolunteerApplication> searchByFullName(String fullName);
+
     List<VolunteerApplication> getVolunteerApplicationsWithStatus1();
 
     List<VolunteerApplication> getVolunteerApplicationsWithStatus2();
+
+    List<VolunteerApplication> getAllVolunteerApplications();
 
     VolunteerApplication getVolunteerApplication(String volunteerAppliId);
 

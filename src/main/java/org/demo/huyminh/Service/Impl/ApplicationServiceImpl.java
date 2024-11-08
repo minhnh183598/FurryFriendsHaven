@@ -5,13 +5,13 @@ import jakarta.validation.constraints.Pattern;
 import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
 import org.demo.huyminh.Entity.*;
 import org.demo.huyminh.Enums.Status;
-import org.demo.huyminh.Exception.AppException;
-import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Repository.*;
 import org.demo.huyminh.Service.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,7 +31,13 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     //CREATE APPLICATION
     @Override
-    public Application submitApplication(String userId , String petId, String fullName, int yob, String gender, String address, String city, String job, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone, String liveIn, String liveWith, String firstPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String firstPhone, String secondPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String secondPhone, Date dateIn, String timeIn, String timeOut) {
+    public Application submitApplication(
+            String userId , String petId, String fullName, int yob, String gender, String address, String city,
+            String job, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone, String liveIn, String liveWith,
+            String firstPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String firstPhone,
+            String secondPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String secondPhone,
+            Date dateIn, LocalTime timeIn, LocalTime timeOut
+    ) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Pet not found"));
         User user = userRepository.findById(userId)
