@@ -15,7 +15,7 @@ public interface PostService {
     List<BriefPostResponse> findTopLikedPosts(LocalDate dateFrom, LocalDate dateTo, int limit);
 
     List<BriefPostResponse> getPostsByCriteria(
-            String title, String username, LocalDate dateFrom,
+            String title, String username, LocalDate dateFrom, String userId,
             LocalDate dateTo, List<String> tags, String category
     );
 

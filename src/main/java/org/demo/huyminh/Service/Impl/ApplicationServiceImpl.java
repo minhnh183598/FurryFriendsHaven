@@ -78,7 +78,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         if (savedApplication.getStatus() == 1) {
             Task newTask = Task.builder()
-                    .name("Visit the house of " + application.getFullName() + " with applicationId (" + applicationId + ")")
+                    .name("Visit the house of " + application.getFullName() + " apply for " + application.getPet().getPetName())
                     .description("Visit the house of " + application.getFullName() + " to check whether it is suitable for adoption")
                     .status(Status.NOT_STARTED)
                     .category("Adoption")

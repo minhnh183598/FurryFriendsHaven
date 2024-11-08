@@ -17,6 +17,7 @@ import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.PostMapper;
 import org.demo.huyminh.Repository.PostRepository;
 import org.demo.huyminh.Repository.TagRepository;
+import org.demo.huyminh.Repository.UserRepository;
 import org.demo.huyminh.Service.PostService;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -33,6 +34,7 @@ public class PostServiceImpl implements PostService {
     PostMapper postMapper;
     TagRepository tagRepository;
     EntityManager entityManager;
+    UserRepository userRepository;
 
     private static final List<String> VALID_CATEGORIES = Arrays.asList(
             "ANIMAL_RESCUE",
@@ -127,7 +129,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<BriefPostResponse> getPostsByCriteria(
-            String title, String username, LocalDate dateFrom,
+            String title, String username, LocalDate dateFrom, String userId,
             LocalDate dateTo, List<String> tags, String category
     ) {
         if (!VALID_CATEGORIES.contains(category.toUpperCase())) {
@@ -136,6 +138,16 @@ public class PostServiceImpl implements PostService {
 
         if (dateFrom != null && dateTo != null && dateFrom.isAfter(dateTo)) {
             throw new AppException(ErrorCode.INVALID_DATE_RANGE);
+        }
+
+        User existingUser = null;
+        if (userId != null ) {
+            existingUser = userRepository.findById(userId)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+        }
+
+        if (existingUser != null) {
+            username = existingUser.getUsername();
         }
 
         LocalDateTime dateFromDateTime = dateFrom != null ? dateFrom.atStartOfDay() : null;
