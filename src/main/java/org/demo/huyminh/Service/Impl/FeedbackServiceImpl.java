@@ -136,7 +136,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                                 .taskId(newRating.getFeedback().getTask().getId())
                                 .adopterName(newRating.getApplication().getUser().getUsername())
                                 .rating(newRating.getAverageRating())
-                                .applicationId(newRating.getApplication().getId())
+                                .applicationId(newRating.getApplication().getApplicationId())
                                 .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
                                 .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
                                 .build();
@@ -152,7 +152,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                                 .taskId(newRating.getFeedback().getTask().getId())
                                 .adopterName(newRating.getApplication().getUser().getUsername())
                                 .rating(newRating.getAverageRating())
-                                .applicationId(newRating.getApplication().getId())
+                                .applicationId(newRating.getApplication().getApplicationId())
                                 .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
                                 .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
                                 .build();

@@ -105,6 +105,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             application.setTask(savedTask);
             applicationRepository.save(application);
         } else if (savedApplication.getStatus() == 3) {
+            savedApplication.getPet().setAdopter(application.getUser());
             List<Application> applications = applicationRepository.findApplicationByPetId(application.getPetId());
             for (Application app : applications) {
                 if (!app.getApplicationId().equalsIgnoreCase(application.getApplicationId())) {
