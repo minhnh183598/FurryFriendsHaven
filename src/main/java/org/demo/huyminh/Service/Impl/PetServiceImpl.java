@@ -1,8 +1,8 @@
 package org.demo.huyminh.Service.Impl;
 
-
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.demo.huyminh.DTO.Reponse.PetResponse;
 import org.demo.huyminh.DTO.Request.PetCreationRequest;
 import org.demo.huyminh.DTO.Request.PetUpdateRequest;
 import org.demo.huyminh.Entity.Pet;
@@ -75,6 +75,18 @@ public class PetServiceImpl implements PetService {
                     System.out.println("Pet not existed");
                     return null;
                 });
+    }
+
+    @Override
+    public List<PetResponse> getAdoptedPetsByAdopterId(String adopterId) {
+        return petRepository.getAdoptedPetsByAdopterId(adopterId).stream().map(
+                p -> {
+                    return PetResponse.builder()
+                            .petName(p.getPetName())
+                            .petId(p.getPetId())
+                            .build();
+                }
+        ).toList();
     }
 
     //UPDATE PET STATUS BY ADMIN
