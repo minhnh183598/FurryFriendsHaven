@@ -2,12 +2,10 @@ package org.demo.huyminh.Controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Request.ApplicationRequest;
 import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
 import org.demo.huyminh.Entity.Application;
 import org.demo.huyminh.Entity.User;
-import org.demo.huyminh.Repository.PetRepository;
 import org.demo.huyminh.Service.ApplicationService;
 import org.demo.huyminh.Service.UserService;
 import org.springframework.http.HttpStatus;

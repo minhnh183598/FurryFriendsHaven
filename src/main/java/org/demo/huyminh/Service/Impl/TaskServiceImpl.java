@@ -340,7 +340,6 @@ public class TaskServiceImpl implements TaskService {
         }
 
         task.getTeam().add(user);
-        task.getChecklist().setAssignee(user);
         task.setStatus(Status.IN_PROGRESS);
         taskRepository.save(task);
     }

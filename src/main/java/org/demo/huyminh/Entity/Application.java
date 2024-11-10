@@ -1,6 +1,7 @@
 package org.demo.huyminh.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -11,8 +12,8 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Entity
@@ -22,14 +23,14 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "application")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String applicationId;
-
-    String petId;
     String id;
 
+    String petId;
     String fullName;
     int yob;
     String gender;
@@ -54,8 +55,10 @@ public class Application {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     Date dateIn;
-    String timeIn;
-    String timeOut;
+    @DateTimeFormat(pattern = "HH:mm")
+    LocalTime timeIn;
+    @DateTimeFormat(pattern = "HH:mm")
+    LocalTime timeOut;
 
     @UpdateTimestamp
     @Column(name = "update_status_at")
@@ -81,7 +84,7 @@ public class Application {
     public String toString() {
         return "Application{" +
                 "applicationId='" + applicationId + '\'' +
-                ", petId='" + petId + '\'' +
+                ", petId='" + pet.getPetId() + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", status=" + status +
                 ", userId=" + (user != null ? user.getId() : "null") +

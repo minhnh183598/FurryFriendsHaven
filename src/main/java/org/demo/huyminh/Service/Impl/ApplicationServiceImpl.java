@@ -5,14 +5,13 @@ import jakarta.validation.constraints.Pattern;
 import org.demo.huyminh.DTO.Request.ApplicationUpdateRequest;
 import org.demo.huyminh.Entity.*;
 import org.demo.huyminh.Enums.Status;
-import org.demo.huyminh.Exception.AppException;
-import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Repository.*;
 import org.demo.huyminh.Service.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
+
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,13 +27,17 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Autowired
     private TaskRepository taskRepository;
     @Autowired
-    private ChecklistTemplateRepository checklistTemplateRepository;
-    @Autowired
-    private ChecklistRepository checklistRepository;
+    private RatingRepository ratingRepository;
 
     //CREATE APPLICATION
     @Override
-    public Application submitApplication(String userId , String petId, String fullName, int yob, String gender, String address, String city, String job, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone, String liveIn, String liveWith, String firstPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String firstPhone, String secondPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String secondPhone, Date dateIn, String timeIn, String timeOut) {
+    public Application submitApplication(
+            String userId , String petId, String fullName, int yob, String gender, String address, String city,
+            String job, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String phone, String liveIn, String liveWith,
+            String firstPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String firstPhone,
+            String secondPerson, @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})\\b") String secondPhone,
+            Date dateIn, LocalTime timeIn, LocalTime timeOut
+    ) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Pet not found"));
         User user = userRepository.findById(userId)
@@ -44,8 +47,8 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         Application application = new Application();
         application.setId(userId);
-        application.setUser(user);
         application.setPetId(petId);
+        application.setUser(user);
         application.setPet(pet);
         application.setFullName(fullName);
         application.setYob(yob);
@@ -81,11 +84,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         if (savedApplication.getStatus() == 1) {
             Task newTask = Task.builder()
-                    .name("Visit the house of " + application.getFullName() + " with applicationId (" + applicationId + ")")
+                    .name("Visit the house of " + application.getFullName() + " apply for " + application.getPet().getPetName())
                     .description("Visit the house of " + application.getFullName() + " to check whether it is suitable for adoption")
                     .status(Status.NOT_STARTED)
                     .category("Adoption")
-                    .dueDate(LocalDateTime.now().plusDays(7))
                     .owner(user)
                     .adopter(application.getUser())
                     .dueDate(application.getDateIn().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
@@ -97,35 +99,20 @@ public class ApplicationServiceImpl implements ApplicationService {
             newTask.getTeam().add(user);
             Task savedTask = taskRepository.save(newTask);
 
-            ChecklistTemplate template = checklistTemplateRepository.findByName("Adoption")
-                    .orElseThrow(() -> new AppException(ErrorCode.CHECKLIST_TEMPLATE_NOT_EXISTS));
-            Checklist checklist = Checklist.builder()
-                    .task(savedTask)
-                    .checklistItems(new ArrayList<>())
-                    .build();
-
-            Checklist savedChecklist = checklistRepository.save(checklist);
-
-            List<ChecklistItem> checklistItems = new ArrayList<>();
-            for (ChecklistItemTemplate itemTemplate : template.getItems()) {
-                ChecklistItem item = ChecklistItem.builder()
-                        .entry(itemTemplate.getEntry())
-                        .completed(false)
-                        .checklist(savedChecklist)
-                        .build();
-                checklistItems.add(item);
-            }
-            savedChecklist.setChecklistItems(checklistItems);
-            checklistRepository.save(savedChecklist);
-
-            savedTask.setChecklist(savedChecklist);
-            savedTask = taskRepository.save(savedTask);
-
             user.getTasks().add(savedTask);
             userRepository.save(user);
 
             application.setTask(savedTask);
             applicationRepository.save(application);
+        } else if (savedApplication.getStatus() == 3) {
+            savedApplication.getPet().setAdopter(application.getUser());
+            List<Application> applications = applicationRepository.findApplicationByPetId(application.getPetId());
+            for (Application app : applications) {
+                if (!app.getApplicationId().equalsIgnoreCase(application.getApplicationId())) {
+                    app.setStatus(2);
+                    applicationRepository.save(app);
+                }
+            }
         }
 
         return savedApplication;

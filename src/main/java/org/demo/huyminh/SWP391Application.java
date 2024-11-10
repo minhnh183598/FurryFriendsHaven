@@ -13,6 +13,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootApplication
@@ -48,6 +49,18 @@ public class SWP391Application {
                     .name("VOLUNTEER")
                     .description("Volunteer role")
                     .build());
+
+            Role shelterRole = roleRepository.save(Role.builder()
+                    .name("SHELTER")
+                    .description("Shelter role")
+                    .build());
+
+            Role donorRole = roleRepository.save(Role.builder()
+                    .name("DONOR")
+                    .description("Donor role")
+                    .build());
+
+            roleRepository.saveAll(List.of(userRole, adminRole, volunteerRole, shelterRole, donorRole));
 
             var roles = new HashSet<Role>();
             roles.add(adminRole);

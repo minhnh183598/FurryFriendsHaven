@@ -62,6 +62,8 @@ public class SecurityConfig {
 
                         // Quyền cho ADMIN - có thể xem tất cả donate và tổng donate
                         .requestMatchers(HttpMethod.GET, "/donations/admin/**").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/search**").authenticated()
                         .anyRequest().authenticated()
         );
 

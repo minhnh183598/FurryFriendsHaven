@@ -4,7 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.demo.huyminh.DTO.Reponse.BriefFeedbackResponse;
 import org.demo.huyminh.DTO.Reponse.FeedbackResponse;
+import org.demo.huyminh.DTO.Reponse.PetFeedbackResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.Entity.*;
 import org.demo.huyminh.Enums.Status;
@@ -18,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -92,6 +95,19 @@ public class FeedbackServiceImpl implements FeedbackService {
         return response;
     }
 
+    @Override
+    public List<PetFeedbackResponse> getAvailablePets() {
+        List<Pet> pets = ratingRepository.findAvailablePets();
+        return pets.stream()
+                .map(pet -> PetFeedbackResponse.builder()
+                        .petId(pet.getPetId())
+                        .petName(pet.getPetName())
+                        .petStatus(pet.getPetStatus())
+                        .feedbackCount(ratingRepository.countDistinctPetsWithFeedback(pet.getPetName()))
+                        .build())
+                .toList();
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     public List<FeedbackResponse> getPotentialAdopters(double minRating) {
@@ -103,30 +119,49 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public List<FeedbackResponse> getHighRatingApplication(String petName, String sortBy, String sortDir, User user) {
+    public List<BriefFeedbackResponse> getHighRatingApplication(String petName, String sortBy, String sortDir, User user) {
         if (sortBy == null || !sortBy.equalsIgnoreCase("rating")) {
             sortBy = "RATING";
         }
-
         if (sortDir == null || (!sortDir.equalsIgnoreCase("asc") && !sortDir.equalsIgnoreCase("desc"))) {
             sortDir = "DESC";
         }
 
+        List<BriefFeedbackResponse> responses = new ArrayList<>();
         if (petName == null || petName.isEmpty()) {
-            return ratingRepository.findTopRatings(null, sortBy.toUpperCase(), sortDir.toUpperCase())
-                    .stream()
-                    .map(newRating -> feedbackMapper.toFeedbackResponse(newRating.getFeedback()))
+            List<Rating> ratings = ratingRepository.findTopRatings(null, sortBy.toUpperCase(), sortDir.toUpperCase());
+            responses = ratings.stream()
+                    .map(newRating -> {
+                        return BriefFeedbackResponse.builder()
+                                .taskId(newRating.getFeedback().getTask().getId())
+                                .adopterName(newRating.getApplication().getUser().getUsername())
+                                .rating(newRating.getAverageRating())
+                                .applicationId(newRating.getApplication().getApplicationId())
+                                .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
+                                .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
+                                .build();
+                    })
                     .toList();
         } else {
             Pet existingPet = petRepository.findByPetName(petName)
                     .orElseThrow(() -> new AppException(ErrorCode.PET_NOT_FOUND));
-
-            return ratingRepository.findTopRatings(existingPet.getPetId(), sortBy.toUpperCase(), sortDir.toUpperCase())
-                    .stream()
-                    .map(newRating -> feedbackMapper.toFeedbackResponse(newRating.getFeedback()))
+            List<Rating> ratings = ratingRepository.findTopRatings(existingPet.getPetId(), sortBy.toUpperCase(), sortDir.toUpperCase());
+            responses = ratings.stream()
+                    .map(newRating -> {
+                        return BriefFeedbackResponse.builder()
+                                .taskId(newRating.getFeedback().getTask().getId())
+                                .adopterName(newRating.getApplication().getUser().getUsername())
+                                .rating(newRating.getAverageRating())
+                                .applicationId(newRating.getApplication().getApplicationId())
+                                .feedbackFinishedAt(newRating.getFeedback().getEditedAt())
+                                .taskCreatedAt(newRating.getFeedback().getTask().getCreatedAt())
+                                .build();
+                    })
                     .toList();
         }
+        return responses;
     }
+
 
     @Override
     public List<FeedbackResponse> getFeedbacksByTaskId(int taskId) {

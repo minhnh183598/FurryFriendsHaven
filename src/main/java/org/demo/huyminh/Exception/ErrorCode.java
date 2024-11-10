@@ -5,10 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-/** @author Minh
-* Date: 9/24/2024
-* Time: 9:14 AM
-*/ 
+/**
+ * @author Minh
+ * Date: 9/24/2024
+ * Time: 9:14 AM
+ */
 
 @Getter
 @AllArgsConstructor
@@ -123,7 +124,12 @@ public enum ErrorCode {
     UNAUTHORIZED_TO_DELETE_POST(HttpStatus.FORBIDDEN.value(), "You don't have authority to delete this post", HttpStatus.FORBIDDEN),
     UNAUTHORIZED_TO_UPDATE_POST(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this post", HttpStatus.FORBIDDEN),
     COMMENT_NOT_IN_POST(HttpStatus.BAD_REQUEST.value(), "Comment not in post", HttpStatus.BAD_REQUEST),
-    UNAUTHORIZED_TO_UPDATE_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this task", HttpStatus.FORBIDDEN),;
+    UNAUTHORIZED_TO_UPDATE_TASK(HttpStatus.FORBIDDEN.value(), "You don't have authority to update this task", HttpStatus.FORBIDDEN),
+    PET_NOT_EXISTS(HttpStatus.NOT_FOUND.value(), "Pet not exists", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TO_CREATE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "You don't have authority to create feedback. Because you are not pet adopter.", HttpStatus.FORBIDDEN),
+    FEEDBACK_ALREADY_EXISTS(HttpStatus.BAD_REQUEST.value(), "Post-Adoption Feedback already exists", HttpStatus.BAD_REQUEST),
+    PET_NOT_ADOPTED(HttpStatus.BAD_REQUEST.value(), "Pet was not adopted. Please choose another pet.", HttpStatus.BAD_REQUEST),
+    ;
 
     private int code;
     private String message;

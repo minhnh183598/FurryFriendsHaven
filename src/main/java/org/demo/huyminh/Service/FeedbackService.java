@@ -1,11 +1,10 @@
 package org.demo.huyminh.Service;
 
-import jakarta.transaction.Transactional;
+import org.demo.huyminh.DTO.Reponse.BriefFeedbackResponse;
 import org.demo.huyminh.DTO.Reponse.FeedbackResponse;
+import org.demo.huyminh.DTO.Reponse.PetFeedbackResponse;
 import org.demo.huyminh.DTO.Request.FeedbackCreationRequest;
 import org.demo.huyminh.Entity.User;
-import org.springframework.security.access.prepost.PreAuthorize;
-
 import java.util.List;
 
 /**
@@ -17,9 +16,11 @@ import java.util.List;
 public interface FeedbackService {
     FeedbackResponse createFeedback(int taskId, FeedbackCreationRequest request, User reporter);
 
+    List<PetFeedbackResponse> getAvailablePets();
+
     List<FeedbackResponse> getPotentialAdopters(double minRating);
 
-    List<FeedbackResponse> getHighRatingApplication(String petId, String sortBy, String sortDir, User user);
+    List<BriefFeedbackResponse> getHighRatingApplication(String petId, String sortBy, String sortDir, User user);
 
     List<FeedbackResponse> getFeedbacksByTaskId(int taskId);
 

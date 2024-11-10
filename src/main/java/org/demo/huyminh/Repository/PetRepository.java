@@ -37,6 +37,9 @@ public interface PetRepository extends JpaRepository<Pet, String> {
 
     @Query("SELECT p FROM Pet p WHERE p.petName = :petName")
     Optional<Pet> findByPetName(String petName);
+
+    @Query("SELECT p FROM Pet p WHERE p.adopter.id = :adopterId")
+    List<Pet> getAdoptedPetsByAdopterId(@Param("adopterId") String adopterId);
 }
 
 

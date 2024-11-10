@@ -3,10 +3,14 @@ package org.demo.huyminh.Controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.demo.huyminh.DTO.Reponse.ApiResponse;
+import org.demo.huyminh.DTO.Reponse.PetResponse;
 import org.demo.huyminh.DTO.Request.PetCreationRequest;
 import org.demo.huyminh.DTO.Request.PetUpdateRequest;
 import org.demo.huyminh.Entity.Pet;
+import org.demo.huyminh.Entity.User;
 import org.demo.huyminh.Service.PetService;
+import org.demo.huyminh.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -18,6 +22,9 @@ import java.util.List;
 public class PetController {
     @Autowired
     private PetService petService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping
     Pet createPets(@RequestBody @Valid PetCreationRequest request) {
@@ -33,6 +40,19 @@ public class PetController {
     @GetMapping("/{petId}")
     Pet getPet(@PathVariable("petId") String petId) {
         return petService.getPet(petId);
+    }
+
+    @GetMapping("/adoptedPets")
+    ApiResponse<List<PetResponse>> getAdoptedPetsByAdopterId(
+            @RequestHeader("Authorization") String token
+    ) {
+        String jwt = token.substring(7);
+        User user = userService.findByToken(jwt);
+
+        return ApiResponse.<List<PetResponse>>builder()
+                .message("Get Adopted Pets By Adopter Id")
+                .result(petService.getAdoptedPetsByAdopterId(user.getId()))
+                .build();
     }
 
     //UPDATE PET

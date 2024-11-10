@@ -3,25 +3,26 @@ package org.demo.huyminh.DTO.Reponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.demo.huyminh.Entity.Rating;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
+/**
+ * @author Minh
+ * Date: 11/9/2024
+ * Time: 11:26 PM
+ */
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FeedbackResponse {
+public class AdoptionFeedbackResponse {
+
     int id;
-    String content;
-    LocalDateTime editedAt;
-    LocalDateTime createdAt;
-    List<String> images;
-    UserResponse reporter;
-    String taskId;
+    String adopterName;
     String petName;
-    Rating rating;
+    LocalDateTime createdAt;
+    LocalDateTime editedAt;
 }

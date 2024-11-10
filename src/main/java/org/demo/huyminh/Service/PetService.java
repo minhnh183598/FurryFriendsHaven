@@ -1,6 +1,7 @@
 package org.demo.huyminh.Service;
 
 import jakarta.validation.Valid;
+import org.demo.huyminh.DTO.Reponse.PetResponse;
 import org.demo.huyminh.DTO.Request.PetCreationRequest;
 import org.demo.huyminh.DTO.Request.PetUpdateRequest;
 import org.demo.huyminh.Entity.Pet;
@@ -19,6 +20,8 @@ public interface PetService {
     List<Pet> getPets();
 
     Pet getPet(String petId);
+
+    List<PetResponse> getAdoptedPetsByAdopterId(String adopterId);
 
     Pet updatePetStatus(String petId, PetUpdateRequest request);
 

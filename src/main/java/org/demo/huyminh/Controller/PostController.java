@@ -83,6 +83,7 @@ public class PostController {
     public ApiResponse<List<BriefPostResponse>> getPostsByCriteria(
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "userId", required = false) String userId,
             @RequestParam(value = "dateFrom", required = false) LocalDate dateFrom,
             @RequestParam(value = "dateTo", required = false) LocalDate dateTo,
             @RequestParam(value = "tags", required = false) List<String> tags,
@@ -91,7 +92,7 @@ public class PostController {
         return ApiResponse.<List<BriefPostResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Get posts successfully")
-                .result(postService.getPostsByCriteria(title, username, dateFrom, dateTo, tags, category))
+                .result(postService.getPostsByCriteria(title, username, dateFrom, userId, dateTo, tags, category))
                 .build();
     }
 
