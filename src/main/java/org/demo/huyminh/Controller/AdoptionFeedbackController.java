@@ -88,4 +88,13 @@ public class AdoptionFeedbackController {
                 .message("Delete feedback successfully")
                 .build();
     }
+
+    @GetMapping("/pet/{petId}")
+    public ApiResponse<Void> getFeedbackByPetId(@PathVariable String petId) {
+        adoptionFeedbackService.sendEmailForAdopter(petId);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Send email for adopter successfully")
+                .build();
+    }
 }

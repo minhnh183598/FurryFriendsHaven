@@ -1,6 +1,5 @@
 package org.demo.huyminh.Service;
 
-import jakarta.transaction.Transactional;
 import org.demo.huyminh.DTO.Reponse.AdoptionFeedbackResponse;
 import org.demo.huyminh.DTO.Request.AdoptionFeedbackRequest;
 import org.demo.huyminh.Entity.AdoptionFeedback;
@@ -24,4 +23,6 @@ public interface AdoptionFeedbackService {
     AdoptionFeedback updateFeedback(int feedbackId, AdoptionFeedbackRequest request);
 
     void deleteFeedback(int feedbackId);
+
+    void sendEmailForAdopter(String petId);
 }

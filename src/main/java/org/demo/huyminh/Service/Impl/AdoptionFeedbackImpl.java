@@ -6,10 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.demo.huyminh.DTO.Reponse.AdoptionFeedbackResponse;
+import org.demo.huyminh.DTO.Request.AdoptionFeedbackData;
 import org.demo.huyminh.DTO.Request.AdoptionFeedbackRequest;
 import org.demo.huyminh.Entity.AdoptionFeedback;
 import org.demo.huyminh.Entity.Pet;
 import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Event.AdoptionFeedbackEvent;
 import org.demo.huyminh.Exception.AppException;
 import org.demo.huyminh.Exception.ErrorCode;
 import org.demo.huyminh.Mapper.AdoptionMapper;
@@ -17,6 +19,7 @@ import org.demo.huyminh.Repository.AdoptionFeedbackRepository;
 import org.demo.huyminh.Repository.PetRepository;
 import org.demo.huyminh.Repository.UserRepository;
 import org.demo.huyminh.Service.AdoptionFeedbackService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import java.time.Clock;
@@ -39,6 +42,7 @@ public class AdoptionFeedbackImpl implements AdoptionFeedbackService {
     AdoptionMapper adoptionMapper;
     UserRepository userRepository;
     PetRepository petRepository;
+    ApplicationEventPublisher eventPublisher;
 
     @Override
     public AdoptionFeedback createFeedback(AdoptionFeedbackRequest request, User user) {
@@ -102,5 +106,23 @@ public class AdoptionFeedbackImpl implements AdoptionFeedbackService {
                 .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND));
 
         adoptionFeedbackRepository.delete(existingFeedback);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    public void sendEmailForAdopter(String petId) {
+        Pet existingPet = petRepository.findById(petId)
+                .orElseThrow(() -> new AppException(ErrorCode.PET_NOT_EXISTS));
+
+        if(existingPet.getAdopter() == null) {
+            throw new AppException(ErrorCode.PET_NOT_ADOPTED);
+        }
+
+        AdoptionFeedbackData adoptionFeedbackData = AdoptionFeedbackData.builder()
+                .petId(petId)
+                .user(existingPet.getAdopter())
+                .build();
+
+        eventPublisher.publishEvent(new AdoptionFeedbackEvent(adoptionFeedbackData));
     }
 }
