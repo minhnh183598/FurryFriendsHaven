@@ -34,7 +34,7 @@ public class Pet {
     String petStatus;
     String petImage;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
     User adopter;

@@ -52,6 +52,10 @@ public class PostServiceImpl implements PostService {
 
         if (!VALID_CATEGORIES.contains(request.getCategory().toUpperCase())) {
             throw new AppException(ErrorCode.INVALID_CATEGORY);
+        } else if(VALID_CATEGORIES.get(2).equalsIgnoreCase(request.getCategory())) {
+            if(!user.getRoles().contains(Roles.SHELTER_STAFF) || !user.getRoles().contains(Roles.ADMIN)) {
+                throw new AppException(ErrorCode.UNAUTHORIZED_TO_CREATE_EVENT);
+            }
         }
 
         Post newPost = postMapper.toPost(request);

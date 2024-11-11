@@ -30,11 +30,11 @@ We have a variety of wonderful animals ready for adoption! To learn more about t
 
 For questions, inquiries, or if you want to collaborate, reach out to us:
 
-- **Email:** contact@furryfriendshaven.org
+- **Email:** auzemon@gmail.com
 
 - **Phone:**
 
-- **Website:** [www.furryfriendshaven.org](http://www.furryfriendshaven.org)
+- **Website:** [http://localhost:8080](http://localhost:8080)
 
 ## 📚 Follow Us
 
@@ -42,11 +42,11 @@ Stay updated with our latest news, successful adoption stories, and upcoming eve
 
 - **Our Blog**: Visit our blog to read informative articles on pet care, heartwarming adoption stories, and helpful tips from experts.
 
-  - [Read Our Blog Here](http://www.furryfriendshaven.org/blog)
+  - [Read Our Blog Here](http://localhost:8080/api/v1/posts)
 
 - **Events**: Join us for our events to meet fellow pet lovers, participate in fun activities, and learn how you can support the adoption process.
 
-  - [Check Out Upcoming Events](http://www.furryfriendshaven.org/events)
+  - [Check Out Upcoming Events](http://localhost:8080/api/v1/posts)
 
 ## 🚀 How to Contribute
 

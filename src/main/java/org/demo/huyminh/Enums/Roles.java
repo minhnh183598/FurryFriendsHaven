@@ -9,7 +9,7 @@ package org.demo.huyminh.Enums;
 public enum Roles {
     ADMIN,
     USER,
-    STAFF,
+    SHELTER_STAFF,
     VOLUNTEER,
     ADOPTER,
     DONOR

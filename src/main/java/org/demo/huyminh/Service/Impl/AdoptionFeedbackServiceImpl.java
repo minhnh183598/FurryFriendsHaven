@@ -36,7 +36,7 @@ import java.util.List;
 @Slf4j
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
-public class AdoptionFeedbackImpl implements AdoptionFeedbackService {
+public class AdoptionFeedbackServiceImpl implements AdoptionFeedbackService {
 
     AdoptionFeedbackRepository adoptionFeedbackRepository;
     AdoptionMapper adoptionMapper;

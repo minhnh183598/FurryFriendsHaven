@@ -39,6 +39,8 @@ public class SecurityConfig {
             "/api/v1/users",
             "/api/v1/payment/**",
             "/api/v1/pets/**",
+            "/api/v1/posts/search**",
+            "/api/v1/posts/detail/**"
     };
 
 
@@ -63,7 +65,6 @@ public class SecurityConfig {
                         // Quyền cho ADMIN - có thể xem tất cả donate và tổng donate
                         .requestMatchers(HttpMethod.GET, "/donations/admin/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/search**").authenticated()
                         .anyRequest().authenticated()
         );
 

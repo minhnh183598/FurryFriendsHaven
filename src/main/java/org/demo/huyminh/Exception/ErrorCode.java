@@ -129,7 +129,7 @@ public enum ErrorCode {
     UNAUTHORIZED_TO_CREATE_FEEDBACK(HttpStatus.FORBIDDEN.value(), "You don't have authority to create feedback. Because you are not pet adopter.", HttpStatus.FORBIDDEN),
     FEEDBACK_ALREADY_EXISTS(HttpStatus.BAD_REQUEST.value(), "Post-Adoption Feedback already exists", HttpStatus.BAD_REQUEST),
     PET_NOT_ADOPTED(HttpStatus.BAD_REQUEST.value(), "Pet was not adopted. Please choose another pet.", HttpStatus.BAD_REQUEST),
-    ;
+    UNAUTHORIZED_TO_CREATE_EVENT(HttpStatus.FORBIDDEN.value(), "You don't have authority to create event", HttpStatus.FORBIDDEN);
 
     private int code;
     private String message;

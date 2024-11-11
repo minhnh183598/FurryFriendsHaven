@@ -51,7 +51,7 @@ public class SWP391Application {
                     .build());
 
             Role shelterRole = roleRepository.save(Role.builder()
-                    .name("SHELTER")
+                    .name("SHELTER_STAFF")
                     .description("Shelter role")
                     .build());
 
