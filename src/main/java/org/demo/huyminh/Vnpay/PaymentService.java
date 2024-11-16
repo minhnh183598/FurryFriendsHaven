@@ -32,6 +32,7 @@ public class PaymentService {
         long amount = Integer.parseInt(request.getParameter("amount")) * 100L;
         String bankCode = request.getParameter("bankCode");
         String petId = request.getParameter("petId");
+        String token = request.getParameter("token");
         Pet pet = petService.getPet(petId);
         String userId = request.getParameter("userId");
 

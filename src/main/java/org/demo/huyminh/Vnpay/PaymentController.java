@@ -1,14 +1,24 @@
 package org.demo.huyminh.Vnpay;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.demo.huyminh.Core.response.ResponseObject;
+import org.demo.huyminh.DTO.Reponse.ApiResponse;
+import org.demo.huyminh.DTO.Reponse.PaymentResponse;
+import org.demo.huyminh.Entity.User;
+import org.demo.huyminh.Exception.AppException;
+import org.demo.huyminh.Exception.ErrorCode;
+import org.demo.huyminh.Mapper.UserMapper;
+import org.demo.huyminh.Repository.PetRepository;
+import org.demo.huyminh.Repository.UserRepository;
+import org.demo.huyminh.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
+
+import static org.springframework.data.projection.EntityProjection.ProjectionType.DTO;
 
 //Ngân hàng:         NCB
 //Số thẻ:              9704198526191432198
@@ -22,6 +32,14 @@ import java.util.List;
 public class PaymentController {
 
     @Autowired
+    private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PetRepository petRepository;
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
     private PaymentService paymentService;
     @Autowired
     private PaymentRepository paymentRepository;
@@ -31,15 +49,11 @@ public class PaymentController {
         return new ResponseObject<>(HttpStatus.OK, "Success", paymentService.createVnPayPayment(request));
     }
 
-
     @GetMapping("/vn-pay-callback")
-    public void payCallbackHandler(
-            @RequestParam String vnp_Amount,     @RequestParam String vnp_BankCode,
-            @RequestParam String vnp_BankTranNo,    @RequestParam String vnp_CardType,   @RequestParam String vnp_ResponseCode,
-            @RequestParam String vnp_OrderInfo,     @RequestParam String vnp_PayDate,    @RequestParam String vnp_TxnRef,
-            @RequestParam String vnp_TransactionNo, @RequestParam String vnp_SecureHash, HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
-
+    public ApiResponse<PaymentResponse> payCallbackHandler(
+            HttpServletRequest request,
+            @RequestParam("userId") String userId
+    ) throws IOException {
         String status = request.getParameter("vnp_ResponseCode");
         if ("00".equals(status)) {
             Payment payment = new Payment();
@@ -54,22 +68,51 @@ public class PaymentController {
             payment.setTxnRef(request.getParameter("vnp_TxnRef"));
             payment.setSecureHash(request.getParameter("vnp_SecureHash"));
             String orderInfo = request.getParameter("vnp_OrderInfo");
-            String userId = extractUserIdFromOrderInfo(orderInfo);
+            User existingUser = userRepository.findById(request.getParameter("userId"))
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
             payment.setUserId(userId);
 
+
+
             paymentService.savePayment(payment);
-            response.sendRedirect("http://localhost:3000/thanks");
+            PaymentResponse response = PaymentResponse.builder()
+                    .status("success")
+                    .payDate(request.getParameter("vnp_PayDate"))
+                    .bankTranId(request.getParameter("vnp_BankTranNo"))
+                    .amount(request.getParameter("vnp_Amount"))
+                    .orderInfo(request.getParameter("vnp_OrderInfo"))
+                    .user(userMapper.toUserResponse(existingUser))
+                    .build();
+
+            if(!request.getParameter("vnp_OrderInfo").equalsIgnoreCase("Donation for Center ")) {
+                String petId = extractPetId(request.getParameter("vnp_OrderInfo"));
+                response.setPet(petRepository.findById(petId).orElseThrow(() -> new AppException(ErrorCode.PET_NOT_EXISTS)));
+            }
+
+            return ApiResponse.<PaymentResponse>builder()
+                    .code(HttpStatus.OK.value())
+                    .message("Get Payment Detail Successfully")
+                    .result(response)
+                    .build();
 
         } else {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Failed");
+            return ApiResponse.<PaymentResponse>builder()
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .message("Get Payment Detail Failed")
+                    .build();
         }
     }
 
-    private String extractUserIdFromOrderInfo(String orderInfo) {
-        if (orderInfo != null && orderInfo.contains("User Id:")) {
-            return orderInfo.substring(orderInfo.indexOf("User Id:") + 9).trim();
+    private String extractPetId(String orderInfo) {
+        int startIndex = orderInfo.indexOf("Id: ") + 4;
+
+        int endIndex = orderInfo.indexOf(" ", startIndex);
+
+        if (endIndex == -1) {
+            endIndex = orderInfo.length();
         }
-        return null;
+
+        return orderInfo.substring(startIndex, endIndex);
     }
 
     @GetMapping("/{userId}")

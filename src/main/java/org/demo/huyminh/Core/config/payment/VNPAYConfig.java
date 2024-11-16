@@ -50,7 +50,6 @@ public class VNPAYConfig {
         } else {
             orderInfo = "Donation for Center ";
         }
-        orderInfo += " User Id: " + userId;
 
         vnpParamsMap.put("vnp_OrderInfo", orderInfo);
         vnpParamsMap.put("vnp_OrderType", this.orderType);
